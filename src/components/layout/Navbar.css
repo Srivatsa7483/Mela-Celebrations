@@ -16,7 +16,7 @@
 }
 
 .navbar__inner {
-    max-width: 1280px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 32px;
     height: 85px;
@@ -101,6 +101,66 @@
     /* controlled by button */
 }
 
+/* Search Suggestions */
+.navbar__suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar__suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--border);
+}
+
+.navbar__suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.navbar__suggestion-item:hover {
+    background: var(--section-bg);
+}
+
+.navbar__suggestion-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.navbar__suggestion-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.navbar__suggestion-name {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--navy);
+}
+
+.navbar__suggestion-cat {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
 /* Bottom Row: Category Pills */
 .navbar__bottom {
     background: rgba(255, 255, 255, 0.95);
@@ -109,7 +169,7 @@
 }
 
 .navbar__bottom-inner {
-    max-width: 1280px;
+    max-width: 100%;
     margin: 0 auto;
     display: flex;
     gap: 12px;

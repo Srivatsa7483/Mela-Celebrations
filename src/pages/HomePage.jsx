@@ -1,11 +1,12 @@
 import Hero from "../components/home/Hero.jsx";
 import Collections from "../components/home/Collections.jsx";
+import CategoryStrip from "../components/home/CategoryStrip.jsx";
 import Packages from "../components/home/Packages.jsx";
 import HowItWorks from "../components/home/HowItWorks.jsx";
-import StatsBanner from "../components/home/StatsBanner.jsx";
 import Testimonials from "../components/home/Testimonials.jsx";
+import { categories, designs } from "../data/index.js";
 
-export default function HomePage({ setCurrentPage, setSelectedDesign }) {
+export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveCategory }) {
     return (
         <main>
             <Hero setCurrentPage={setCurrentPage} />
@@ -18,8 +19,28 @@ export default function HomePage({ setCurrentPage, setSelectedDesign }) {
                 </div>
             </div>
 
-            <StatsBanner />
             <Collections setCurrentPage={setCurrentPage} />
+
+            {/* Dynamic Category Strips */}
+            {categories.map(category => {
+                const categoryDesigns = designs.filter(d => d.category === category.id);
+                
+                // Only show a strip if there are designs for this category
+                if (categoryDesigns.length === 0) return null;
+
+                return (
+                    <CategoryStrip 
+                        key={category.id}
+                        title={category.name} 
+                        categoryId={category.id} 
+                        designs={categoryDesigns} 
+                        setCurrentPage={setCurrentPage} 
+                        setActiveCategory={setActiveCategory}
+                        setSelectedDesign={setSelectedDesign}
+                    />
+                );
+            })}
+
             <Packages setCurrentPage={setCurrentPage} setSelectedDesign={setSelectedDesign} />
             <HowItWorks />
             <Testimonials />

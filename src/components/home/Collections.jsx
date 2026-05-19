@@ -16,35 +16,25 @@ export default function Collections({ setCurrentPage }) {
         <section className="collections section" ref={ref}>
             <div className="container">
                 <div className="collections__header">
-                    <div>
-                        <h2 className={`collections__title${visible ? " animate-fade-up" : ""}`}>
-                            Curated Collections
-                        </h2>
-                        <p className={`collections__sub${visible ? " animate-fade-up delay-1" : ""}`}>
-                            Tailored decoration themes for every milestone.
-                        </p>
-                    </div>
-                    <button
-                        className={`btn-navy-outline${visible ? " animate-fade-in delay-2" : ""}`}
-                        onClick={() => setCurrentPage("gallery")}
-                    >
-                        View All Categories →
-                    </button>
+                    <h2 className={`collections__title${visible ? " animate-fade-up" : ""}`}>
+                        Explore our categories
+                    </h2>
                 </div>
 
-                <div className="collections__grid">
+                <div className="collections__slider">
                     {categories.map((cat, i) => (
                         <button
                             key={cat.id}
-                            className={`collections__card${visible ? ` animate-scale-in delay-${Math.min(i + 1, 7)}` : ""}`}
+                            className={`collections__slide-item${visible ? ` animate-scale-in delay-${Math.min(i + 1, 7)}` : ""}`}
                             onClick={() => setCurrentPage("gallery")}
                             style={{ "--i": i }}
                         >
-                            <div className="collections__card-img-wrap">
-                                <img src={cat.image} alt={cat.name} className="collections__card-img" />
-                                <div className="collections__card-overlay" />
+                            <div className="collections__slide-img-border">
+                                <div className="collections__slide-img-wrap">
+                                    <img src={cat.image} alt={cat.name} className="collections__slide-img" />
+                                </div>
                             </div>
-                            <span className="collections__card-name">{cat.name}</span>
+                            <span className="collections__slide-name">{cat.name}</span>
                         </button>
                     ))}
                 </div>

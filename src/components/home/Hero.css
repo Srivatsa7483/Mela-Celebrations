@@ -1,9 +1,10 @@
 .hero {
     position: relative;
-    width: 100%;
-    max-width: 1280px;
+    width: calc(100% - 32px);
+    max-width: 1320px;
     margin: 145px auto 0 auto;
-    aspect-ratio: 1024 / 426;
+    aspect-ratio: 3.2 / 1;
+    border-radius: 20px;
     overflow: hidden;
     background: var(--section-bg);
 }
@@ -102,6 +103,12 @@
 }
 
 @media (max-width: 768px) {
+    .hero {
+        aspect-ratio: 16 / 9;
+        width: calc(100% - 24px);
+        margin-top: 110px;
+        border-radius: 12px;
+    }
     .hero__dots {
         bottom: 12px;
     }

@@ -6,47 +6,10 @@ function formatPrice(p) {
     return "₹" + p.toLocaleString("en-IN");
 }
 
-function DesignModal({ design, onClose, onOrder }) {
-    useEffect(() => {
-        document.body.style.overflow = "hidden";
-        return () => { document.body.style.overflow = ""; };
-    }, []);
+import DesignModal from "../components/ui/DesignModal.jsx";
 
-    return (
-        <div className="gmodal" onClick={onClose}>
-            <div className="gmodal__box" onClick={(e) => e.stopPropagation()}>
-                <button className="gmodal__close" onClick={onClose}>✕</button>
-                <div className="gmodal__img-wrap">
-                    {design.badge && <span className="pkg-card__badge">{design.badge}</span>}
-                    <img src={design.image} alt={design.name} className="gmodal__img" />
-                </div>
-                <div className="gmodal__body">
-                    <span className="gmodal__cat">{design.categoryName}</span>
-                    <h2 className="gmodal__name">{design.name}</h2>
-                    <p className="gmodal__desc">{design.description}</p>
-                    <ul className="gmodal__features">
-                        {design.features.map((f) => (
-                            <li key={f}><span style={{ color: "var(--gold)" }}>✦</span> {f}</li>
-                        ))}
-                    </ul>
-                    <div className="gmodal__footer">
-                        <div>
-                            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--font-sans)" }}>Starting From</div>
-                            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.7rem", fontWeight: "700", color: "var(--navy)" }}>{formatPrice(design.price)}</div>
-                        </div>
-                        <button className="btn-primary" onClick={() => { onOrder(design); onClose(); }}>
-                            Book This Design
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory }) {
+export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, searchQuery, setSearchQuery }) {
     const [modalDesign, setModalDesign] = useState(null);
-    const [search, setSearch] = useState("");
     const [visibleCards, setVisibleCards] = useState(new Set());
     const cardRefs = useRef({});
 
@@ -54,8 +17,9 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
 
     const filtered = designs.filter((d) => {
         const matchCat = activeCategory === "all" || d.category === activeCategory;
-        const matchSearch = d.name.toLowerCase().includes(search.toLowerCase()) ||
-            d.categoryName.toLowerCase().includes(search.toLowerCase());
+        const searchStr = searchQuery || "";
+        const matchSearch = d.name.toLowerCase().includes(searchStr.toLowerCase()) ||
+            d.categoryName.toLowerCase().includes(searchStr.toLowerCase());
         return matchCat && matchSearch;
     });
 
@@ -94,8 +58,8 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                         <input
                             className="gallery-page__search"
                             placeholder="Search designs…"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            value={searchQuery || ""}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <div className="gallery-page__count">
