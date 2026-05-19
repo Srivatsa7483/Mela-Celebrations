@@ -3,23 +3,23 @@ import "./Hero.css";
 
 const slides = [
     {
-        image: "/banner1.jpg",
+        image: "/banner1.jpg?v=3",
         heading: "Birthday Decorations",
     },
     {
-        image: "/banner2.jpg",
+        image: "/banner2.jpg?v=3",
         heading: "Baby Shower",
     },
     {
-        image: "/banner3.jpg",
+        image: "/banner3.jpg?v=3",
         heading: "Housewarming",
     },
     {
-        image: "/banner4.jpg",
+        image: "/banner4.jpg?v=3",
         heading: "Event Planning",
     },
     {
-        image: "/banner5.jpg",
+        image: "/banner5.jpg?v=3",
         heading: "Anniversary",
     },
 ];

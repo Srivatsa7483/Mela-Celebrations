@@ -97,9 +97,7 @@
     background: var(--section-bg);
 }
 
-.navbar__search-icon {
-    /* controlled by button */
-}
+
 
 /* Search Suggestions */
 .navbar__suggestions {
@@ -259,6 +257,55 @@
     flex-shrink: 0;
 }
 
+.navbar__icon-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.navbar__icon-wrapper::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -38px;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    background: var(--navy);
+    color: var(--white);
+    padding: 6px 12px;
+    font-size: 0.72rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(13, 27, 42, 0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.navbar__icon-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent var(--navy) transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.navbar__icon-wrapper:hover::after,
+.navbar__icon-wrapper:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 .navbar__icon {
     background: var(--section-bg);
     border: 1px solid var(--border);
@@ -271,12 +318,21 @@
     padding: 8px;
     width: 40px;
     height: 40px;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar__icon svg {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .navbar__icon:hover {
-    background: var(--border);
-    color: var(--gold);
+    background: var(--navy);
+    color: var(--white);
+    border-color: var(--navy);
+}
+
+.navbar__icon:hover svg {
+    transform: scale(1.1) rotate(8deg);
 }
 
 .navbar__cta {

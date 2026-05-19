@@ -3,10 +3,11 @@
     width: calc(100% - 32px);
     max-width: 1320px;
     margin: 145px auto 0 auto;
-    aspect-ratio: 3.2 / 1;
+    aspect-ratio: 2.4 / 1;
     border-radius: 20px;
     overflow: hidden;
-    background: var(--section-bg);
+    background: #faf9f6;
+    padding: 0;
 }
 
 .hero__slide {
@@ -108,6 +109,7 @@
         width: calc(100% - 24px);
         margin-top: 110px;
         border-radius: 12px;
+        padding: 0;
     }
     .hero__dots {
         bottom: 12px;

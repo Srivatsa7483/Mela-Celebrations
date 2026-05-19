@@ -51,7 +51,6 @@ export default function HowItWorks() {
                 <div className="hiw__steps">
                     {steps.map((s, i) => (
                         <div key={s.title} className={`hiw__step${visible ? ` animate-fade-up delay-${i + 2}` : ""}`}>
-                            {i > 0 && <div className="hiw__connector" />}
                             <div className="hiw__icon-wrap">
                                 {s.icon}
                             </div>

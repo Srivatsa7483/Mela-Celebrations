@@ -14,8 +14,28 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
             {/* Scrolling Marquee Below Hero */}
             <div className="homepage__marquee">
                 <div className="homepage__marquee-track">
-                    <span>🎈 Customized Balloon Decorations &nbsp;&nbsp;&nbsp;&nbsp; ✨ Premium Luxury Decorations &nbsp;&nbsp;&nbsp;&nbsp; 🎈 Balloon Decorations For All Events &nbsp;&nbsp;&nbsp;&nbsp; 🕒 Book Your Event In Advance &nbsp;&nbsp;&nbsp;&nbsp; 🎉 Complete Event Management &nbsp;&nbsp;&nbsp;&nbsp; 🎈 Customized Balloon Decorations &nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <span aria-hidden="true">🎈 Customized Balloon Decorations &nbsp;&nbsp;&nbsp;&nbsp; ✨ Premium Luxury Decorations &nbsp;&nbsp;&nbsp;&nbsp; 🎈 Balloon Decorations For All Events &nbsp;&nbsp;&nbsp;&nbsp; 🕒 Book Your Event In Advance &nbsp;&nbsp;&nbsp;&nbsp; 🎉 Complete Event Management &nbsp;&nbsp;&nbsp;&nbsp; 🎈 Customized Balloon Decorations &nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <span className="homepage__marquee-item">Customized Balloon Decorations</span>
+                    <span className="homepage__marquee-separator">✦</span>
+                    <span className="homepage__marquee-item">Premium Luxury Decorations</span>
+                    <span className="homepage__marquee-separator">✦</span>
+                    <span className="homepage__marquee-item">Balloon Decorations For All Events</span>
+                    <span className="homepage__marquee-separator">✦</span>
+                    <span className="homepage__marquee-item">Book Your Event In Advance</span>
+                    <span className="homepage__marquee-separator">✦</span>
+                    <span className="homepage__marquee-item">Complete Event Management</span>
+                    <span className="homepage__marquee-separator">✦</span>
+                    
+                    {/* Duplicate for seamless loop */}
+                    <span className="homepage__marquee-item" aria-hidden="true">Customized Balloon Decorations</span>
+                    <span className="homepage__marquee-separator" aria-hidden="true">✦</span>
+                    <span className="homepage__marquee-item" aria-hidden="true">Premium Luxury Decorations</span>
+                    <span className="homepage__marquee-separator" aria-hidden="true">✦</span>
+                    <span className="homepage__marquee-item" aria-hidden="true">Balloon Decorations For All Events</span>
+                    <span className="homepage__marquee-separator" aria-hidden="true">✦</span>
+                    <span className="homepage__marquee-item" aria-hidden="true">Book Your Event In Advance</span>
+                    <span className="homepage__marquee-separator" aria-hidden="true">✦</span>
+                    <span className="homepage__marquee-item" aria-hidden="true">Complete Event Management</span>
+                    <span className="homepage__marquee-separator" aria-hidden="true">✦</span>
                 </div>
             </div>
 
