@@ -1,0 +1,81 @@
+{
+  "users": [
+    {
+      "id": "usr_mpdw7oyc",
+      "name": "Srivatsa Kulkarni",
+      "email": "srivatsak26@gmail.com",
+      "phone": "1234567890",
+      "password": "MTIzNA=="
+    }
+  ],
+  "bookings": [
+    {
+      "id": "MELA-2724",
+      "name": "Srivatsa Kulkarni",
+      "email": "srivatsak26@gmail.com",
+      "phone": "1234567890",
+      "date": "2026-05-28",
+      "venue": "BIT",
+      "message": "",
+      "designId": null,
+      "packageName": "Golden Jubilee Celebration",
+      "packagePrice": 60000,
+      "selectedServices": [
+        {
+          "name": "Standard Event Photography (4hrs)",
+          "price": 6000
+        }
+      ],
+      "subtotal": 66000,
+      "discountAmount": 0,
+      "finalPrice": 66000,
+      "activeCoupon": "",
+      "status": "Confirmed",
+      "createdAt": "2026-05-20T13:30:37.874Z"
+    }
+  ],
+  "coupons": [
+    {
+      "code": "WELCOME10",
+      "type": "percentage",
+      "value": 10,
+      "description": "10% off on your first booking!"
+    },
+    {
+      "code": "MELA20",
+      "type": "percentage",
+      "value": 20,
+      "description": "Mela Celebrations special 20% off!"
+    },
+    {
+      "code": "FESTIVE15",
+      "type": "percentage",
+      "value": 15,
+      "description": "Festive season 15% off!"
+    },
+    {
+      "code": "SPINWIN10",
+      "type": "percentage",
+      "value": 10,
+      "description": "Spin Wheel Reward: 10% Off!"
+    },
+    {
+      "code": "SPINWIN20",
+      "type": "percentage",
+      "value": 20,
+      "description": "Spin Wheel Reward: 20% Off!"
+    },
+    {
+      "code": "SPINPHOTO50",
+      "type": "photography_50",
+      "value": 0,
+      "description": "Spin Wheel Reward: 50% Off on Photography!"
+    },
+    {
+      "code": "SUPER2",
+      "type": "flat",
+      "value": 2000,
+      "description": "Flat ₹2,000 off on premium setups!"
+    }
+  ]
+}
