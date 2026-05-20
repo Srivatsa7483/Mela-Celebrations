@@ -1,26 +1,69 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { designs, categories } from "../data/index.js";
+import { OrderContext } from "../context/OrderContext.jsx";
 import "./GalleryPage.css";
+import DesignModal from "../components/ui/DesignModal.jsx";
 
 function formatPrice(p) {
     return "₹" + p.toLocaleString("en-IN");
 }
 
-import DesignModal from "../components/ui/DesignModal.jsx";
-
 export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, searchQuery, setSearchQuery }) {
+    const { wishlist, toggleWishlist } = useContext(OrderContext);
     const [modalDesign, setModalDesign] = useState(null);
     const [visibleCards, setVisibleCards] = useState(new Set());
     const cardRefs = useRef({});
 
+    // Advanced Filter states
+    const [genderFilter, setGenderFilter] = useState("all");
+    const [showDiscountsOnly, setShowDiscountsOnly] = useState(false);
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+    const [sortBy, setSortBy] = useState("relevance");
+
     const allCats = [{ id: "all", name: "All Designs" }, ...categories];
+
+    // Boy / Girl theme classifiers based on name/description keywords
+    const isBoyTheme = (d) => {
+        const text = (d.name + " " + d.description + " " + d.categoryName).toLowerCase();
+        return text.includes("boy") || text.includes("super hero") || text.includes("safari") || text.includes("space") || text.includes("blue") || text.includes("carboot") || text.includes("corporate") || text.includes("jungle");
+    };
+
+    const isGirlTheme = (d) => {
+        const text = (d.name + " " + d.description + " " + d.categoryName).toLowerCase();
+        return text.includes("girl") || text.includes("unicorn") || text.includes("princess") || text.includes("pink") || text.includes("peppa") || text.includes("frozen") || text.includes("butterfly") || text.includes("rose") || text.includes("candlelight") || text.includes("ruby");
+    };
 
     const filtered = designs.filter((d) => {
         const matchCat = activeCategory === "all" || d.category === activeCategory;
         const searchStr = searchQuery || "";
         const matchSearch = d.name.toLowerCase().includes(searchStr.toLowerCase()) ||
             d.categoryName.toLowerCase().includes(searchStr.toLowerCase());
-        return matchCat && matchSearch;
+
+        // Gender theme filters
+        let matchGender = true;
+        if (genderFilter === "boy") matchGender = isBoyTheme(d);
+        else if (genderFilter === "girl") matchGender = isGirlTheme(d);
+
+        // Discounts
+        let matchDiscount = true;
+        if (showDiscountsOnly) {
+            matchDiscount = d.originalPrice && d.originalPrice > d.price;
+        }
+
+        // Favorites
+        let matchFav = true;
+        if (showFavoritesOnly) {
+            matchFav = wishlist.includes(d.id);
+        }
+
+        return matchCat && matchSearch && matchGender && matchDiscount && matchFav;
+    });
+
+    // Sorting
+    const sorted = [...filtered].sort((a, b) => {
+        if (sortBy === "price-asc") return a.price - b.price;
+        if (sortBy === "price-desc") return b.price - a.price;
+        return 0; // default / relevance
     });
 
     useEffect(() => {
@@ -34,7 +77,7 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
 
         Object.values(cardRefs.current).forEach((el) => { if (el) obs.observe(el); });
         return () => obs.disconnect();
-    }, [filtered.length]);
+    }, [sorted.length]);
 
     return (
         <div className="gallery-page">
@@ -49,9 +92,22 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
             </div>
 
             <div className="container">
-                {/* Search + Filter bar */}
-                <div className="gallery-page__controls">
-                    <div className="gallery-page__search-wrap">
+                {/* Advanced Filters Layout */}
+                <div style={{
+                    backgroundColor: "white",
+                    padding: "20px 24px",
+                    borderRadius: "12px",
+                    boxShadow: "var(--shadow-card)",
+                    marginBottom: "32px",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "20px",
+                    fontFamily: "'Jost', sans-serif"
+                }}>
+                    {/* Search */}
+                    <div className="gallery-page__search-wrap" style={{ flex: "1 1 240px", margin: 0 }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }}>
                             <circle cx="11" cy="11" r="7" /><path d="m21 21-4.35-4.35" />
                         </svg>
@@ -60,10 +116,74 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                             placeholder="Search designs…"
                             value={searchQuery || ""}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{ width: "100%", paddingLeft: "40px" }}
                         />
                     </div>
-                    <div className="gallery-page__count">
-                        {filtered.length} design{filtered.length !== 1 ? "s" : ""}
+
+                    {/* Gender Filters */}
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--navy)" }}>Theme:</span>
+                        {["all", "boy", "girl"].map((g) => (
+                            <button
+                                key={g}
+                                onClick={() => setGenderFilter(g)}
+                                style={{
+                                    backgroundColor: genderFilter === g ? "var(--navy)" : "#f2f0ec",
+                                    color: genderFilter === g ? "white" : "var(--navy)",
+                                    border: "none",
+                                    padding: "6px 14px",
+                                    borderRadius: "20px",
+                                    fontSize: "0.8rem",
+                                    cursor: "pointer",
+                                    fontWeight: "500",
+                                    textTransform: "capitalize"
+                                }}
+                            >
+                                {g === "all" ? "All" : g + "s"}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Offer Checkboxes */}
+                    <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: "500", cursor: "pointer", color: "var(--navy)" }}>
+                            <input
+                                type="checkbox"
+                                checked={showDiscountsOnly}
+                                onChange={(e) => setShowDiscountsOnly(e.target.checked)}
+                            />
+                            ⚡ Discount Offers
+                        </label>
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: "500", cursor: "pointer", color: "var(--navy)" }}>
+                            <input
+                                type="checkbox"
+                                checked={showFavoritesOnly}
+                                onChange={(e) => setShowFavoritesOnly(e.target.checked)}
+                            />
+                            ❤️ Wishlist Only ({wishlist.length})
+                        </label>
+                    </div>
+
+                    {/* Sorting dropdown */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--navy)" }}>Sort:</span>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{
+                                padding: "6px 12px",
+                                border: "1px solid var(--border)",
+                                borderRadius: "6px",
+                                fontSize: "0.85rem",
+                                color: "var(--navy)",
+                                outline: "none",
+                                cursor: "pointer"
+                            }}
+                        >
+                            <option value="relevance">Relevance</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                        </select>
                     </div>
                 </div>
 
@@ -83,13 +203,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
 
                 {/* Grid */}
                 <div className="gallery-page__grid">
-                    {filtered.length === 0 && (
-                        <div className="gallery-page__empty">
-                            <p>No designs found. Try a different search.</p>
+                    {sorted.length === 0 && (
+                        <div className="gallery-page__empty" style={{ width: "100%", gridColumn: "1 / -1", textAlign: "center", padding: "40px 0" }}>
+                            <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>No designs matches your search criteria. Try broadening your filters.</p>
                         </div>
                     )}
-                    {filtered.map((d, i) => {
+                    {sorted.map((d, i) => {
                         const isVis = visibleCards.has(String(d.id));
+                        const isLiked = wishlist.includes(d.id);
                         return (
                             <div
                                 key={d.id}
@@ -98,10 +219,50 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                                 className={`gcard${isVis ? " gcard--visible" : ""}`}
                                 style={{ "--delay": `${(i % 3) * 0.1}s` }}
                             >
-                                <div className="gcard__img-wrap" onClick={() => setModalDesign(d)}>
+                                <div className="gcard__img-wrap" style={{ position: "relative" }}>
                                     {d.badge && <span className="gcard__badge">{d.badge}</span>}
-                                    <img src={d.image} alt={d.name} className="gcard__img" />
-                                    <div className="gcard__view-overlay">
+                                    
+                                    {/* Wishlist Heart Icon overlay */}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleWishlist(d.id);
+                                        }}
+                                        style={{
+                                            position: "absolute",
+                                            top: "12px",
+                                            right: "12px",
+                                            backgroundColor: "white",
+                                            border: "none",
+                                            borderRadius: "50%",
+                                            width: "32px",
+                                            height: "32px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            cursor: "pointer",
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                            zIndex: 5,
+                                            transition: "transform 0.2s"
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.15)"}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
+                                        title={isLiked ? "Remove from wishlist" : "Add to wishlist"}
+                                    >
+                                        <svg 
+                                            width="16" 
+                                            height="16" 
+                                            viewBox="0 0 24 24" 
+                                            fill={isLiked ? "#e63946" : "none"} 
+                                            stroke={isLiked ? "#e63946" : "currentColor"} 
+                                            strokeWidth="2.5"
+                                        >
+                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                        </svg>
+                                    </button>
+
+                                    <img src={d.image} alt={d.name} className="gcard__img" onClick={() => setModalDesign(d)} />
+                                    <div className="gcard__view-overlay" onClick={() => setModalDesign(d)}>
                                         <span>View Details</span>
                                     </div>
                                 </div>
@@ -112,7 +273,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                                     <div className="gcard__footer">
                                         <div className="gcard__price">
                                             <span className="gcard__from">From</span>
-                                            <span className="gcard__amount">{formatPrice(d.price)}</span>
+                                            <div style={{ display: "flex", gap: "6px", alignItems: "baseline" }}>
+                                                <span className="gcard__amount">{formatPrice(d.price)}</span>
+                                                {d.originalPrice && d.originalPrice > d.price && (
+                                                    <span style={{ fontSize: "0.75rem", textDecoration: "line-through", color: "var(--text-muted)" }}>
+                                                        {formatPrice(d.originalPrice)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         <button
                                             className="gcard__btn"

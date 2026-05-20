@@ -6,11 +6,57 @@ import GalleryPage from './pages/GalleryPage.jsx';
 import OrderPage from './pages/OrderPage.jsx';
 import HowItWorksPage from './pages/HowItWorksPage.jsx';
 
-function App() {
+// Import New Pages
+import LoginPage from './pages/LoginPage.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
+import BudgetCalculatorPage from './pages/BudgetCalculatorPage.jsx';
+import EventBuilderPage from './pages/EventBuilderPage.jsx';
+import RecentGalleryPage from './pages/RecentGalleryPage.jsx';
+
+// Import Contexts
+import { AuthProvider } from './context/AuthContext.jsx';
+import { OrderProvider } from './context/OrderContext.jsx';
+
+// Import New Widgets
+import FloatingWhatsApp from './components/ui/FloatingWhatsApp.jsx';
+import SpinWheelModal from './components/ui/SpinWheelModal.jsx';
+
+function AppContent() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedDesign, setSelectedDesign] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [countdownText, setCountdownText] = useState("02:15:10");
+  const [spinModalOpen, setSpinModalOpen] = useState(false);
+
+  // Countdown timer logic
+  useEffect(() => {
+    // Set mock target to 2 hours 15 minutes from now on load, and keep counting down
+    let totalSeconds = 2 * 3600 + 15 * 60 + 10;
+    
+    const interval = setInterval(() => {
+      if (totalSeconds <= 0) {
+        // Reset to 3 hours to simulate continuous offer
+        totalSeconds = 3 * 3600;
+      } else {
+        totalSeconds--;
+      }
+
+      const hrs = Math.floor(totalSeconds / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+
+      const timeString = [
+        hrs.toString().padStart(2, '0'),
+        mins.toString().padStart(2, '0'),
+        secs.toString().padStart(2, '0')
+      ].join(':');
+
+      setCountdownText(timeString);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // Handle browser back/forward buttons
@@ -22,7 +68,6 @@ function App() {
       }
     };
 
-    // Initialize state on first load
     if (!window.history.state) {
       window.history.replaceState({ page: 'home' }, '');
     }
@@ -35,30 +80,146 @@ function App() {
     if (page !== currentPage) {
       window.history.pushState({ page }, '', `/${page === 'home' ? '' : page}`);
       setCurrentPage(page);
+      window.scrollTo(0, 0); // Scroll to top on navigation
     }
   };
 
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage setCurrentPage={navigateToPage} setSelectedDesign={setSelectedDesign} setActiveCategory={setActiveCategory} />;
+        return (
+          <HomePage 
+            setCurrentPage={navigateToPage} 
+            setSelectedDesign={setSelectedDesign} 
+            setActiveCategory={setActiveCategory} 
+          />
+        );
       case 'gallery':
-        return <GalleryPage setCurrentPage={navigateToPage} setSelectedDesign={setSelectedDesign} activeCategory={activeCategory} setActiveCategory={setActiveCategory} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />;
+        return (
+          <GalleryPage 
+            setCurrentPage={navigateToPage} 
+            setSelectedDesign={setSelectedDesign} 
+            activeCategory={activeCategory} 
+            setActiveCategory={setActiveCategory} 
+            searchQuery={searchQuery} 
+            setSearchQuery={setSearchQuery} 
+          />
+        );
       case 'order':
-        return <OrderPage setCurrentPage={navigateToPage} selectedDesign={selectedDesign} />;
+        return (
+          <OrderPage 
+            setCurrentPage={navigateToPage} 
+            selectedDesign={selectedDesign} 
+          />
+        );
       case 'how-it-works':
         return <HowItWorksPage setCurrentPage={navigateToPage} />;
+      case 'login':
+        return <LoginPage setCurrentPage={navigateToPage} />;
+      case 'dashboard':
+        return <DashboardPage setCurrentPage={navigateToPage} setSelectedDesign={setSelectedDesign} />;
+      case 'calculator':
+        return <BudgetCalculatorPage setCurrentPage={navigateToPage} />;
+      case 'customizer':
+        return <EventBuilderPage setCurrentPage={navigateToPage} />;
+      case 'recent-gallery':
+        return <RecentGalleryPage setCurrentPage={navigateToPage} />;
       default:
-        return <HomePage setCurrentPage={navigateToPage} setSelectedDesign={setSelectedDesign} setActiveCategory={setActiveCategory} />;
+        return (
+          <HomePage 
+            setCurrentPage={navigateToPage} 
+            setSelectedDesign={setSelectedDesign} 
+            setActiveCategory={setActiveCategory} 
+          />
+        );
     }
   };
 
   return (
     <div className="app">
-      <Navbar currentPage={currentPage} setCurrentPage={navigateToPage} setActiveCategory={setActiveCategory} setSearchQuery={setSearchQuery} />
-      {renderPage()}
+      {/* Dynamic Offer Countdown Banner */}
+      <div className="offer-countdown-banner" style={{
+        background: 'linear-gradient(90deg, #0d1b2a 0%, #c9a84c 50%, #0d1b2a 100%)',
+        color: '#ffffff',
+        textAlign: 'center',
+        padding: '8px 16px',
+        fontSize: '0.85rem',
+        fontWeight: '500',
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+        zIndex: '1001',
+        position: 'relative',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+      }}>
+        ⚡ Limited Time Offer: Get 20% off with code <strong style={{ color: '#fff', textDecoration: 'underline' }}>MELA20</strong>. Deal ends in: <span style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#0d1b2a', padding: '2px 8px', borderRadius: '4px', marginLeft: '4px' }}>{countdownText}</span>
+      </div>
+
+      <Navbar 
+        currentPage={currentPage} 
+        setCurrentPage={navigateToPage} 
+        setActiveCategory={setActiveCategory} 
+        setSearchQuery={setSearchQuery} 
+      />
+      
+      <main style={{ minHeight: 'calc(100vh - 200px)' }}>
+        {renderPage()}
+      </main>
+
       <Footer />
+      
+      {/* Floating Interactive Widget */}
+      <FloatingWhatsApp />
+
+      {/* Floating Spin Wheel Badge */}
+      <button 
+        onClick={() => setSpinModalOpen(true)}
+        style={{
+          position: "fixed",
+          bottom: "24px",
+          left: "24px",
+          zIndex: "1000",
+          backgroundColor: "#c9a84c",
+          color: "white",
+          border: "none",
+          borderRadius: "30px",
+          padding: "12px 20px",
+          fontSize: "0.85rem",
+          fontWeight: "600",
+          letterSpacing: "0.05em",
+          cursor: "pointer",
+          boxShadow: "0 4px 16px rgba(201, 168, 76, 0.4)",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          transition: "transform 0.3s ease",
+          fontFamily: "'Jost', sans-serif"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.08)"}
+        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
+      >
+        🎁 SPIN & WIN
+      </button>
+
+      {/* Spin Wheel Modal */}
+      <SpinWheelModal 
+        isOpen={spinModalOpen} 
+        onClose={() => setSpinModalOpen(false)}
+        onWinCoupon={(coupon) => {
+          // Triggers visual notification
+          console.log("Won coupon code:", coupon);
+        }}
+      />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <OrderProvider>
+        <AppContent />
+      </OrderProvider>
+    </AuthProvider>
   );
 }
 

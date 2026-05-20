@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { designs } from "../../data/index.js";
+import { AuthContext } from "../../context/AuthContext.jsx";
+import { OrderContext } from "../../context/OrderContext.jsx";
 import "./Navbar.css";
 
 export default function Navbar({ currentPage, setCurrentPage, setActiveCategory, setSearchQuery }) {
+    const { user, isAuthenticated, logout } = useContext(AuthContext);
+    const { wishlist } = useContext(OrderContext);
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [localSearch, setLocalSearch] = useState("");
@@ -44,14 +48,12 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
         { id: "corporate", label: "Corporate Planner" },
     ];
 
-    // Compute suggestions
     const suggestions = localSearch.trim() === "" ? [] : designs.filter(d => 
         d.name.toLowerCase().includes(localSearch.toLowerCase()) || 
         d.categoryName.toLowerCase().includes(localSearch.toLowerCase())
     ).slice(0, 5);
 
     const handleNavClick = (id) => {
-        // Map specific dropdown sub-categories back to "birthday" for now, or use their specific IDs if you add them to data/index.js
         const baseCategory = ["kids-theme", "butterfly-theme", "princess-theme"].includes(id) ? "birthday" : id;
         setActiveCategory(baseCategory);
         setCurrentPage("gallery");
@@ -123,7 +125,6 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                     )}
                 </div>
 
-
                 <div className="navbar__actions">
                     {/* How It Works Icon */}
                     <div className="navbar__icon-wrapper" data-tooltip="How It Works">
@@ -134,9 +135,60 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                         </button>
                     </div>
 
+                    {/* Customer Login / Dashboard integration */}
+                    {isAuthenticated ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <button 
+                                className="navbar__pill" 
+                                onClick={() => setCurrentPage("dashboard")}
+                                style={{ 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    gap: "6px", 
+                                    border: "1px solid var(--gold)", 
+                                    background: "rgba(201,168,76,0.08)",
+                                    color: "var(--navy)",
+                                    fontSize: "0.8rem",
+                                    height: "38px"
+                                }}
+                            >
+                                👤 {user.name.split(" ")[0]}
+                                {wishlist.length > 0 && (
+                                    <span style={{ 
+                                        background: "#e63946", 
+                                        color: "white", 
+                                        borderRadius: "50%", 
+                                        padding: "2px 6px", 
+                                        fontSize: "0.7rem", 
+                                        fontWeight: "bold",
+                                        marginLeft: "4px"
+                                    }}>
+                                        {wishlist.length}
+                                    </span>
+                                )}
+                            </button>
+                            <button 
+                                className="btn-navy-outline" 
+                                style={{ padding: "8px 14px", height: "38px", fontSize: "0.75rem" }} 
+                                onClick={logout}
+                            >
+                                LOGOUT
+                            </button>
+                        </div>
+                    ) : (
+                        <button 
+                            className="btn-navy-outline" 
+                            style={{ padding: "8px 20px", height: "38px", fontSize: "0.75rem" }} 
+                            onClick={() => setCurrentPage("login")}
+                        >
+                            LOGIN
+                        </button>
+                    )}
+
                     <button
                         className="navbar__cta"
                         onClick={() => setCurrentPage("order")}
+                        style={{ height: "38px" }}
                     >
                         CONSULTATION
                     </button>
@@ -152,9 +204,35 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
 
             {/* Bottom Row: Category Pills */}
             <div className="navbar__bottom">
-                <div className="navbar__bottom-inner">
+                <div className="navbar__bottom-inner" style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "nowrap", overflowX: "auto" }}>
+                    
+                    {/* Core Features / Planning shortcuts */}
+                    <button 
+                        className="navbar__pill highlight-pill" 
+                        onClick={() => setCurrentPage("calculator")}
+                        style={{ border: "1px dashed var(--gold)", color: "var(--gold)", fontWeight: "600", whiteSpace: "nowrap" }}
+                    >
+                        🧮 Calculator
+                    </button>
+                    <button 
+                        className="navbar__pill highlight-pill" 
+                        onClick={() => setCurrentPage("customizer")}
+                        style={{ border: "1px dashed var(--gold)", color: "var(--gold)", fontWeight: "600", whiteSpace: "nowrap" }}
+                    >
+                        🎨 Customize Setup
+                    </button>
+                    <button 
+                        className="navbar__pill" 
+                        onClick={() => setCurrentPage("recent-gallery")}
+                        style={{ fontWeight: "600", whiteSpace: "nowrap" }}
+                    >
+                        📸 Recent Projects
+                    </button>
+                    
+                    <div style={{ width: "1px", height: "20px", backgroundColor: "var(--border)", flexShrink: 0, margin: "0 8px" }} />
+                    
                     {categories.map((cat) => (
-                        <div key={cat.id} className={`navbar__pill-container ${cat.dropdown ? 'has-dropdown' : ''}`}>
+                        <div key={cat.id} className={`navbar__pill-container ${cat.dropdown ? 'has-dropdown' : ''}`} style={{ flexShrink: 0 }}>
                             <button
                                 className="navbar__pill"
                                 onClick={() => handleNavClick(cat.id)}
@@ -167,7 +245,6 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                                 )}
                             </button>
 
-                            {/* Dropdown Menu */}
                             {cat.dropdown && (
                                 <div className="navbar__dropdown">
                                     {cat.dropdown.map(sub => (
@@ -192,6 +269,12 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
             {/* Mobile Menu */}
             {menuOpen && (
                 <div className="navbar__mobile-menu">
+                    {/* Shortcuts */}
+                    <button className="navbar__mobile-link" onClick={() => { setCurrentPage("calculator"); setMenuOpen(false); }} style={{ color: "var(--gold)" }}>🧮 BUDGET CALCULATOR</button>
+                    <button className="navbar__mobile-link" onClick={() => { setCurrentPage("customizer"); setMenuOpen(false); }} style={{ color: "var(--gold)" }}>🎨 CUSTOMIZE EVENT</button>
+                    <button className="navbar__mobile-link" onClick={() => { setCurrentPage("recent-gallery"); setMenuOpen(false); }}>📸 RECENT PROJECTS</button>
+                    <div style={{ height: "1px", backgroundColor: "var(--border)", margin: "8px 0" }} />
+                    
                     {categories.map((cat) => (
                         <div key={cat.id}>
                             <button
@@ -216,6 +299,14 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                         </div>
                     ))}
                     <button className="navbar__mobile-link" onClick={() => { setCurrentPage("how-it-works"); setMenuOpen(false); }}>HOW IT WORKS</button>
+                    {isAuthenticated ? (
+                        <>
+                            <button className="navbar__mobile-link" onClick={() => { setCurrentPage("dashboard"); setMenuOpen(false); }}>👤 MY DASHBOARD ({wishlist.length} SAVED)</button>
+                            <button className="navbar__mobile-link" onClick={() => { logout(); setMenuOpen(false); }}>LOGOUT</button>
+                        </>
+                    ) : (
+                        <button className="navbar__mobile-link" onClick={() => { setCurrentPage("login"); setMenuOpen(false); }}>👤 LOGIN</button>
+                    )}
                     <button className="navbar__cta" style={{ marginTop: "12px", width: "100%", justifyContent: "center" }} onClick={() => { setCurrentPage("order"); setMenuOpen(false); }}>CONSULTATION</button>
                 </div>
             )}
