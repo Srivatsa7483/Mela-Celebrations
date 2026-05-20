@@ -137,28 +137,12 @@ function AppContent() {
 
   return (
     <div className="app">
-      {/* Dynamic Offer Countdown Banner */}
-      <div className="offer-countdown-banner" style={{
-        background: 'linear-gradient(90deg, #0d1b2a 0%, #c9a84c 50%, #0d1b2a 100%)',
-        color: '#ffffff',
-        textAlign: 'center',
-        padding: '8px 16px',
-        fontSize: '0.85rem',
-        fontWeight: '500',
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-        zIndex: '1001',
-        position: 'relative',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-      }}>
-        ⚡ Limited Time Offer: Get 20% off with code <strong style={{ color: '#fff', textDecoration: 'underline' }}>MELA20</strong>. Deal ends in: <span style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#0d1b2a', padding: '2px 8px', borderRadius: '4px', marginLeft: '4px' }}>{countdownText}</span>
-      </div>
-
       <Navbar 
         currentPage={currentPage} 
         setCurrentPage={navigateToPage} 
         setActiveCategory={setActiveCategory} 
         setSearchQuery={setSearchQuery} 
+        countdownText={countdownText}
       />
       
       <main style={{ minHeight: 'calc(100vh - 200px)' }}>

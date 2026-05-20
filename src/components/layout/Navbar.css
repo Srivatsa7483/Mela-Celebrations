@@ -417,11 +417,13 @@
     text-align: left;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 600px) {
     .navbar__bottom {
         display: none;
     }
+}
 
+@media (max-width: 900px) {
     .navbar__search-container {
         display: none;
     }

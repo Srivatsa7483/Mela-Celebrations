@@ -36,7 +36,7 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
 
   return (
     <div className="dashboard-page" style={{
-      padding: "60px 0",
+      padding: "225px 0 60px 0",
       backgroundColor: "#f7f4ef",
       minHeight: "100vh",
       fontFamily: "'Jost', sans-serif"

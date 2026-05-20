@@ -198,7 +198,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
 
   if (submitted && createdOrder) {
     return (
-      <div className="order-page" style={{ padding: "60px 0", backgroundColor: "#f7f4ef" }}>
+      <div className="order-page" style={{ padding: "195px 0 60px 0", backgroundColor: "#f7f4ef" }}>
         <div className="order-success" style={{ maxWidth: "680px", margin: "0 auto", padding: "40px" }} id="printable-invoice">
           <div className="order-success__icon" style={{ backgroundColor: "#25D366", color: "white" }}>
             ✓

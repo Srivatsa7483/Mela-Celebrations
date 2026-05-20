@@ -84,7 +84,7 @@ export default function RecentGalleryPage({ setCurrentPage }) {
 
   return (
     <div className="recent-gallery-page" style={{
-      padding: "60px 0",
+      padding: "225px 0 60px 0",
       backgroundColor: "#f7f4ef",
       minHeight: "100vh",
       fontFamily: "'Jost', sans-serif"

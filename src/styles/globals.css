@@ -264,16 +264,19 @@ h5 {
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {
-    width: 6px;
+    width: 12px;
+    height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--cream);
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--navy-mid);
-    border-radius: 3px;
+    border: 3.5px solid transparent;
+    background-clip: padding-box;
+    border-radius: 6px;
 }
 
 /* ── Homepage Marquee ── */
@@ -282,7 +285,7 @@ h5 {
     overflow: hidden;
     white-space: nowrap;
     background: var(--navy);
-    padding: 18px 0;
+    padding: 10px 0;
     border-top: 1px solid rgba(201, 168, 76, 0.25);
     border-bottom: 1px solid rgba(201, 168, 76, 0.25);
     position: relative;
@@ -300,7 +303,7 @@ h5 {
 
 .homepage__marquee-item {
     font-family: var(--font-sans);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.92);
     letter-spacing: 0.16em;
@@ -310,8 +313,8 @@ h5 {
 
 .homepage__marquee-separator {
     color: var(--gold);
-    margin: 0 30px;
-    font-size: 1rem;
+    margin: 0 24px;
+    font-size: 0.9rem;
     vertical-align: middle;
     text-shadow: 0 0 6px rgba(201, 168, 76, 0.4);
 }

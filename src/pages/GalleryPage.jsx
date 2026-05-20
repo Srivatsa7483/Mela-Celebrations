@@ -19,6 +19,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
     const [showDiscountsOnly, setShowDiscountsOnly] = useState(false);
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     const [sortBy, setSortBy] = useState("relevance");
+    const [isSortOpen, setIsSortOpen] = useState(false);
+
+    const sortOptions = [
+        { value: "relevance", label: "Relevance" },
+        { value: "price-asc", label: "Price: Low to High" },
+        { value: "price-desc", label: "Price: High to Low" }
+    ];
+    const currentSortLabel = sortOptions.find(o => o.value === sortBy)?.label || "Relevance";
 
     const allCats = [{ id: "all", name: "All Designs" }, ...categories];
 
@@ -165,25 +173,92 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                     </div>
 
                     {/* Sorting dropdown */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", position: "relative" }}>
                         <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--navy)" }}>Sort:</span>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            style={{
-                                padding: "6px 12px",
-                                border: "1px solid var(--border)",
-                                borderRadius: "6px",
-                                fontSize: "0.85rem",
-                                color: "var(--navy)",
-                                outline: "none",
-                                cursor: "pointer"
-                            }}
-                        >
-                            <option value="relevance">Relevance</option>
-                            <option value="price-asc">Price: Low to High</option>
-                            <option value="price-desc">Price: High to Low</option>
-                        </select>
+                        <div style={{ position: "relative" }}>
+                            <button
+                                onClick={() => setIsSortOpen(!isSortOpen)}
+                                style={{
+                                    padding: "8px 16px",
+                                    paddingRight: "32px",
+                                    border: "1px solid var(--gold)",
+                                    borderRadius: "8px",
+                                    fontSize: "0.85rem",
+                                    backgroundColor: "var(--navy)",
+                                    color: "white",
+                                    outline: "none",
+                                    cursor: "pointer",
+                                    fontWeight: "600",
+                                    fontFamily: "'Jost', sans-serif",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    position: "relative",
+                                    minWidth: "160px",
+                                    transition: "all 0.2s ease"
+                                }}
+                            >
+                                <span>{currentSortLabel}</span>
+                                <span style={{
+                                    position: "absolute",
+                                    right: "12px",
+                                    top: "50%",
+                                    transform: isSortOpen ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)",
+                                    transition: "transform 0.2s ease",
+                                    fontSize: "0.7rem",
+                                    lineHeight: 1
+                                }}>▼</span>
+                            </button>
+                            {isSortOpen && (
+                                <>
+                                    <div 
+                                        onClick={() => setIsSortOpen(false)}
+                                        style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }}
+                                    />
+                                    <div style={{
+                                        position: "absolute",
+                                        top: "100%",
+                                        right: 0,
+                                        marginTop: "4px",
+                                        backgroundColor: "white",
+                                        border: "1px solid var(--gold)",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                        zIndex: 11,
+                                        minWidth: "160px",
+                                        overflow: "hidden"
+                                    }}>
+                                        {sortOptions.map((opt) => (
+                                            <div
+                                                key={opt.value}
+                                                onClick={() => {
+                                                    setSortBy(opt.value);
+                                                    setIsSortOpen(false);
+                                                }}
+                                                style={{
+                                                    padding: "10px 16px",
+                                                    fontSize: "0.85rem",
+                                                    color: "var(--navy)",
+                                                    cursor: "pointer",
+                                                    backgroundColor: sortBy === opt.value ? "var(--cream)" : "white",
+                                                    fontWeight: sortBy === opt.value ? "600" : "400",
+                                                    transition: "background-color 0.2s",
+                                                    fontFamily: "'Jost', sans-serif"
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (sortBy !== opt.value) e.currentTarget.style.backgroundColor = "var(--cream)";
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (sortBy !== opt.value) e.currentTarget.style.backgroundColor = "white";
+                                                }}
+                                            >
+                                                {opt.label}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
 

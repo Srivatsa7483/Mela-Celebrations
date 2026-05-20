@@ -91,7 +91,7 @@ export default function LoginPage({ setCurrentPage }) {
 
   return (
     <div className="login-page" style={{
-      padding: "80px 0",
+      padding: "230px 0 80px 0",
       backgroundColor: "#f7f4ef",
       minHeight: "100vh",
       display: "flex",

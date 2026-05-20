@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext.jsx";
 import { OrderContext } from "../../context/OrderContext.jsx";
 import "./Navbar.css";
 
-export default function Navbar({ currentPage, setCurrentPage, setActiveCategory, setSearchQuery }) {
+export default function Navbar({ currentPage, setCurrentPage, setActiveCategory, setSearchQuery, countdownText }) {
     const { user, isAuthenticated, logout } = useContext(AuthContext);
     const { wishlist } = useContext(OrderContext);
     const [scrolled, setScrolled] = useState(false);
@@ -70,6 +70,23 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
 
     return (
         <header className={`navbar${scrolled ? " navbar--scrolled" : ""}`}>
+            {/* Dynamic Offer Countdown Banner */}
+            {countdownText && (
+                <div className="offer-countdown-banner" style={{
+                    background: 'linear-gradient(90deg, #0d1b2a 0%, #c9a84c 50%, #0d1b2a 100%)',
+                    color: '#ffffff',
+                    textAlign: 'center',
+                    padding: '8px 16px',
+                    fontSize: '0.85rem',
+                    fontWeight: '500',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    width: '100%',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                }}>
+                    ⚡ Limited Time Offer: Get 20% off with code <strong style={{ color: '#fff', textDecoration: 'underline' }}>MELA20</strong>. Deal ends in: <span style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#0d1b2a', padding: '2px 8px', borderRadius: '4px', marginLeft: '4px' }}>{countdownText}</span>
+                </div>
+            )}
             {/* Top Row: Logo & Actions */}
             <div className="navbar__inner">
                 <button className="navbar__logo" onClick={() => setCurrentPage("home")}>
@@ -202,9 +219,8 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                 </div>
             </div>
 
-            {/* Bottom Row: Category Pills */}
             <div className="navbar__bottom">
-                <div className="navbar__bottom-inner" style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "nowrap", overflowX: "auto" }}>
+                <div className="navbar__bottom-inner" style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "nowrap", overflowX: "auto", justifyContent: "flex-start", width: "max-content", maxWidth: "100%", padding: "4px 0 16px 0" }}>
                     
                     {/* Core Features / Planning shortcuts */}
                     <button 
@@ -238,11 +254,6 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                                 onClick={() => handleNavClick(cat.id)}
                             >
                                 {cat.label}
-                                {cat.dropdown && (
-                                    <svg className="navbar__dropdown-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <polyline points="6 9 12 15 18 9" />
-                                    </svg>
-                                )}
                             </button>
 
                             {cat.dropdown && (

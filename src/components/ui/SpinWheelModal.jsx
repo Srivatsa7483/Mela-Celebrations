@@ -68,11 +68,26 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
       // Text label drawing
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.rotate(angle + (segmentAngle * Math.PI / 360));
+      
+      // Calculate the middle angle of this segment in degrees (normalized to [0, 360))
+      let midAngle = (startAngle + angleOffset + (i * segmentAngle) + (segmentAngle / 2)) % 360;
+      if (midAngle < 0) midAngle += 360;
+      
       ctx.fillStyle = options[i].textColor;
-      ctx.font = "bold 13px 'Jost', sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(options[i].label, radius - 20, 5);
+      ctx.font = "bold 12px 'Jost', sans-serif";
+      ctx.textBaseline = "middle";
+      
+      if (midAngle > 90 && midAngle < 270) {
+        // Left side of the wheel: flip the text 180 degrees so it's readable (not upside down)
+        ctx.rotate(midAngle * Math.PI / 180 + Math.PI);
+        ctx.textAlign = "left";
+        ctx.fillText(options[i].label, -(radius - 8), 0);
+      } else {
+        // Right side of the wheel: draw normally
+        ctx.rotate(midAngle * Math.PI / 180);
+        ctx.textAlign = "right";
+        ctx.fillText(options[i].label, radius - 8, 0);
+      }
       ctx.restore();
     }
 

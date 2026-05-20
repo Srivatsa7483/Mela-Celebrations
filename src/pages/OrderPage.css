@@ -1,5 +1,5 @@
 .order-page {
-    padding-top: 145px;
+    padding-top: 225px;
     min-height: 100vh;
 }
 
@@ -111,7 +111,7 @@
 /* Sidebar */
 .order-sidebar {
     position: sticky;
-    top: 88px;
+    top: 200px;
     display: flex;
     flex-direction: column;
     gap: 20px;

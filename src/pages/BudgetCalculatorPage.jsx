@@ -80,7 +80,7 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
   };
 
   return (
-    <div className="budget-calculator-page" style={{ padding: "60px 0", backgroundColor: "#f7f4ef", minHeight: "100vh", fontFamily: "'Jost', sans-serif" }}>
+    <div className="budget-calculator-page" style={{ padding: "225px 0 60px 0", backgroundColor: "#f7f4ef", minHeight: "100vh", fontFamily: "'Jost', sans-serif" }}>
       <div className="container" style={{ maxWidth: "1000px" }}>
         
         {/* Title Section */}
@@ -272,7 +272,7 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
           </div>
 
           {/* Sticky Total Summary */}
-          <aside style={{ position: "sticky", top: "120px" }}>
+          <aside style={{ position: "sticky", top: "210px" }}>
             <div style={{
               backgroundColor: "var(--navy)",
               color: "white",
