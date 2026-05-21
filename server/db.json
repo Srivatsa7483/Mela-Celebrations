@@ -1,0 +1,252 @@
+{
+  "users": [
+    {
+      "id": "usr_mpdw7oyc",
+      "name": "Srivatsa Kulkarni",
+      "email": "srivatsak26@gmail.com",
+      "phone": "1234567890",
+      "password": "MTIzNA=="
+    },
+    {
+      "id": "usr_mpezn2cm",
+      "name": "Vatsa",
+      "email": "srivatsa798@gmail.com",
+      "phone": "8660794506",
+      "password": "MTIzNA=="
+    },
+    {
+      "id": "usr_mpf2l439",
+      "name": "Sanyuktha",
+      "email": "sanyukthaprabhu87@gmail.com",
+      "phone": "8951291312",
+      "password": "MTIzNA=="
+    }
+  ],
+  "bookings": [
+    {
+      "id": "MELA-2724",
+      "name": "Srivatsa Kulkarni",
+      "email": "srivatsak26@gmail.com",
+      "phone": "1234567890",
+      "date": "2026-05-28",
+      "venue": "BIT",
+      "message": "",
+      "designId": null,
+      "packageName": "Golden Jubilee Celebration",
+      "packagePrice": 60000,
+      "selectedServices": [
+        {
+          "name": "Standard Event Photography (4hrs)",
+          "price": 6000
+        }
+      ],
+      "subtotal": 66000,
+      "discountAmount": 0,
+      "finalPrice": 66000,
+      "activeCoupon": "",
+      "status": "Confirmed",
+      "createdAt": "2026-05-20T13:30:37.874Z"
+    },
+    {
+      "id": "MELA-2563",
+      "name": "Srivatsa Kulkarni",
+      "email": "srivatsak26@gmail.com",
+      "phone": "1234567890",
+      "date": "2026-05-22",
+      "venue": "BIT",
+      "message": "",
+      "designId": null,
+      "packageName": "Unicorn Magic Birthday",
+      "packagePrice": 9000,
+      "selectedServices": [
+        {
+          "name": "Standard Event Photography (4hrs)",
+          "price": 6000
+        }
+      ],
+      "subtotal": 15000,
+      "discountAmount": 3000,
+      "finalPrice": 12000,
+      "activeCoupon": "SPINWIN20",
+      "status": "Pending",
+      "createdAt": "2026-05-21T04:04:15.444Z"
+    },
+    {
+      "id": "MELA-1369",
+      "name": "Srivatsa Kulkarni",
+      "email": "srivatsak26@gmail.com",
+      "phone": "1234567890",
+      "date": "2026-05-22",
+      "venue": "sedfghj",
+      "message": "",
+      "designId": null,
+      "packageName": "Princess Castle Birthday",
+      "packagePrice": 11000,
+      "selectedServices": [
+        {
+          "name": "Standard Event Photography (4hrs)",
+          "price": 6000
+        }
+      ],
+      "subtotal": 17000,
+      "discountAmount": 0,
+      "finalPrice": 17000,
+      "activeCoupon": "",
+      "status": "Pending",
+      "createdAt": "2026-05-21T04:24:06.529Z"
+    },
+    {
+      "id": "MELA-8955",
+      "name": "Vatsa",
+      "email": "srivatsa798@gmail.com",
+      "phone": "8660794506",
+      "date": "2026-05-23",
+      "venue": "bit",
+      "message": "",
+      "designId": null,
+      "packageName": "Vintage Rose Wedding",
+      "packagePrice": 70000,
+      "selectedServices": [
+        {
+          "name": "Standard Event Photography (4hrs)",
+          "price": 6000
+        }
+      ],
+      "subtotal": 76000,
+      "discountAmount": 0,
+      "finalPrice": 76000,
+      "activeCoupon": "",
+      "status": "Pending",
+      "createdAt": "2026-05-21T04:26:34.332Z"
+    },
+    {
+      "id": "MELA-7554",
+      "name": "Vatsa",
+      "email": "srivatsa798@gmail.com",
+      "phone": "8660794506",
+      "date": "2026-05-30",
+      "venue": "wdfg",
+      "message": "",
+      "designId": null,
+      "packageName": "Elegant Silver Anniversary",
+      "packagePrice": 35000,
+      "selectedServices": [],
+      "subtotal": 35000,
+      "discountAmount": 0,
+      "finalPrice": 35000,
+      "activeCoupon": "",
+      "status": "Pending",
+      "createdAt": "2026-05-21T04:30:15.008Z"
+    },
+    {
+      "id": "MELA-1471",
+      "name": "Vatsa",
+      "email": "srivatsa798@gmail.com",
+      "phone": "8660794506",
+      "date": "2026-05-24",
+      "venue": "qwsdf",
+      "message": "",
+      "designId": null,
+      "packageName": "Starry Night Anniversary",
+      "packagePrice": 45000,
+      "selectedServices": [],
+      "subtotal": 45000,
+      "discountAmount": 0,
+      "finalPrice": 45000,
+      "activeCoupon": "",
+      "status": "Pending",
+      "createdAt": "2026-05-21T04:35:14.105Z"
+    },
+    {
+      "id": "MELA-9030",
+      "name": "Vatsa",
+      "email": "srivatsa798@gmail.com",
+      "phone": "8660794506",
+      "date": "2026-05-24",
+      "venue": "qwsdf",
+      "message": "",
+      "designId": null,
+      "packageName": "Starry Night Anniversary",
+      "packagePrice": 45000,
+      "selectedServices": [],
+      "subtotal": 45000,
+      "discountAmount": 0,
+      "finalPrice": 45000,
+      "activeCoupon": "",
+      "status": "Pending",
+      "createdAt": "2026-05-21T04:35:17.826Z"
+    },
+    {
+      "id": "MELA-5448",
+      "name": "Sanyuktha",
+      "email": "sanyukthaprabhu87@gmail.com",
+      "phone": "8951291312",
+      "date": "2026-05-24",
+      "venue": "BIT",
+      "message": "",
+      "designId": null,
+      "packageName": "Beachfront Wedding Decor",
+      "packagePrice": 85000,
+      "selectedServices": [
+        {
+          "name": "Neon LED Name Board",
+          "price": 2000
+        },
+        {
+          "name": "Standard Event Photography (4hrs)",
+          "price": 6000
+        }
+      ],
+      "subtotal": 93000,
+      "discountAmount": 18600,
+      "finalPrice": 74400,
+      "activeCoupon": "SPINWIN20",
+      "status": "Pending",
+      "createdAt": "2026-05-21T05:50:01.534Z"
+    }
+  ],
+  "coupons": [
+    {
+      "code": "WELCOME10",
+      "type": "percentage",
+      "value": 10,
+      "description": "10% off on your first booking!"
+    },
+    {
+      "code": "MELA20",
+      "type": "percentage",
+      "value": 20,
+      "description": "Mela Celebrations special 20% off!"
+    },
+    {
+      "code": "FESTIVE15",
+      "type": "percentage",
+      "value": 15,
+      "description": "Festive season 15% off!"
+    },
+    {
+      "code": "SPINWIN10",
+      "type": "percentage",
+      "value": 10,
+      "description": "Spin Wheel Reward: 10% Off!"
+    },
+    {
+      "code": "SPINWIN20",
+      "type": "percentage",
+      "value": 20,
+      "description": "Spin Wheel Reward: 20% Off!"
+    },
+    {
+      "code": "SPINPHOTO50",
+      "type": "photography_50",
+      "value": 0,
+      "description": "Spin Wheel Reward: 50% Off on Photography!"
+    },
+    {
+      "code": "SUPER2",
+      "type": "flat",
+      "value": 2000,
+      "description": "Flat ₹2,000 off on premium setups!"
+    }
+  ]
+}
