@@ -1,0 +1,413 @@
+.gallery-page {
+    padding-top: calc(var(--navbar-height, 143px) + 24px);
+    min-height: 100vh;
+}
+
+.gallery-page__header {
+    position: relative;
+    background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1400&q=85');
+    background-size: cover;
+    background-position: center;
+    padding: 140px 0 100px;
+    margin-bottom: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+}
+
+.gallery-page__header-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(13, 27, 42, 0.6) 0%, rgba(13, 27, 42, 0.85) 100%);
+    z-index: 1;
+}
+
+.gallery-page__header-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.gallery-page__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--white);
+    margin: 12px 0 16px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-page__sub {
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+}
+
+/* Controls */
+.gallery-page__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.gallery-page__search-wrap {
+    position: relative;
+}
+
+.gallery-page__search {
+    width: 300px;
+    padding: 11px 16px 11px 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.gallery-page__search:focus {
+    border-color: var(--navy);
+}
+
+.gallery-page__count {
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+/* Category pills */
+.gallery-page__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.gallery-page__cat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-body);
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: all 0.22s;
+}
+
+.gallery-page__cat-pill:hover {
+    border-color: var(--navy);
+    color: var(--navy);
+}
+
+.gallery-page__cat-pill.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--white);
+}
+
+.gallery-page__cat-count {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 100px;
+    padding: 1px 7px;
+    font-size: 0.72rem;
+}
+
+.gallery-page__cat-pill:not(.active) .gallery-page__cat-count {
+    background: var(--section-bg);
+    color: var(--text-muted);
+}
+
+/* Grid */
+.gallery-page__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding-bottom: 80px;
+}
+
+.gallery-page__empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 80px 0;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+/* Gallery Card */
+.gcard {
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.55s ease var(--delay, 0s), transform 0.55s ease var(--delay, 0s), box-shadow 0.3s;
+}
+
+.gcard--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gcard:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.gcard__img-wrap {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.gcard__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.55s ease;
+}
+
+.gcard:hover .gcard__img {
+    transform: scale(1.07);
+}
+
+.gcard__badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(13, 27, 42, 0.85);
+    color: var(--white);
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    z-index: 2;
+}
+
+.gcard__view-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 27, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.gcard__view-overlay span {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    padding: 10px 22px;
+    border-radius: var(--radius);
+}
+
+.gcard:hover .gcard__view-overlay {
+    opacity: 1;
+}
+
+.gcard__body {
+    padding: 20px 20px 20px;
+}
+
+.gcard__cat {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.gcard__name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+    line-height: 1.25;
+}
+
+.gcard__desc {
+    font-family: var(--font-sans);
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.gcard__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.gcard__price {
+    display: flex;
+    flex-direction: column;
+}
+
+.gcard__from {
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.gcard__amount {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--navy);
+}
+
+.gcard__btn {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.gcard__btn:hover {
+    background: var(--navy-mid);
+    transform: scale(1.04);
+}
+
+
+
+/* Subcategory section */
+.gallery-page__subcats {
+    margin-bottom: 32px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #f8f6f0 0%, #fdf9f2 100%);
+    border: 1.5px solid rgba(201, 168, 76, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(201, 168, 76, 0.08);
+}
+
+.gallery-page__subcats-label {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 14px;
+}
+
+.gallery-page__subcats-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.gallery-page__subcat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    border: 1.5px solid #e4dcc8;
+    border-radius: 100px;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #4a3f2f;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.gallery-page__subcat-pill:hover {
+    border-color: #c9a84c;
+    color: #a07c20;
+    background: #fdf6e3;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(201, 168, 76, 0.18);
+}
+
+.gallery-page__subcat-pill.active {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1a2d45 100%);
+    border-color: #0d1b2a;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(13, 27, 42, 0.2);
+}
+
+/* Kids activities pills get gold price styling */
+.gallery-page__subcat-pill.kids-pill {
+    border-color: rgba(201, 168, 76, 0.4);
+    background: #fffcf4;
+}
+
+.gallery-page__subcat-pill.kids-pill:hover {
+    background: #fdf3d0;
+    border-color: #c9a84c;
+}
+
+.gallery-page__subcat-pill.kids-pill.active {
+    background: linear-gradient(135deg, #c9a84c 0%, #e8c96a 100%);
+    border-color: #c9a84c;
+    color: #0d1b2a;
+    font-weight: 800;
+    box-shadow: 0 3px 12px rgba(201, 168, 76, 0.35);
+}
+
+@media (max-width: 768px) {
+    .gallery-page__subcats {
+        padding: 16px;
+    }
+
+    .gallery-page__subcats-pills {
+        gap: 6px;
+    }
+
+    .gallery-page__subcat-pill {
+        font-size: 0.72rem;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 580px) {
+    .gallery-page__grid {
+        grid-template-columns: 1fr;
+    }
+}

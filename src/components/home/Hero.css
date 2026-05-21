@@ -1,0 +1,476 @@
+/* ── Hero Wrapper (full-bleed background for side decorations) ── */
+.hero-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 195px;
+    padding: 0;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 60%, rgba(201,168,76,0.04) 0%, transparent 70%);
+}
+
+/* ── Decorative Side Panels ── */
+.hero-decor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-decor--left {
+    left: 0;
+}
+
+.hero-decor--right {
+    right: 0;
+}
+
+@media (min-width: 1348px) {
+    .hero-decor--left {
+        width: calc(50vw - 650px);
+    }
+    .hero-decor--right {
+        width: calc(50vw - 650px);
+    }
+}
+
+/* Floating Balloons */
+.hero-decor__balloon {
+    position: absolute;
+    opacity: 0.95;
+    filter: drop-shadow(0 4px 10px rgba(13, 27, 42, 0.1));
+}
+
+.hero-decor__balloon--1 {
+    top: 15%;
+    left: 18%;
+    animation: floatBalloon 6s ease-in-out infinite;
+}
+
+.hero-decor__balloon--2 {
+    top: 55%;
+    left: 45%;
+    animation: floatBalloon 7.5s ease-in-out infinite 1.2s;
+}
+
+.hero-decor__balloon--3 {
+    top: 10%;
+    right: 16%;
+    animation: floatBalloon 5.5s ease-in-out infinite 0.8s;
+}
+
+.hero-decor__balloon--4 {
+    top: 60%;
+    right: 41%;
+    animation: floatBalloon 8s ease-in-out infinite 2s;
+}
+
+.hero-decor__balloon--5 {
+    top: 35%;
+    left: 65%;
+    animation: floatBalloon 7s ease-in-out infinite 0.5s;
+}
+
+.hero-decor__balloon--6 {
+    top: 40%;
+    right: 60%;
+    animation: floatBalloon 6.5s ease-in-out infinite 1.5s;
+}
+
+/* Spinning Stars */
+.hero-decor__star {
+    position: absolute;
+    opacity: 0.9;
+    filter: drop-shadow(0 3px 6px rgba(13, 27, 42, 0.08));
+}
+
+.hero-decor__star--1 {
+    top: 8%;
+    left: 50%;
+    animation: spinStar 12s linear infinite, pulseStar 3s ease-in-out infinite;
+}
+
+.hero-decor__star--2 {
+    top: 75%;
+    left: 20%;
+    animation: spinStar 15s linear infinite reverse, pulseStar 4s ease-in-out infinite 1s;
+}
+
+.hero-decor__star--3 {
+    top: 6%;
+    right: 48%;
+    animation: spinStar 10s linear infinite 2s, pulseStar 3.5s ease-in-out infinite 0.5s;
+}
+
+.hero-decor__star--4 {
+    top: 80%;
+    right: 23%;
+    animation: spinStar 14s linear infinite reverse 1s, pulseStar 4.5s ease-in-out infinite 1.5s;
+}
+
+.hero-decor__star--5 {
+    top: 25%;
+    left: 30%;
+    animation: spinStar 13s linear infinite, pulseStar 3.8s ease-in-out infinite 0.2s;
+}
+
+.hero-decor__star--6 {
+    top: 20%;
+    right: 25%;
+    animation: spinStar 11s linear infinite reverse, pulseStar 3.2s ease-in-out infinite 0.7s;
+}
+
+/* Drifting Confetti Pieces */
+.hero-decor__confetti {
+    position: absolute;
+    border-radius: 3px;
+    opacity: 0.85;
+}
+
+.hero-decor__confetti--1 {
+    width: 14px;
+    height: 24px;
+    background: rgba(201,168,76,0.38);
+    top: 30%;
+    left: 63%;
+    animation: driftConfetti 9s ease-in-out infinite, spinConfetti 6s linear infinite;
+}
+
+.hero-decor__confetti--2 {
+    width: 10px;
+    height: 18px;
+    background: rgba(13,27,42,0.35);
+    top: 65%;
+    left: 32%;
+    border-radius: 50%;
+    animation: driftConfetti 11s ease-in-out infinite 2s, spinConfetti 8s linear infinite reverse;
+}
+
+.hero-decor__confetti--3 {
+    width: 16px;
+    height: 10px;
+    background: rgba(201,168,76,0.32);
+    top: 45%;
+    left: 14%;
+    animation: driftConfetti 8s ease-in-out infinite 1s, spinConfetti 10s linear infinite;
+}
+
+.hero-decor__confetti--4 {
+    width: 14px;
+    height: 22px;
+    background: rgba(201,168,76,0.38);
+    top: 35%;
+    right: 61%;
+    animation: driftConfetti 10s ease-in-out infinite 0.5s, spinConfetti 7s linear infinite;
+}
+
+.hero-decor__confetti--5 {
+    width: 10px;
+    height: 18px;
+    background: rgba(13,27,42,0.32);
+    top: 70%;
+    right: 32%;
+    border-radius: 50%;
+    animation: driftConfetti 12s ease-in-out infinite 3s, spinConfetti 9s linear infinite reverse;
+}
+
+.hero-decor__confetti--6 {
+    width: 16px;
+    height: 9px;
+    background: rgba(201,168,76,0.3);
+    top: 50%;
+    right: 14%;
+    animation: driftConfetti 7s ease-in-out infinite 1.5s, spinConfetti 11s linear infinite;
+}
+
+.hero-decor__confetti--7 {
+    width: 12px;
+    height: 20px;
+    background: rgba(201,168,76,0.35);
+    top: 75%;
+    left: 70%;
+    animation: driftConfetti 10s ease-in-out infinite 1.5s, spinConfetti 7.5s linear infinite;
+}
+
+.hero-decor__confetti--8 {
+    width: 12px;
+    height: 20px;
+    background: rgba(13,27,42,0.28);
+    top: 78%;
+    right: 65%;
+    animation: driftConfetti 9.5s ease-in-out infinite 0.8s, spinConfetti 8.5s linear infinite reverse;
+}
+
+/* Pulsing Sparkle Characters */
+.hero-decor__sparkle {
+    position: absolute;
+    line-height: 1;
+}
+
+.hero-decor__sparkle--1 {
+    top: 40%;
+    left: 77%;
+    font-size: 1.8rem;
+    color: rgba(201,168,76,0.65);
+    animation: pulseSparkle 3s ease-in-out infinite;
+}
+
+.hero-decor__sparkle--2 {
+    top: 85%;
+    left: 55%;
+    font-size: 1.3rem;
+    color: rgba(13,27,42,0.45);
+    animation: pulseSparkle 4s ease-in-out infinite 1.5s;
+}
+
+.hero-decor__sparkle--3 {
+    top: 42%;
+    right: 75%;
+    font-size: 1.7rem;
+    color: rgba(201,168,76,0.6);
+    animation: pulseSparkle 3.5s ease-in-out infinite 0.8s;
+}
+
+.hero-decor__sparkle--4 {
+    top: 88%;
+    right: 52%;
+    font-size: 1.2rem;
+    color: rgba(13,27,42,0.4);
+    animation: pulseSparkle 4.5s ease-in-out infinite 2s;
+}
+
+.hero-decor__sparkle--5 {
+    top: 60%;
+    left: 20%;
+    font-size: 1.5rem;
+    color: rgba(201,168,76,0.5);
+    animation: pulseSparkle 3.8s ease-in-out infinite 1s;
+}
+
+.hero-decor__sparkle--6 {
+    top: 55%;
+    right: 18%;
+    font-size: 1.4rem;
+    color: rgba(13,27,42,0.35);
+    animation: pulseSparkle 4.2s ease-in-out infinite 0.5s;
+}
+
+/* ── Keyframe Animations ── */
+@keyframes floatBalloon {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-12px) rotate(3deg); }
+    50% { transform: translateY(-6px) rotate(-2deg); }
+    75% { transform: translateY(-16px) rotate(2deg); }
+}
+
+@keyframes spinStar {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulseStar {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+@keyframes driftConfetti {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.5; }
+    25% { transform: translateY(-8px) translateX(4px); opacity: 0.8; }
+    50% { transform: translateY(4px) translateX(-3px); opacity: 0.6; }
+    75% { transform: translateY(-5px) translateX(6px); opacity: 0.9; }
+}
+
+@keyframes spinConfetti {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulseSparkle {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* ── Hero Card (unchanged core) ── */
+.hero {
+    position: relative;
+    width: calc(100% - 48px);
+    max-width: 1300px;
+    height: 380px;
+    margin: 0 auto;
+    border-radius: 24px;
+    overflow: hidden;
+    background: transparent;
+    padding: 0;
+    display: grid;
+    box-shadow: 0 8px 30px rgba(13, 27, 42, 0.08);
+    z-index: 2;
+}
+
+.hero__slide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+}
+
+.hero__slide--active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 24px;
+}
+
+.hero__content {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 0;
+}
+
+.hero__text {
+    max-width: 850px;
+}
+
+.hero__tag {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 24px;
+}
+
+.hero__heading {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.05;
+    margin-bottom: 28px;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hero__sub {
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.8;
+    margin-bottom: 40px;
+    max-width: 600px;
+}
+
+.hero__ctas {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.hero__dots {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 3;
+}
+
+.hero__dot {
+    width: 36px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.35);
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.3s, width 0.3s;
+    padding: 0;
+}
+
+.hero__dot--active {
+    background: var(--white);
+    width: 56px;
+}
+
+/* Curved Transition Cutout */
+.hero__curve-container {
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+}
+
+.hero__curve {
+    width: 90px;
+    height: 32px;
+    background: var(--white);
+    border-radius: 45px 45px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 -3px 10px rgba(13, 27, 42, 0.05);
+    position: relative;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s ease;
+}
+
+.hero__curve:hover {
+    background: var(--cream);
+    transform: translateY(-2px);
+}
+
+.hero__arrow {
+    color: var(--navy);
+    animation: bounceMini 2s infinite ease-in-out;
+}
+
+@keyframes bounceMini {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+    .hero-decor {
+        width: 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-wrapper {
+        margin-top: 160px;
+    }
+    .hero {
+        width: calc(100% - 24px);
+        height: 200px;
+        border-radius: 16px;
+    }
+    .hero__img {
+        border-radius: 16px;
+    }
+    .hero__dots {
+        bottom: 20px;
+    }
+    .hero__curve-container {
+        display: none;
+    }
+    .hero-decor {
+        display: none;
+    }
+}
