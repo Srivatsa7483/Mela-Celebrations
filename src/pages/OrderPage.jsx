@@ -75,9 +75,14 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
   useEffect(() => {
     const custom = sessionStorage.getItem("mela_custom_package");
     if (custom) {
-      const parsed = JSON.parse(custom);
-      setCustomPackage(parsed);
-      setForm(prev => ({ ...prev, designId: "" })); // clear regular designs
+      try {
+        const parsed = JSON.parse(custom);
+        setCustomPackage(parsed);
+        setForm(prev => ({ ...prev, designId: "" })); // clear regular designs
+      } catch (err) {
+        console.error("Failed to parse custom package from sessionStorage:", err);
+        sessionStorage.removeItem("mela_custom_package");
+      }
     }
 
     const wonCoupon = localStorage.getItem("mela_spin_won_coupon");

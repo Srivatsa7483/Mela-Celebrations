@@ -14,7 +14,13 @@ export function OrderProvider({ children }) {
     const key = user ? `mela_wishlist_${user.email}` : "mela_wishlist_anonymous";
     const savedWishlist = localStorage.getItem(key);
     if (savedWishlist) {
-      setWishlist(JSON.parse(savedWishlist));
+      try {
+        setWishlist(JSON.parse(savedWishlist));
+      } catch (err) {
+        console.error("Failed to parse wishlist from localStorage:", err);
+        setWishlist([]);
+        localStorage.removeItem(key);
+      }
     } else {
       setWishlist([]);
     }

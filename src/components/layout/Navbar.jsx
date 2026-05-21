@@ -184,9 +184,9 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                                     {isAuthenticated ? (
                                         <div className="navbar__menu-dropdown-profile">
                                             <div className="profile-info">
-                                                <div className="profile-name">{user.name}</div>
-                                                <div className="profile-email">📧 {user.email}</div>
-                                                {user.phone && <div className="profile-phone">📞 {user.phone}</div>}
+                                                <div className="profile-name">{user?.name || "Customer"}</div>
+                                                <div className="profile-email">📧 {user?.email || ""}</div>
+                                                {user?.phone && <div className="profile-phone">📞 {user.phone}</div>}
                                             </div>
                                             <div className="profile-actions">
                                                 <button 
@@ -309,7 +309,7 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                                     height: "38px"
                                 }}
                             >
-                                👤 {user.name.split(" ")[0]}
+                                👤 {(user?.name || "User").split(" ")[0]}
                                 {wishlist.length > 0 && (
                                     <span style={{ 
                                         background: "#e63946", 

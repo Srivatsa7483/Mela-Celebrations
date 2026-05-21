@@ -12,8 +12,14 @@ export function AuthProvider({ children }) {
     const savedUser = localStorage.getItem("mela_user");
     const savedToken = localStorage.getItem("mela_token");
     if (savedUser && savedToken) {
-      setUser(JSON.parse(savedUser));
-      setToken(savedToken);
+      try {
+        setUser(JSON.parse(savedUser));
+        setToken(savedToken);
+      } catch (err) {
+        console.error("Failed to parse saved user from localStorage:", err);
+        localStorage.removeItem("mela_user");
+        localStorage.removeItem("mela_token");
+      }
     }
     setLoading(false);
   }, []);
