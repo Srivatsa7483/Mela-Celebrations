@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { getDesigns, getCategories } from "../services/designService.js";
+import { designs, categories } from "../data/index.js";
 import { OrderContext } from "../context/OrderContext.jsx";
 import "./GalleryPage.css";
 import DesignModal from "../components/ui/DesignModal.jsx";
@@ -110,24 +110,10 @@ const matchSubcategory = (design, subId) => {
 
 export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, searchQuery, setSearchQuery }) {
     const { wishlist, toggleWishlist } = useContext(OrderContext);
-    const [designs, setDesigns] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [modalDesign, setModalDesign] = useState(null);
     const [visibleCards, setVisibleCards] = useState(new Set());
     const cardRefs = useRef({});
     const gridRef = useRef(null);
-
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true);
-            const [d, c] = await Promise.all([getDesigns(), getCategories()]);
-            setDesigns(d);
-            setCategories(c);
-            setIsLoading(false);
-        }
-        fetchData();
-    }, []);
 
     // Advanced Filter states
     const [genderFilter, setGenderFilter] = useState("all");
@@ -417,7 +403,7 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
 
                 {/* Category Pills */}
                 <div ref={gridRef} className="gallery-page__cats">
-                    {isLoading ? <span>Loading categories...</span> : allCats.map((c) => (
+                    {allCats.map((c) => (
                         <button
                             key={c.id}
                             className={`gallery-page__cat-pill${getParentCategory(activeCategory) === c.id ? " active" : ""}`}
@@ -431,13 +417,12 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
 
                 {/* Grid */}
                 <div className="gallery-page__grid">
-                    {isLoading && <div style={{ width: "100%", gridColumn: "1 / -1", textAlign: "center", padding: "40px 0", color: "var(--text-muted)" }}>Loading designs...</div>}
-                    {!isLoading && sorted.length === 0 && (
+                    {sorted.length === 0 && (
                         <div className="gallery-page__empty" style={{ width: "100%", gridColumn: "1 / -1", textAlign: "center", padding: "40px 0" }}>
                             <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>No designs matches your search criteria. Try broadening your filters.</p>
                         </div>
                     )}
-                    {!isLoading && sorted.map((d, i) => {
+                    {sorted.map((d, i) => {
                         const isVis = visibleCards.has(String(d.id));
                         const isLiked = wishlist.includes(d.id);
                         return (

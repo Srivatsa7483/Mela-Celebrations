@@ -12,8 +12,6 @@ import DashboardPage from './pages/DashboardPage.jsx';
 import BudgetCalculatorPage from './pages/BudgetCalculatorPage.jsx';
 import EventBuilderPage from './pages/EventBuilderPage.jsx';
 import RecentGalleryPage from './pages/RecentGalleryPage.jsx';
-import AdminLoginPage from './pages/admin/AdminLoginPage.jsx';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx';
 
 // Import Contexts
 import { AuthProvider, AuthContext } from './context/AuthContext.jsx';
@@ -136,10 +134,6 @@ function AppContent() {
         return <EventBuilderPage setCurrentPage={navigateToPage} />;
       case 'recent-gallery':
         return <RecentGalleryPage setCurrentPage={navigateToPage} />;
-      case 'admin':
-        return <AdminLoginPage setCurrentPage={navigateToPage} />;
-      case 'admin-dashboard':
-        return <AdminDashboardPage setCurrentPage={navigateToPage} />;
       default:
         return (
           <HomePage 
@@ -150,16 +144,6 @@ function AppContent() {
         );
     }
   };
-
-  const isAdminPage = currentPage === 'admin' || currentPage === 'admin-dashboard';
-
-  if (isAdminPage) {
-    return (
-      <div className="app">
-        {renderPage()}
-      </div>
-    );
-  }
 
   return (
     <div className="app">
@@ -175,7 +159,7 @@ function AppContent() {
         {renderPage()}
       </main>
 
-      <Footer setCurrentPage={navigateToPage} />
+      <Footer />
       
       {/* Floating Interactive Widget */}
       <FloatingWhatsApp />

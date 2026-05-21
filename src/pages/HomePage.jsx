@@ -1,28 +1,12 @@
-import { useState, useEffect } from "react";
 import Hero from "../components/home/Hero.jsx";
 import Collections from "../components/home/Collections.jsx";
 import CategoryStrip from "../components/home/CategoryStrip.jsx";
 import Packages from "../components/home/Packages.jsx";
 import HowItWorks from "../components/home/HowItWorks.jsx";
 import Testimonials from "../components/home/Testimonials.jsx";
-import { getDesigns, getCategories } from "../services/designService.js";
+import { categories, designs } from "../data/index.js";
 
 export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveCategory }) {
-    const [designs, setDesigns] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true);
-            const [d, c] = await Promise.all([getDesigns(), getCategories()]);
-            setDesigns(d);
-            setCategories(c);
-            setIsLoading(false);
-        }
-        fetchData();
-    }, []);
-
     return (
         <main>
             <Hero setCurrentPage={setCurrentPage} />
@@ -58,7 +42,7 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
             <Collections setCurrentPage={setCurrentPage} setActiveCategory={setActiveCategory} />
 
             {/* Dynamic Category Strips */}
-            {isLoading ? <div style={{ textAlign: "center", padding: "40px" }}>Loading collections...</div> : categories.map(category => {
+            {categories.map(category => {
                 const categoryDesigns = designs.filter(d => d.category === category.id);
                 
                 // Only show a strip if there are designs for this category

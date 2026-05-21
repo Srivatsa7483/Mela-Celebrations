@@ -5,7 +5,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import multer from "multer";
 
 dotenv.config();
 
@@ -34,22 +33,6 @@ const isEmailConfigured = Boolean(emailTransporter);
 
 app.use(cors());
 app.use(express.json());
-
-// Setup static folder for uploads
-const UPLOADS_DIR = path.join(__dirname, "public", "uploads");
-app.use("/uploads", express.static(UPLOADS_DIR));
-
-// Create uploads directory if it doesn't exist
-fs.mkdir(UPLOADS_DIR, { recursive: true }).catch(console.error);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage });
 
 // Helper function to write DB
 async function writeDB(data) {
@@ -109,7 +92,7 @@ async function readDB(skipAutoUpdate = false) {
     return db;
   } catch (error) {
     console.error("Error reading database file, creating a new one...", error);
-    const initialData = { users: [], bookings: [], coupons: [], designs: [], categories: [] };
+    const initialData = { users: [], bookings: [], coupons: [] };
     await writeDB(initialData);
     return initialData;
   }
@@ -459,50 +442,6 @@ app.get("/api/coupons", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Server error fetching coupons" });
   }
-});
-
-// --- Designs & Categories Endpoints ---
-app.get("/api/designs", async (req, res) => {
-  try {
-    const db = await readDB();
-    res.status(200).json(db.designs || []);
-  } catch (error) {
-    res.status(500).json({ error: "Server error fetching designs" });
-  }
-});
-
-app.post("/api/designs", async (req, res) => {
-  try {
-    const newDesign = req.body;
-    if (!newDesign.id) {
-      newDesign.id = Date.now();
-    }
-    const db = await readDB();
-    if (!db.designs) db.designs = [];
-    db.designs.push(newDesign);
-    await writeDB(db);
-    res.status(201).json({ message: "Design added successfully", design: newDesign });
-  } catch (error) {
-    res.status(500).json({ error: "Server error creating design" });
-  }
-});
-
-app.get("/api/categories", async (req, res) => {
-  try {
-    const db = await readDB();
-    res.status(200).json(db.categories || []);
-  } catch (error) {
-    res.status(500).json({ error: "Server error fetching categories" });
-  }
-});
-
-// Admin Upload Endpoint
-app.post("/api/admin/upload", upload.single("image"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-  const imageUrl = `/uploads/${req.file.filename}`;
-  res.status(200).json({ imageUrl });
 });
 
 // Start Server

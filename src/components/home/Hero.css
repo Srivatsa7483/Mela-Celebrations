@@ -1,31 +1,32 @@
 .hero {
     position: relative;
     width: calc(100% - 32px);
-    max-width: 1320px;
+    height: 450px; /* Limit vertical height like PartyOne */
     margin: 195px auto 0 auto;
-    aspect-ratio: 2.4 / 1;
     border-radius: 20px;
     overflow: hidden;
-    background: #faf9f6;
+    background: transparent;
     padding: 0;
+    display: grid;
 }
 
 .hero__slide {
-    position: absolute;
-    inset: 0;
+    grid-area: 1 / 1;
     opacity: 0;
     transition: opacity 1.2s ease;
 }
 
 .hero__slide--active {
     opacity: 1;
+    z-index: 1;
 }
 
 .hero__img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center;
+    object-fit: fill; /* Stretch horizontally without cropping */
+    display: block;
+    border-radius: 20px;
 }
 
 /* No transform animations or dark overlays for these banners */
@@ -105,8 +106,8 @@
 
 @media (max-width: 768px) {
     .hero {
-        aspect-ratio: 16 / 9;
         width: calc(100% - 24px);
+        height: 200px;
         margin-top: 160px;
         border-radius: 12px;
         padding: 0;
