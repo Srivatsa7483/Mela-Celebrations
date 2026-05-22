@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export default function FloatingWhatsApp() {
   const [isOpen, setIsOpen] = useState(false);
-  const phoneNumber = "918147308985"; // Owner phone number
+  const phoneNumber = "918152033967"; // Owner phone number
 
   const startChat = () => {
     const message = encodeURIComponent("Hi Mela Celebrations! I want to inquire about event decorations.");

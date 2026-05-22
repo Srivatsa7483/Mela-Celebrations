@@ -77,7 +77,7 @@ export default function RecentGalleryPage({ setCurrentPage }) {
     : completedProjects.filter(p => p.category === filter);
 
   const startInquiry = (project) => {
-    const adminPhone = "918147308985";
+    const adminPhone = "918152033967";
     const text = encodeURIComponent(`Hi Mela Celebrations! I saw your recent project: "${project.title}" completed at ${project.venue}. I would like to inquire about a similar setup!`);
     window.open(`https://wa.me/${adminPhone}?text=${text}`, "_blank");
   };

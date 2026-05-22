@@ -55,7 +55,7 @@ export default function EventBuilderPage({ setCurrentPage }) {
 
   const handleSubmitToWhatsApp = () => {
     const finalColors = colors === "Custom Colors" ? customColor : colors;
-    const adminPhone = "918147308985";
+    const adminPhone = "918152033967";
     
     const messageText = 
       `*Mela Celebrations - Custom Design Request* 🎨✨\n\n` +

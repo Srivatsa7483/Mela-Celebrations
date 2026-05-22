@@ -230,7 +230,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
       localStorage.removeItem("mela_spin_won_coupon");
 
       // 3. Format message details for WhatsApp chat confirmation
-      const adminPhone = "918147308985";
+      const adminPhone = "918152033967";
       const messageText = 
         `*New Event Booking Request* 🎉\n` +
         `-----------------------------\n` +
