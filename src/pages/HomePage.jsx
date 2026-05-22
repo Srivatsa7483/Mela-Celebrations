@@ -7,11 +7,11 @@ import Testimonials from "../components/home/Testimonials.jsx";
 import { useContext } from "react";
 import { DesignContext } from "../context/DesignContext.jsx";
 
-export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveCategory }) {
+export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveCategory, setSearchQuery }) {
     const { categories, designs } = useContext(DesignContext);
     return (
         <main>
-            <Hero setCurrentPage={setCurrentPage} />
+            <Hero setCurrentPage={setCurrentPage} setActiveCategory={setActiveCategory} setSearchQuery={setSearchQuery} />
             
             {/* Scrolling Marquee Below Hero */}
             <div className="homepage__marquee">

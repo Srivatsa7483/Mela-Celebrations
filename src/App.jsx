@@ -118,6 +118,7 @@ function AppContent() {
             setCurrentPage={navigateToPage} 
             setSelectedDesign={setSelectedDesign} 
             setActiveCategory={setActiveCategory} 
+            setSearchQuery={setSearchQuery} 
           />
         );
       case 'gallery':
@@ -168,6 +169,7 @@ function AppContent() {
             setCurrentPage={navigateToPage} 
             setSelectedDesign={setSelectedDesign} 
             setActiveCategory={setActiveCategory} 
+            setSearchQuery={setSearchQuery} 
           />
         );
     }

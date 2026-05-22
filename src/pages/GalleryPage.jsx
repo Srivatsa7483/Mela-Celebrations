@@ -128,7 +128,8 @@ const keywordMapping = {
     "navaratri": ["navaratri", "dandiya"],
     "ganesh-festival": ["ganesh", "ganpati"],
     "halloween": ["halloween", "spooky"],
-    "christmas": ["christmas", "santa", "snow"]
+    "christmas": ["christmas", "santa", "snow"],
+    "house-warming": ["house warming", "housewarming", "griha", "pravesh"]
 };
 
 const matchSubcategory = (design, subId) => {

@@ -38,16 +38,16 @@ const FILL_PATH   = buildFillPath();
 const STROKE_PATH = buildStroke();
 
 const slides = [
-    { id: 1, image: "/banner1_new.png", alt: "Celebrate Your Love, Beautifully - Anniversary Decoration" },
-    { id: 2, image: "/banner2_new.png", alt: "Happy 1st Birthday - One Year of Passion, Growth & Gratitude" },
-    { id: 3, image: "/banner3_new.jpg", alt: "Kid Activities for Birthday Party - Fun, Play, Laugh, Memories" },
-    { id: 4, image: "/banner4_new.png", alt: "Make Your New House a Beautiful Beginning - Premium House Warming Decoration" },
-    { id: 5, image: "/banner5_new.png", alt: "Welcome Baby - Beautiful Decorations for Your Baby's Special Welcome" },
-    { id: 6, image: "/banner6_new.png", alt: "Elevate Your Brand with Corporate Balloon Decoration", objectPosition: "left center" },
-    { id: 7, image: "/banner7_new.png", alt: "Beautiful Haldi Decoration - Vibrant Decor, Joyful Moments, Timeless Memories" }
+    { id: 1, image: "/banner1_new.png", alt: "Celebrate Your Love, Beautifully - Anniversary Decoration", category: "anniversary" },
+    { id: 2, image: "/banner2_new.png", alt: "Happy 1st Birthday - One Year of Passion, Growth & Gratitude", category: "first-birthday-decorations" },
+    { id: 3, image: "/banner3_new.jpg", alt: "Kid Activities for Birthday Party - Fun, Play, Laugh, Memories", category: "kidsactivities" },
+    { id: 4, image: "/banner4_new.png", alt: "Make Your New House a Beautiful Beginning - Premium House Warming Decoration", category: "house-warming" },
+    { id: 5, image: "/banner5_new.png", alt: "Welcome Baby - Beautiful Decorations for Your Baby's Special Welcome", category: "welcome-baby-decorations" },
+    { id: 6, image: "/banner6_new.png", alt: "Elevate Your Brand with Corporate Balloon Decoration", objectPosition: "left center", category: "corporate" },
+    { id: 7, image: "/banner7_new.png", alt: "Beautiful Haldi Decoration - Vibrant Decor, Joyful Moments, Timeless Memories", category: "haldi-decorations" }
 ];
 
-export default function Hero({ setCurrentPage }) {
+export default function Hero({ setCurrentPage, setActiveCategory, setSearchQuery }) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [direction, setDirection] = useState("right");
     const [touchStart, setTouchStart] = useState(null);
@@ -177,7 +177,15 @@ export default function Hero({ setCurrentPage }) {
                             <div
                                 key={slide.id}
                                 className={`hero__slide ${isActive ? "hero__slide--active" : ""} ${isActive ? `hero__slide--${direction}` : ""}`}
-                                onClick={() => setCurrentPage("gallery")}
+                                onClick={() => {
+                                    if (slide.category && setActiveCategory) {
+                                        setActiveCategory(slide.category);
+                                    }
+                                    if (setSearchQuery) {
+                                        setSearchQuery("");
+                                    }
+                                    setCurrentPage("gallery");
+                                }}
                                 onTouchStart={onTouchStart}
                                 onTouchMove={onTouchMove}
                                 onTouchEnd={onTouchEnd}
