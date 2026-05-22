@@ -184,6 +184,87 @@
     box-shadow: 0 5px 15px rgba(201, 168, 76, 0.3);
 }
 
+/* ── Instagram Follow Card ───────────────────────────────── */
+.instagram-follow-card {
+    display: block;
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.instagram-follow-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* Animated Instagram gradient background */
+.instagram-follow-card__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    opacity: 0.92;
+    transition: opacity 0.3s ease;
+}
+
+.instagram-follow-card:hover .instagram-follow-card__bg {
+    opacity: 1;
+}
+
+/* Subtle shimmer overlay */
+.instagram-follow-card__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%);
+    background-size: 200% 100%;
+    animation: igShimmer 2.5s infinite;
+}
+
+@keyframes igShimmer {
+    0%   { background-position: 200% center; }
+    100% { background-position: -200% center; }
+}
+
+.instagram-follow-card__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+}
+
+.instagram-follow-card__icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    color: #fff;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.instagram-follow-card__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.instagram-follow-card__handle {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+}
+
+.instagram-follow-card__cta {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.82);
+    letter-spacing: 0.03em;
+}
+
 /* Form Card */
 .contact-form-card {
     background-color: var(--white);

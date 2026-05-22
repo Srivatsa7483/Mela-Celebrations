@@ -105,7 +105,7 @@ export default function ContactPage({ setCurrentPage }) {
                                     <div className="contact-detail-icon">📧</div>
                                     <div className="contact-detail-content">
                                         <h4>Email Support</h4>
-                                        <a href="mailto:support@melacelebrations.com">support@melacelebrations.com</a>
+                                        <a href="mailto:melacelebrations@gmail.com">melacelebrations@gmail.com</a>
                                     </div>
                                 </div>
                                 <div className="contact-detail-item">
@@ -120,12 +120,26 @@ export default function ContactPage({ setCurrentPage }) {
 
                         <div className="contact-info-card__socials">
                             <h4>Follow Our Celebrations</h4>
-                            <div className="contact-social-icons">
-                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="contact-social-btn" aria-label="Instagram">📸</a>
-                                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="contact-social-btn" aria-label="Facebook">👤</a>
-                                <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer" className="contact-social-btn" aria-label="Pinterest">📌</a>
-                                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="contact-social-btn" aria-label="YouTube">🎥</a>
-                            </div>
+                            <a
+                                href="https://instagram.com/mela_celebrations"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="instagram-follow-card"
+                                aria-label="Follow on Instagram"
+                            >
+                                <div className="instagram-follow-card__bg" />
+                                <div className="instagram-follow-card__inner">
+                                    <svg className="instagram-follow-card__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                        <circle cx="12" cy="12" r="4"/>
+                                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+                                    </svg>
+                                    <div className="instagram-follow-card__text">
+                                        <span className="instagram-follow-card__handle">@mela_celebrations</span>
+                                        <span className="instagram-follow-card__cta">Follow us on Instagram ↗</span>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
 

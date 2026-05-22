@@ -140,7 +140,7 @@ export default function Footer({ setCurrentPage }) {
                                 📞 +91 81520 33967
                             </li>
                             <li style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontFamily: 'var(--font-sans)' }}>
-                                📧 support@melacelebrations.com
+                                📧 melacelebrations@gmail.com
                             </li>
                         </ul>
                     </div>

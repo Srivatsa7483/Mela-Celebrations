@@ -156,12 +156,12 @@ async function sendBookingConfirmationEmail(booking) {
   </div>`;
 
   const mailOptions = {
-    from: process.env.EMAIL_FROM || "Mela Celebrations <no-reply@melacelebrations.com>",
+    from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
     to: booking.email,
     subject,
     text: createInvoiceText(booking),
     html,
-    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER,
+    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
   };
 
   if (!isEmailConfigured) {
@@ -195,11 +195,11 @@ async function sendWelcomeEmail(user) {
   </div>`;
 
   const mailOptions = {
-    from: process.env.EMAIL_FROM || "Mela Celebrations <no-reply@melacelebrations.com>",
+    from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
     to: user.email,
     subject,
     html,
-    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER,
+    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
   };
 
   if (!isEmailConfigured) {
@@ -235,11 +235,11 @@ async function sendBookingStatusUpdateEmail(booking) {
   </div>`;
 
   const mailOptions = {
-    from: process.env.EMAIL_FROM || "Mela Celebrations <no-reply@melacelebrations.com>",
+    from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
     to: booking.email,
     subject,
     html,
-    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER,
+    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
   };
 
   if (!isEmailConfigured) {
@@ -255,7 +255,7 @@ async function sendBookingStatusUpdateEmail(booking) {
 }
 
 async function sendContactFormEmails(contactData) {
-  const adminEmail = process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "support@melacelebrations.com";
+  const adminEmail = process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com";
 
   const adminHtml = `
   <div style="font-family:Arial, sans-serif; color:#333; line-height:1.5;">
@@ -284,16 +284,16 @@ async function sendContactFormEmails(contactData) {
   }
   try {
     await emailTransporter.sendMail({
-      from: process.env.EMAIL_FROM || "Mela Celebrations <no-reply@melacelebrations.com>",
+      from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
       to: adminEmail,
       replyTo: contactData.email,
       subject: `New Contact Inquiry: ${contactData.subject} - from ${contactData.name}`,
       html: adminHtml,
     });
     await emailTransporter.sendMail({
-      from: process.env.EMAIL_FROM || "Mela Celebrations <no-reply@melacelebrations.com>",
+      from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
       to: contactData.email,
-      replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER,
+      replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
       subject: "We received your message - Mela Celebrations",
       html: userHtml,
     });
