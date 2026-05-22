@@ -1,0 +1,144 @@
+/* AdminDashboard.css — Mobile responsive overrides */
+
+/* ── Top Bar ── */
+@media (max-width: 600px) {
+    .admin-topbar {
+        padding: 12px 16px !important;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .admin-topbar-left {
+        flex: 1;
+        min-width: 0;
+    }
+    .admin-logo-title {
+        font-size: 1rem !important;
+    }
+    .admin-topbar-right {
+        flex-shrink: 0;
+    }
+    .admin-stats-count {
+        display: none;
+    }
+}
+
+/* ── Content padding ── */
+@media (max-width: 600px) {
+    .admin-content {
+        padding: 20px 16px !important;
+    }
+}
+
+/* ── Add Design Form: switch 2-col grid to 1-col on mobile ── */
+@media (max-width: 640px) {
+    .admin-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .admin-form-grid > * {
+        grid-column: span 1 !important;
+    }
+}
+
+/* ── Design Table: mobile card layout ── */
+@media (max-width: 700px) {
+    .admin-designs-table {
+        display: none !important;
+    }
+    .admin-designs-cards {
+        display: flex !important;
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+@media (min-width: 701px) {
+    .admin-designs-cards {
+        display: none !important;
+    }
+}
+
+/* Card style for each design row on mobile */
+.admin-design-card {
+    background: #ffffff;
+    border: 1px solid #D8DCE3;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(11, 25, 44, 0.04);
+}
+
+.admin-design-card__img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #D8DCE3;
+    flex-shrink: 0;
+}
+
+.admin-design-card__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-design-card__name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0B192C;
+    margin: 0 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-design-card__cat {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin: 0 0 4px;
+}
+
+.admin-design-card__price {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0B192C;
+    margin: 0 0 10px;
+}
+
+.admin-design-card__badge {
+    display: inline-block;
+    background: rgba(255, 179, 0, 0.12);
+    border: 1px solid rgba(255, 179, 0, 0.3);
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    color: #FFA000;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.admin-design-card__delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #EF4444;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    letter-spacing: 0.04em;
+}
+
+.admin-design-card__delete:hover {
+    background: rgba(239, 68, 68, 0.24);
+    border-color: rgba(239, 68, 68, 0.6);
+    transform: scale(1.03);
+}

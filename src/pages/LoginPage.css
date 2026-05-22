@@ -230,6 +230,18 @@
     z-index: 1;
     font-family: 'Jost', sans-serif;
     white-space: nowrap;
+    min-width: 0;
+}
+
+@media (max-width: 420px) {
+    .login-mode-toggle {
+        flex-direction: column;
+    }
+    .login-mode-btn {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 0.78rem;
+    }
 }
 
 .login-mode-btn svg {

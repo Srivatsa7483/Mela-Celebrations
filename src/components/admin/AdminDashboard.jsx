@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { uploadImage } from '../../services/designService';
 import { DesignContext } from '../../context/DesignContext';
+import './AdminDashboard.css';
 
 /* ─── Shared style tokens ─────────────────────────────────────────────── */
 const S = {
@@ -463,17 +464,17 @@ const AdminDashboard = ({ setCurrentPage }) => {
   return (
     <div style={S.page}>
       {/* ── Top Bar ── */}
-      <div style={S.topBar}>
-        <div style={S.logoRow}>
+      <div style={S.topBar} className="admin-topbar">
+        <div style={S.logoRow} className="admin-topbar-left">
           <span style={{ fontSize: '1.5rem' }}>🛡️</span>
           <div>
-            <p style={S.logoTitle}>Mela Celebrations</p>
+            <p style={S.logoTitle} className="admin-logo-title">Mela Celebrations</p>
             <span style={S.logoBadge}>Admin Dashboard</span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <span style={{ color: '#6B7280', fontSize: '0.78rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }} className="admin-topbar-right">
+          <span style={{ color: '#6B7280', fontSize: '0.78rem' }} className="admin-stats-count">
             {designs.length} designs · {categories.length} categories
           </span>
           <button
@@ -491,7 +492,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
       </div>
 
       {/* ── Content ── */}
-      <div style={S.content}>
+      <div style={S.content} className="admin-content">
 
         {/* Stats row */}
         <div style={{ display: 'flex', gap: '18px', marginBottom: '36px', flexWrap: 'wrap' }}>
@@ -539,7 +540,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
             <h3 style={S.formTitle}>
               ✨ New Design Details
             </h3>
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }} className="admin-form-grid">
 
               {/* Name */}
               <div style={{ gridColumn: 'span 2' }}>
@@ -729,70 +730,108 @@ const AdminDashboard = ({ setCurrentPage }) => {
               <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No designs found matching "{adminSearchQuery}".</p>
             </div>
           ) : (
-            <div style={S.tableWrap}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={S.th}>Image</th>
-                    <th style={S.th}>Name</th>
-                    <th style={S.th}>Category</th>
-                    <th style={S.th}>Price</th>
-                    <th style={{ ...S.th, textAlign: 'center' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredDesigns.map((d, i) => (
-                    <tr
-                      key={d.id}
-                      style={{ background: i % 2 === 0 ? 'transparent' : '#F9FAFB' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 179, 0, 0.04)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : '#F9FAFB'; }}
-                    >
-                      <td style={S.td}>
-                        <img src={d.image} alt={d.name} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #D8DCE3' }} />
-                      </td>
-                      <td style={{ ...S.td, fontWeight: '700', color: '#0B192C' }}>
+            <>
+              {/* Desktop Table */}
+              <div style={S.tableWrap} className="admin-designs-table">
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={S.th}>Image</th>
+                      <th style={S.th}>Name</th>
+                      <th style={S.th}>Category</th>
+                      <th style={S.th}>Price</th>
+                      <th style={{ ...S.th, textAlign: 'center' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDesigns.map((d, i) => (
+                      <tr
+                        key={d.id}
+                        style={{ background: i % 2 === 0 ? 'transparent' : '#F9FAFB' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 179, 0, 0.04)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : '#F9FAFB'; }}
+                      >
+                        <td style={S.td}>
+                          <img src={d.image} alt={d.name} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #D8DCE3' }} />
+                        </td>
+                        <td style={{ ...S.td, fontWeight: '700', color: '#0B192C' }}>
+                          {d.name}
+                          {d.badge && (
+                            <span style={{ marginLeft: '8px', background: 'rgba(255, 179, 0, 0.12)', border: '1px solid rgba(255, 179, 0, 0.3)', borderRadius: '8px', padding: '2px 8px', fontSize: '0.65rem', color: '#FFA000', fontWeight: '700', letterSpacing: '0.1em', verticalAlign: 'middle' }}>
+                              {d.badge}
+                            </span>
+                          )}
+                        </td>
+                        <td style={S.td}>
+                          <span style={{ color: '#4B5563' }}>{d.categoryName}</span>
+                          {d.subcategory && (
+                            <div style={{ fontSize: '0.75rem', color: '#FFA000', marginTop: '4px', fontWeight: '600' }}>
+                              ↳ {getSubcategoryLabel(d.category, d.subcategory)}
+                            </div>
+                          )}
+                        </td>
+                        <td style={S.td}>
+                          <span style={{ color: '#0B192C', fontWeight: '700', fontSize: '0.95rem' }}>₹{d.price.toLocaleString('en-IN')}</span>
+                          {d.originalPrice && d.originalPrice > d.price && (
+                            <div style={{ fontSize: '0.73rem', color: '#9CA3AF', textDecoration: 'line-through', marginTop: '2px' }}>
+                              ₹{d.originalPrice.toLocaleString('en-IN')}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ ...S.td, textAlign: 'center' }}>
+                          <button
+                            onClick={() => handleDelete(d.id)}
+                            style={S.deleteBtn}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="admin-designs-cards">
+                {filteredDesigns.map((d) => (
+                  <div key={d.id} className="admin-design-card">
+                    <img src={d.image} alt={d.name} className="admin-design-card__img" />
+                    <div className="admin-design-card__info">
+                      <p className="admin-design-card__name">
                         {d.name}
-                        {d.badge && (
-                          <span style={{ marginLeft: '8px', background: 'rgba(255, 179, 0, 0.12)', border: '1px solid rgba(255, 179, 0, 0.3)', borderRadius: '8px', padding: '2px 8px', fontSize: '0.65rem', color: '#FFA000', fontWeight: '700', letterSpacing: '0.1em', verticalAlign: 'middle' }}>
-                            {d.badge}
+                        {d.badge && <span className="admin-design-card__badge">{d.badge}</span>}
+                      </p>
+                      <p className="admin-design-card__cat">
+                        {d.categoryName}{d.subcategory ? ` › ${getSubcategoryLabel(d.category, d.subcategory)}` : ''}
+                      </p>
+                      <p className="admin-design-card__price">
+                        ₹{d.price.toLocaleString('en-IN')}
+                        {d.originalPrice && d.originalPrice > d.price && (
+                          <span style={{ marginLeft: '6px', fontSize: '0.75rem', color: '#9CA3AF', textDecoration: 'line-through', fontWeight: '400' }}>
+                            ₹{d.originalPrice.toLocaleString('en-IN')}
                           </span>
                         )}
-                      </td>
-                      <td style={S.td}>
-                        <span style={{ color: '#4B5563' }}>{d.categoryName}</span>
-                        {d.subcategory && (
-                          <div style={{ fontSize: '0.75rem', color: '#FFA000', marginTop: '4px', fontWeight: '600' }}>
-                            ↳ {getSubcategoryLabel(d.category, d.subcategory)}
-                          </div>
-                        )}
-                      </td>
-                      <td style={S.td}>
-                        <span style={{ color: '#0B192C', fontWeight: '700', fontSize: '0.95rem' }}>₹{d.price.toLocaleString('en-IN')}</span>
-                        {d.originalPrice && d.originalPrice > d.price && (
-                          <div style={{ fontSize: '0.73rem', color: '#9CA3AF', textDecoration: 'line-through', marginTop: '2px' }}>
-                            ₹{d.originalPrice.toLocaleString('en-IN')}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ ...S.td, textAlign: 'center' }}>
-                        <button
-                          onClick={() => handleDelete(d.id)}
-                          style={S.deleteBtn}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
-                        >
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                          </svg>
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </p>
+                      <button
+                        className="admin-design-card__delete"
+                        onClick={() => handleDelete(d.id)}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
