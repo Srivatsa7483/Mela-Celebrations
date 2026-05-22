@@ -98,7 +98,7 @@ export default function ContactPage({ setCurrentPage }) {
                                     <div className="contact-detail-icon">📞</div>
                                     <div className="contact-detail-content">
                                         <h4>Phone & WhatsApp</h4>
-                                        <a href="tel:+919876543210">+91 98765 43210</a>
+                                        <a href="tel:+918152033967">+91 81520 33967</a>
                                     </div>
                                 </div>
                                 <div className="contact-detail-item">
@@ -112,7 +112,7 @@ export default function ContactPage({ setCurrentPage }) {
                                     <div className="contact-detail-icon">📍</div>
                                     <div className="contact-detail-content">
                                         <h4>Main Atelier</h4>
-                                        <p>102, Gold Crest Plaza, Jubilee Hills, Hyderabad, India - 500033</p>
+                                        <p>BTM 1st Stage, Bengaluru, India</p>
                                     </div>
                                 </div>
                             </div>
@@ -221,9 +221,9 @@ export default function ContactPage({ setCurrentPage }) {
                             <div className="map-marker-shadow"></div>
                         </div>
                         <div className="map-popup-card">
-                            <h4>Mela Celebrations Atelier</h4>
-                            <p>Jubilee Hills, Hyderabad</p>
-                        </div>
+                                <h4>Mela Celebrations Atelier</h4>
+                                <p>BTM 1st Stage, Bengaluru</p>
+                            </div>
                     </div>
                 </div>
 

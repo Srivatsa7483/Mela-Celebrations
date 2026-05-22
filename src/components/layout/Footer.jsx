@@ -54,7 +54,7 @@ export default function Footer({ setCurrentPage }) {
                     <div>
                         <h4 className="footer__brand-name">Mela Celebrations</h4>
                         <p className="footer__brand-tagline">
-                            Hyderabad's premier boutique event decorator. Crafting luxury, artisanal aesthetics 
+                            Bengaluru's premier boutique event decorator. Crafting luxury, artisanal aesthetics 
                             for birthdays, anniversaries, candlelights, and festive celebrations.
                         </p>
                         <div className="footer__social">
@@ -134,10 +134,10 @@ export default function Footer({ setCurrentPage }) {
                         <h5 className="footer__col-heading">Contact Atelier</h5>
                         <ul className="footer__col-list" style={{ gap: '14px' }}>
                             <li style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontFamily: 'var(--font-sans)', lineHeight: '1.5' }}>
-                                📍 102, Gold Crest Plaza,<br /> Jubilee Hills, Hyderabad - 500033
+                                📍 BTM 1st Stage,<br /> Bengaluru - 560068
                             </li>
                             <li style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontFamily: 'var(--font-sans)' }}>
-                                📞 +91 98765 43210
+                                📞 +91 81520 33967
                             </li>
                             <li style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontFamily: 'var(--font-sans)' }}>
                                 📧 support@melacelebrations.com

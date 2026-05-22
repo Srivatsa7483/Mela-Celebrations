@@ -390,7 +390,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
               <div className="order-form__field">
                 <label>Phone Number *</label>
                 <input
-                  type="tel" placeholder="9876543210"
+                  type="tel" placeholder="8152033967"
                   value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className={errors.phone ? "error" : ""}
                 />

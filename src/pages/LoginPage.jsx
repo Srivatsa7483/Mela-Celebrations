@@ -426,7 +426,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                       <input
                         className="login-input"
                         type="tel"
-                        placeholder="9876543210"
+                        placeholder="8152033967"
                         value={regPhone}
                         onChange={(e) => setRegPhone(e.target.value)}
                         required
