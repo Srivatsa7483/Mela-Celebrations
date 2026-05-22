@@ -16,6 +16,7 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
     const [activeNavbarDropdown, setActiveNavbarDropdown] = useState(null);
     const [activeNavbarSubDropdown, setActiveNavbarSubDropdown] = useState(null);
     const searchRef = useRef(null);
+    const mobileSearchRef = useRef(null);
     const [menuDropdownOpen, setMenuDropdownOpen] = useState(false);
     const menuDropdownRef = useRef(null);
     // Portal-based dropdown state (escapes overflow clipping)
@@ -36,7 +37,9 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
         window.addEventListener("scroll", onScroll);
 
         const handleClickOutside = (e) => {
-            if (searchRef.current && !searchRef.current.contains(e.target)) {
+            const inDesktop = searchRef.current && searchRef.current.contains(e.target);
+            const inMobile = mobileSearchRef.current && mobileSearchRef.current.contains(e.target);
+            if (!inDesktop && !inMobile) {
                 setShowSuggestions(false);
             }
             // Close portal dropdown when clicking outside dropdown or pill
@@ -362,7 +365,7 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
 
             {/* ── Mobile-only second row: search + icons + booking ── */}
             <div className="navbar__mobile-search-row">
-                <div className="navbar__mobile-search-wrap">
+                <div className="navbar__mobile-search-wrap" ref={mobileSearchRef}>
                     <input
                         type="text"
                         className="navbar__search-input"
