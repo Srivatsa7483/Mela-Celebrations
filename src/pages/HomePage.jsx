@@ -4,9 +4,11 @@ import CategoryStrip from "../components/home/CategoryStrip.jsx";
 import Packages from "../components/home/Packages.jsx";
 import HowItWorks from "../components/home/HowItWorks.jsx";
 import Testimonials from "../components/home/Testimonials.jsx";
-import { categories, designs } from "../data/index.js";
+import { useContext } from "react";
+import { DesignContext } from "../context/DesignContext.jsx";
 
 export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveCategory }) {
+    const { categories, designs } = useContext(DesignContext);
     return (
         <main>
             <Hero setCurrentPage={setCurrentPage} />

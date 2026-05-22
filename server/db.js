@@ -1,5 +1,6 @@
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
+import { designs as seedDesigns, categories as seedCategories } from "../src/data/index.js";
 
 dotenv.config();
 
@@ -34,6 +35,22 @@ export async function connectDB() {
     console.log("🌱 Coupons seeded into MongoDB");
   }
 
+  // Seed categories if empty
+  const categoriesCol = dbInstance.collection("categories");
+  const categoriesCount = await categoriesCol.countDocuments();
+  if (categoriesCount === 0) {
+    await categoriesCol.insertMany(seedCategories);
+    console.log("🌱 Categories seeded into MongoDB");
+  }
+
+  // Seed designs if empty
+  const designsCol = dbInstance.collection("designs");
+  const designsCount = await designsCol.countDocuments();
+  if (designsCount === 0) {
+    await designsCol.insertMany(seedDesigns);
+    console.log("🌱 Designs seeded into MongoDB");
+  }
+
   return dbInstance;
 }
 
@@ -41,3 +58,4 @@ export async function getDB() {
   if (!dbInstance) await connectDB();
   return dbInstance;
 }
+

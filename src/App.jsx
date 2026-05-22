@@ -19,6 +19,7 @@ import AdminDashboardPage from './components/admin/AdminDashboard.jsx';
 // Import Contexts
 import { AuthProvider, AuthContext } from './context/AuthContext.jsx';
 import { OrderProvider } from './context/OrderContext.jsx';
+import { DesignProvider } from './context/DesignContext.jsx';
 
 // Import New Widgets
 import FloatingWhatsApp from './components/ui/FloatingWhatsApp.jsx';
@@ -247,7 +248,9 @@ function App() {
   return (
     <AuthProvider>
       <OrderProvider>
-        <AppContent />
+        <DesignProvider>
+          <AppContent />
+        </DesignProvider>
       </OrderProvider>
     </AuthProvider>
   );

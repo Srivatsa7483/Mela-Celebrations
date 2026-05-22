@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { designs } from "../../data/index.js";
+import { useEffect, useRef, useState, useContext } from "react";
+import { DesignContext } from "../../context/DesignContext.jsx";
 import "./Packages.css";
 
 function formatPrice(p) {
@@ -7,6 +7,7 @@ function formatPrice(p) {
 }
 
 export default function Packages({ setCurrentPage, setSelectedDesign }) {
+    const { designs } = useContext(DesignContext);
     const [visible, setVisible] = useState(false);
     const ref = useRef(null);
 

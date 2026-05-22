@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { designs } from "../data/index.js";
+import { DesignContext } from "../context/DesignContext.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { OrderContext } from "../context/OrderContext.jsx";
 import "./OrderPage.css";
@@ -7,6 +7,7 @@ import "./OrderPage.css";
 function formatPrice(p) { return "₹" + p.toLocaleString("en-IN"); }
 
 export default function OrderPage({ selectedDesign, setCurrentPage }) {
+  const { designs } = useContext(DesignContext);
   const { user, isAuthenticated } = useContext(AuthContext);
   const { createBooking } = useContext(OrderContext);
 
@@ -93,7 +94,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
     }
   }, []);
 
-  const chosen = customPackage ? null : (designs.find((d) => d.id === Number(form.designId)) || selectedDesign);
+  const chosen = customPackage ? null : (designs.find((d) => String(d.id) === String(form.designId)) || selectedDesign);
 
   // Prices calculation
   const basePrice = customPackage ? customPackage.packagePrice : (chosen ? chosen.price : 0);

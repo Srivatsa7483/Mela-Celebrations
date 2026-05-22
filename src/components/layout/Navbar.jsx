@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { createPortal } from "react-dom";
-import { designs, categories } from "../../data/index.js";
+import { DesignContext } from "../../context/DesignContext.jsx";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { OrderContext } from "../../context/OrderContext.jsx";
 import "./Navbar.css";
 
 export default function Navbar({ currentPage, setCurrentPage, setActiveCategory, setSearchQuery, countdownText }) {
+    const { designs, categories } = useContext(DesignContext);
     const { user, isAuthenticated, logout } = useContext(AuthContext);
     const { wishlist } = useContext(OrderContext);
     const [scrolled, setScrolled] = useState(false);

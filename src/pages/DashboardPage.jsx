@@ -1,16 +1,17 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { OrderContext } from "../context/OrderContext.jsx";
-import { designs } from "../data/index.js";
+import { DesignContext } from "../context/DesignContext.jsx";
 
 export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
   const { user, logout } = useContext(AuthContext);
   const { orders, wishlist, toggleWishlist, updateBookingStatusAdmin } = useContext(OrderContext);
+  const { designs } = useContext(DesignContext);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
 
   // List of wishlist design items
-  const savedItems = designs.filter(d => wishlist.includes(d.id));
+  const savedItems = designs.filter(d => wishlist.map(String).includes(String(d.id)));
 
   const handlePrintInvoice = () => {
     window.print();

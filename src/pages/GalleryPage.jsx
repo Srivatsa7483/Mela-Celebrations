@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { designs, categories } from "../data/index.js";
+import { DesignContext } from "../context/DesignContext.jsx";
 import { OrderContext } from "../context/OrderContext.jsx";
 import "./GalleryPage.css";
 import DesignModal from "../components/ui/DesignModal.jsx";
@@ -142,6 +142,7 @@ const matchSubcategory = (design, subId) => {
 };
 
 export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, searchQuery, setSearchQuery }) {
+    const { designs, categories } = useContext(DesignContext);
     const { wishlist, toggleWishlist } = useContext(OrderContext);
     const [modalDesign, setModalDesign] = useState(null);
     const [visibleCards, setVisibleCards] = useState(new Set());
@@ -250,7 +251,7 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
         // Favorites
         let matchFav = true;
         if (showFavoritesOnly) {
-            matchFav = wishlist.includes(d.id);
+            matchFav = wishlist.map(String).includes(String(d.id));
         }
 
         return matchCat && matchSearch && matchGender && matchDiscount && matchFav;
@@ -438,7 +439,7 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                     )}
                     {sorted.map((d, i) => {
                         const isVis = visibleCards.has(String(d.id));
-                        const isLiked = wishlist.includes(d.id);
+                        const isLiked = wishlist.map(String).includes(String(d.id));
                         return (
                             <div
                                 key={d.id}

@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { categories } from "../../data/index.js";
+import { useEffect, useRef, useState, useContext } from "react";
+import { DesignContext } from "../../context/DesignContext.jsx";
 import "./Collections.css";
 
 export default function Collections({ setCurrentPage, setActiveCategory }) {
+    const { categories } = useContext(DesignContext);
     const [visible, setVisible] = useState(false);
     const [selectedCat, setSelectedCat] = useState(null);
     const [selectedSub, setSelectedSub] = useState(null);

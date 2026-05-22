@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { getDesigns, getCategories, createDesign, deleteDesign, uploadImage } from '../../services/designService';
+import React, { useState, useEffect, useContext } from 'react';
+import { uploadImage } from '../../services/designService';
+import { DesignContext } from '../../context/DesignContext';
 
 /* ─── Shared style tokens ─────────────────────────────────────────────── */
 const S = {
@@ -322,10 +323,8 @@ const CustomSelect = ({ value, onChange, options, placeholder, disabled, name, r
 };
 
 const AdminDashboard = ({ setCurrentPage }) => {
-  const [designs, setDesigns] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const { designs, categories, loading, createDesignAction, deleteDesignAction } = useContext(DesignContext);
   const [isAdding, setIsAdding] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -336,18 +335,8 @@ const AdminDashboard = ({ setCurrentPage }) => {
   useEffect(() => {
     if (sessionStorage.getItem('mela_admin_auth') !== 'true') {
       setCurrentPage('admin');
-      return;
     }
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    const [fetchedDesigns, fetchedCategories] = await Promise.all([getDesigns(), getCategories()]);
-    setDesigns(fetchedDesigns);
-    setCategories(fetchedCategories);
-    setLoading(false);
-  };
+  }, [setCurrentPage]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('mela_admin_auth');
@@ -411,12 +400,11 @@ const AdminDashboard = ({ setCurrentPage }) => {
         image: imageUrl,
         badge: 'NEW',
       };
-      await createDesign(newDesign);
+      await createDesignAction(newDesign);
       alert('Design added successfully!');
       setIsAdding(false);
       setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '' });
       setFile(null);
-      loadData();
     } catch (error) {
       console.error(error);
       alert('Error adding design.');
@@ -428,9 +416,8 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const handleDelete = async (designId) => {
     if (window.confirm('Are you sure you want to permanently delete this design?')) {
       try {
-        await deleteDesign(designId);
+        await deleteDesignAction(designId);
         alert('Design deleted successfully!');
-        loadData();
       } catch (error) {
         console.error('Error deleting design:', error);
         alert('Failed to delete the design.');

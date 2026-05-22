@@ -304,6 +304,83 @@ async function sendContactFormEmails(contactData) {
 
 // ── API ROUTES ────────────────────────────────────────────────────────────────
 
+// ── CATEGORIES & DESIGNS ──────────────────────────────────────────────────────
+app.get("/api/categories", async (req, res) => {
+  try {
+    const db = await getDB();
+    const categories = await db.collection("categories").find({}).toArray();
+    const clean = categories.map(({ _id, ...c }) => c);
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Get Categories Error:", error);
+    res.status(500).json({ error: "Server error fetching categories" });
+  }
+});
+
+app.get("/api/designs", async (req, res) => {
+  try {
+    const db = await getDB();
+    const designs = await db.collection("designs").find({}).toArray();
+    const clean = designs.map(({ _id, ...d }) => d);
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Get Designs Error:", error);
+    res.status(500).json({ error: "Server error fetching designs" });
+  }
+});
+
+app.post("/api/designs", async (req, res) => {
+  try {
+    const newDesign = req.body;
+    const db = await getDB();
+    const designsCol = db.collection("designs");
+    const designs = await designsCol.find({}).toArray();
+    
+    // Generate new numeric ID
+    const nextId = designs.length > 0 
+      ? Math.max(...designs.map(d => Number(d.id) || 0)) + 1 
+      : 1001;
+      
+    const designWithId = {
+      ...newDesign,
+      id: nextId
+    };
+    
+    await designsCol.insertOne(designWithId);
+    const { _id, ...clean } = designWithId;
+    res.status(201).json(clean);
+  } catch (error) {
+    console.error("Create Design Error:", error);
+    res.status(500).json({ error: "Server error creating design" });
+  }
+});
+
+app.delete("/api/designs/:id", async (req, res) => {
+  try {
+    const designId = req.params.id;
+    const db = await getDB();
+    const designsCol = db.collection("designs");
+    
+    const numericId = Number(designId);
+    const query = {
+      $or: [
+        { id: designId },
+        { id: isNaN(numericId) ? null : numericId }
+      ]
+    };
+    
+    const result = await designsCol.deleteOne(query);
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Design not found" });
+    }
+    
+    res.status(200).json({ success: true, message: "Design deleted successfully" });
+  } catch (error) {
+    console.error("Delete Design Error:", error);
+    res.status(500).json({ error: "Server error deleting design" });
+  }
+});
+
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 app.post("/api/auth/register", async (req, res) => {
   try {
