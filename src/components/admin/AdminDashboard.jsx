@@ -326,6 +326,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const { designs, categories, loading, createDesignAction, deleteDesignAction } = useContext(DesignContext);
   const [isAdding, setIsAdding] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [adminSearchQuery, setAdminSearchQuery] = useState('');
 
   const [formData, setFormData] = useState({
     name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '',
@@ -380,6 +381,20 @@ const AdminDashboard = ({ setCurrentPage }) => {
     }
     return subId;
   };
+
+  const filteredDesigns = designs.filter(d => {
+    const query = adminSearchQuery.toLowerCase().trim();
+    if (!query) return true;
+    
+    const matchesName = d.name && d.name.toLowerCase().includes(query);
+    const matchesCategory = d.categoryName && d.categoryName.toLowerCase().includes(query);
+    const subcatLabel = d.subcategory ? getSubcategoryLabel(d.category, d.subcategory) : '';
+    const matchesSubcategory = subcatLabel && subcatLabel.toLowerCase().includes(query);
+    const matchesDescription = d.description && d.description.toLowerCase().includes(query);
+    const matchesFeatures = d.features && d.features.some(f => f.toLowerCase().includes(query));
+    
+    return matchesName || matchesCategory || matchesSubcategory || matchesDescription || matchesFeatures;
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -645,14 +660,73 @@ const AdminDashboard = ({ setCurrentPage }) => {
 
         {/* ── Designs Table ── */}
         <div style={{ marginTop: '10px' }}>
-          <p style={S.sectionTitle}>
-            📋 All Designs — {designs.length} total
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '14px' }}>
+            <p style={{ ...S.sectionTitle, margin: 0 }}>
+              📋 All Designs — {filteredDesigns.length !== designs.length ? `${filteredDesigns.length} of ${designs.length}` : `${designs.length}`} total
+            </p>
+            
+            {/* Search input field */}
+            <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
+              <input
+                type="text"
+                value={adminSearchQuery}
+                onChange={(e) => setAdminSearchQuery(e.target.value)}
+                placeholder="Search designs..."
+                style={{
+                  ...S.input,
+                  paddingLeft: '40px',
+                  background: '#ffffff',
+                }}
+                onFocus={onFocus}
+                onBlur={onBlur}
+              />
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="#6B7280" 
+                strokeWidth="2.5" 
+                style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+              >
+                <circle cx="11" cy="11" r="7" /><path d="m21 21-4.35-4.35" />
+              </svg>
+              {adminSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setAdminSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#9CA3AF',
+                    fontSize: '1.25rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 0,
+                    lineHeight: 1,
+                  }}
+                  title="Clear search"
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+          </div>
 
           {designs.length === 0 ? (
             <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
               <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🖼️</p>
               <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No designs yet. Click "Add New Design" to get started.</p>
+            </div>
+          ) : filteredDesigns.length === 0 ? (
+            <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
+              <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔍</p>
+              <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No designs found matching "{adminSearchQuery}".</p>
             </div>
           ) : (
             <div style={S.tableWrap}>
@@ -667,7 +741,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {designs.map((d, i) => (
+                  {filteredDesigns.map((d, i) => (
                     <tr
                       key={d.id}
                       style={{ background: i % 2 === 0 ? 'transparent' : '#F9FAFB' }}
