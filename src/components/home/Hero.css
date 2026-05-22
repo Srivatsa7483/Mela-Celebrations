@@ -37,7 +37,7 @@
 
 /* Floating Balloons */
 .hero-decor__balloon {
-    display: none;
+    display: block;
     position: absolute;
     opacity: 0.95;
     filter: drop-shadow(0 4px 10px rgba(13, 27, 42, 0.1));
