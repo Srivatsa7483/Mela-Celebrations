@@ -1,0 +1,61 @@
+.stepper-container {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.stepper-progress-line {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background-color: var(--border);
+    z-index: 1;
+}
+
+.stepper-progress-fill {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    height: 2px;
+    background-color: var(--gold);
+    z-index: 2;
+    transition: width 0.3s ease;
+}
+
+.step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: white;
+    color: var(--navy);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+    z-index: 3;
+    transition: all 0.3s ease;
+}
+
+.step-circle--active {
+    background-color: var(--navy);
+    color: white;
+    border: 2px solid var(--navy);
+}
+
+@media (max-width: 480px) {
+    .step-circle {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+    }
+    
+    .stepper-progress-line,
+    .stepper-progress-fill {
+        top: 11px;
+    }
+}
