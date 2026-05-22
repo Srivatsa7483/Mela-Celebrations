@@ -37,7 +37,7 @@ export default function CategoryStrip({ title, categoryId, designs, setCurrentPa
     }, []);
 
     const scrollBy = (dir) => {
-        sliderRef.current?.scrollBy({ left: dir * 220, behavior: "smooth" });
+        sliderRef.current?.scrollBy({ left: dir * 280, behavior: "smooth" });
     };
 
     // Helper to calculate discount percentage
