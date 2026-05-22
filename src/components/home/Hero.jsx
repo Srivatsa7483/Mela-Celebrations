@@ -2,47 +2,61 @@ import { useState, useEffect } from "react";
 import "./Hero.css";
 
 const slides = [
-    {
-        image: "/banner1_new.png?v=4",
-        heading: "Baby Shower",
-    },
-    {
-        image: "/banner2_new.png?v=4",
-        heading: "Housewarming",
-    },
-    {
-        image: "/banner3_new.png?v=4",
-        heading: "Event Planning",
-    },
-    {
-        image: "/banner4_new.png?v=4",
-        heading: "Anniversary",
-    },
-    {
-        image: "/banner5_new.jpg?v=4",
-        heading: "Mela Celebrations",
-    },
+    { image: "/banner3_new.png?v=5", heading: "Mela Celebrations" },
+    { image: "/banner1_new.png?v=5", heading: "Baby Shower" },
+    { image: "/banner2_new.png?v=5", heading: "Housewarming" },
+    { image: "/banner4_new.png?v=5", heading: "Anniversary" },
+    { image: "/banner5_new.jpg?v=5", heading: "Mela Dreams" },
 ];
+
+/* ─────────────────────────────────────────────────────────────────
+ * Wave Overlay and Garland Stroke SVG Path Builders
+ * Both scale identically using the SVG viewBox + preserveAspectRatio="none"
+ * ───────────────────────────────────────────────────────────────── */
+const GW     = 1300;
+const GH     = 410;
+const YP     = 375;   // wave peak y
+const YT     = 400;   // wave trough y
+const PERIOD = 60;
+
+// Path covering the area from the wave down to the bottom of the stage, filled with page background (white)
+function buildFillPath() {
+    let d = `M0,${GH} L0,${YP} `;
+    let lastX = 0;
+    for (let x = 0; x < GW; x += PERIOD) {
+        d += `C${x+10},${YP} ${x+20},${YT} ${x+30},${YT} `;
+        d += `C${x+40},${YT} ${x+50},${YP} ${x+60},${YP} `;
+        lastX = x + 60;
+    }
+    d += `L${lastX},${GH} Z`;
+    return d;
+}
+
+// Stroke path for the golden garland wave border line
+function buildStroke() {
+    let d = `M0,${YP} `;
+    for (let x = 0; x < GW; x += PERIOD) {
+        d += `C${x+10},${YP} ${x+20},${YT} ${x+30},${YT} `;
+        d += `C${x+40},${YT} ${x+50},${YP} ${x+60},${YP} `;
+    }
+    return d;
+}
+
+const FILL_PATH   = buildFillPath();
+const STROKE_PATH = buildStroke();
 
 export default function Hero({ setCurrentPage }) {
     const [active, setActive] = useState(0);
 
     useEffect(() => {
-        const timer = setInterval(() => setActive((p) => (p + 1) % slides.length), 5500);
+        const timer = setInterval(() => setActive(p => (p + 1) % slides.length), 5500);
         return () => clearInterval(timer);
     }, []);
 
-    const scrollToContent = (e) => {
-        e.stopPropagation();
-        const target = document.querySelector(".homepage__marquee") || document.querySelector(".collections");
-        if (target) {
-            target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-    };
-
     return (
         <div className="hero-wrapper">
-            {/* Left Decorative Elements */}
+
+            {/* ── Left Side Decor ── */}
             <div className="hero-decor hero-decor--left" aria-hidden="true">
                 <svg className="hero-decor__balloon hero-decor__balloon--1" width="56" height="74" viewBox="0 0 56 74">
                     <ellipse cx="28" cy="29" rx="25" ry="29" fill="rgba(201,168,76,0.38)" stroke="rgba(201,168,76,0.65)" strokeWidth="1.8" />
@@ -74,7 +88,7 @@ export default function Hero({ setCurrentPage }) {
                 <div className="hero-decor__sparkle hero-decor__sparkle--5">✦</div>
             </div>
 
-            {/* Right Decorative Elements */}
+            {/* ── Right Side Decor ── */}
             <div className="hero-decor hero-decor--right" aria-hidden="true">
                 <svg className="hero-decor__balloon hero-decor__balloon--3" width="52" height="70" viewBox="0 0 52 70">
                     <ellipse cx="26" cy="27" rx="23" ry="27" fill="rgba(201,168,76,0.35)" stroke="rgba(201,168,76,0.6)" strokeWidth="1.8" />
@@ -106,40 +120,70 @@ export default function Hero({ setCurrentPage }) {
                 <div className="hero-decor__sparkle hero-decor__sparkle--6">✧</div>
             </div>
 
-            {/* Hero Banner */}
-            <section className="hero">
-                {slides.map((s, i) => (
-                    <div
-                        key={i}
-                        className={`hero__slide${i === active ? " hero__slide--active" : ""}`}
-                        onClick={() => setCurrentPage("gallery")}
-                        style={{ cursor: "pointer" }}
-                    >
-                        <img src={s.image} alt={s.heading} className="hero__img" />
+            {/* ── Hero Stage ── */}
+            <div className="hero-stage">
 
-                        {/* Rising sparkle particles — only render on active slide */}
-                        {i === active && (
-                            <div className="hero__sparkles" aria-hidden="true">
-                                {Array.from({ length: 18 }).map((_, d) => (
-                                    <div key={d} className="hero__particle" />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
-
-                {/* Dots */}
-                <div className="hero__dots">
-                    {slides.map((_, i) => (
-                        <button
+                {/* ── Hero section (no CSS clipPath needed, covered by wave overlay) ── */}
+                <section className="hero">
+                    {slides.map((s, i) => (
+                        <div
                             key={i}
-                            className={`hero__dot${i === active ? " hero__dot--active" : ""}`}
-                            onClick={() => setActive(i)}
-                        />
+                            className={`hero__slide${i === active ? " hero__slide--active" : ""}`}
+                            onClick={() => setCurrentPage("gallery")}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <img src={s.image} alt={s.heading} className="hero__img" />
+
+                            {i === active && (
+                                <div className="hero__sparkles" aria-hidden="true">
+                                    {Array.from({ length: 18 }).map((_, d) => (
+                                        <div key={d} className="hero__particle" />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     ))}
+
+                    <div className="hero__dots">
+                        {slides.map((_, i) => (
+                            <button
+                                key={i}
+                                className={`hero__dot${i === active ? " hero__dot--active" : ""}`}
+                                onClick={() => setActive(i)}
+                            />
+                        ))}
+                    </div>
+                </section>
+
+                {/*
+                 * Wave overlay container — includes both the white fill (forming the wave edge on the images)
+                 * and the thin golden border tracing that same edge.
+                 * Both scale 100% identically inside the same SVG viewBox space, preventing any gaps/mismatches.
+                 */}
+                <div className="hero__wave-border" aria-hidden="true">
+                    <svg
+                        viewBox={`0 0 ${GW} ${GH}`}
+                        preserveAspectRatio="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        style={{ width: "100%", height: "100%", display: "block", overflow: "visible" }}
+                    >
+                        <path
+                            d={FILL_PATH}
+                            fill="var(--white)"
+                            stroke="none"
+                        />
+                        <path
+                            d={STROKE_PATH}
+                            fill="none"
+                            stroke="#c9a84c"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </svg>
                 </div>
 
-            </section>
+            </div>{/* /.hero-stage */}
         </div>
     );
 }

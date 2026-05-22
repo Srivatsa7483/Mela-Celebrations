@@ -2,7 +2,7 @@
 .hero-wrapper {
     position: relative;
     width: 100%;
-    margin-top: 205px;
+    margin-top: 195px;
     padding: 0;
     overflow: hidden;
     background: radial-gradient(ellipse at 50% 60%, rgba(201,168,76,0.04) 0%, transparent 70%);
@@ -291,27 +291,54 @@
     50% { opacity: 1; transform: scale(1.3); }
 }
 
-/* ── Hero Card ── */
-.hero {
+/* ── Hero Stage: relative wrapper for clipped section + garland sibling ── */
+.hero-stage {
     position: relative;
     width: calc(100% - 48px);
     max-width: 1300px;
-    height: 380px;
     margin: 0 auto;
-    border-radius: 24px;
+    /* height = image height + wave dip + breathing room */
+    height: 410px;
+    z-index: 2;
+}
+
+/* ── Hero Card ── */
+.hero {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
     overflow: visible;
     background: transparent;
     padding: 0;
     display: grid;
-    box-shadow: 0 8px 30px rgba(13, 27, 42, 0.08);
-    z-index: 2;
+    box-shadow: none;
+    z-index: 1;
+}
+
+
+/* ── Thin golden border on the wave edge ── */
+/* Sibling of .hero — NOT clipped. Absolutely covers the same area.
+   The inner SVG uses viewBox + preserveAspectRatio="none" so it scales
+   identically to the objectBoundingBox clip. */
+.hero__wave-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    overflow: visible;
 }
 
 .hero__slide {
     grid-area: 1 / 1;
     opacity: 0;
     transition: opacity 1.2s ease;
-    border-radius: 24px;
+    border-radius: 0;
     overflow: hidden;
     position: relative;
 }
@@ -326,15 +353,13 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    border-radius: 24px;
-    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    border-radius: 0;
 }
 
 /* ── Rising Sparkle Particles ── */
 .hero__sparkles {
     position: absolute;
-    bottom: 0;
+    bottom: 30px; /* offset up slightly so particles rise from the wave valley */
     left: 0;
     width: 100%;
     height: 180px;
@@ -469,7 +494,7 @@
 
 .hero__dots {
     position: absolute;
-    bottom: 36px;
+    bottom: 46px; /* sits above the wave trough */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -493,52 +518,6 @@
     width: 56px;
 }
 
-/* Curved Transition Cutout */
-.hero__curve-container {
-    position: absolute;
-    bottom: -1px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    pointer-events: none;
-    display: flex;
-    justify-content: center;
-}
-
-.hero__curve {
-    width: 90px;
-    height: 32px;
-    background: var(--white);
-    border-radius: 45px 45px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 -3px 10px rgba(13, 27, 42, 0.05);
-    position: relative;
-    pointer-events: auto;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.3s ease;
-}
-
-.hero__curve:hover {
-    background: var(--cream);
-    transform: translateY(-2px);
-}
-
-.hero__arrow {
-    color: var(--navy);
-    animation: bounceMini 2s infinite ease-in-out;
-}
-
-@keyframes bounceMini {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(4px);
-    }
-}
-
 /* ── Responsive ── */
 @media (max-width: 1100px) {
     .hero-decor {
@@ -548,22 +527,14 @@
 
 @media (max-width: 768px) {
     .hero-wrapper {
-        margin-top: 170px;
+        margin-top: 160px;
     }
-    .hero {
+    .hero-stage {
         width: calc(100% - 24px);
-        height: 200px;
-        border-radius: 16px;
-        overflow: visible;
-    }
-    .hero__slide {
-        border-radius: 16px;
-    }
-    .hero__img {
-        border-radius: 16px;
+        height: 230px;
     }
     .hero__dots {
-        bottom: 20px;
+        bottom: 36px;
     }
     .hero__curve-container {
         display: none;
