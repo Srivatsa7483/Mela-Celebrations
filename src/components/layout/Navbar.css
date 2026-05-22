@@ -498,6 +498,25 @@
         display: none;
     }
 
+    /* Hide logout button from top row on mobile — accessible via hamburger menu */
+    .navbar__logout-btn {
+        display: none !important;
+    }
+
+    /* Profile pill (👤 Name) stays VISIBLE on mobile — tapping it goes to Dashboard */
+    /* The overflow was caused by LOGOUT + pill together, not the pill alone */
+
+    /* Hide icon-wrappers from top row on mobile — they appear in the mobile search row */
+    .navbar__icon-wrapper {
+        display: none !important;
+    }
+
+    /* Constrain actions gap on mobile */
+    .navbar__actions {
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
     /* Show mobile search row on tablet/mobile */
     .navbar__mobile-search-row {
         display: flex;

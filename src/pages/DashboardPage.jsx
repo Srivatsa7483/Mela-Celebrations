@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { OrderContext } from "../context/OrderContext.jsx";
 import { DesignContext } from "../context/DesignContext.jsx";
+import "./DashboardPage.css";
 
 export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
   const { user, logout } = useContext(AuthContext);
@@ -36,15 +37,7 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
   ];
 
   return (
-    <div className="dashboard-page" style={{
-      paddingTop: "calc(var(--navbar-height, 143px) + 24px)",
-      paddingBottom: "60px",
-      paddingLeft: 0,
-      paddingRight: 0,
-      backgroundColor: "#f7f4ef",
-      minHeight: "100vh",
-      fontFamily: "'Jost', sans-serif"
-    }}>
+    <div className="dashboard-page">
       <div className="container" style={{ maxWidth: "1100px" }}>
         
         {/* Dashboard Header */}
@@ -58,23 +51,21 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
         }}>
           <div>
             <span className="tag" style={{ color: "var(--gold)" }}>CUSTOMER PORTAL</span>
-            <h1 style={{ fontFamily: "var(--font-display)", color: "var(--navy)", fontSize: "2.4rem", margin: 0 }}>
+            <h1 className="dashboard__title">
               Welcome back, {user?.name || "Customer"}!
             </h1>
             <p style={{ color: "var(--text-muted)", marginTop: "4px" }}>Manage your bookings, invoices, and saved decoration setups.</p>
           </div>
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div className="dashboard__header-actions">
             <button 
               onClick={() => setCurrentPage("gallery")} 
               className="btn-primary" 
-              style={{ padding: "10px 20px", fontSize: "0.75rem" }}
             >
               EXPLORE DESIGNS
             </button>
             <button 
               onClick={logout} 
               className="btn-navy-outline" 
-              style={{ padding: "10px 20px", fontSize: "0.75rem" }}
             >
               LOG OUT
             </button>
@@ -86,7 +77,7 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
           
           {/* Section 1: Active Bookings and Timeline Tracker */}
           <div>
-            <h2 style={{ fontFamily: "var(--font-display)", color: "var(--navy)", marginBottom: "20px", fontSize: "1.6rem" }}>
+            <h2 className="dashboard__title-sub">
               Active Bookings & Tracker
             </h2>
 
@@ -106,21 +97,13 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
                 </p>
                 <button className="btn-primary" onClick={() => setCurrentPage("gallery")}>Book A Package Now</button>
               </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            ) :               <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                 {orders.map((booking) => {
                   const currentIndex = getStatusIndex(booking.status);
                   return (
                     <div 
                       key={booking.id}
-                      style={{
-                        backgroundColor: "white",
-                        borderRadius: "12px",
-                        border: "1px solid #e2ddd6",
-                        boxShadow: "var(--shadow-card)",
-                        padding: "24px",
-                        position: "relative"
-                      }}
+                      className="dashboard__booking-card"
                     >
                       {/* Booking ID Header */}
                       <div style={{
@@ -135,21 +118,20 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
                       }}>
                         <div>
                           <span style={{ color: "var(--text-muted)", fontSize: "0.8rem", fontWeight: "600" }}>ORDER ID</span>
-                          <h3 style={{ color: "var(--navy)", margin: 0, fontFamily: "var(--font-sans)", fontWeight: "bold" }}>
+                          <h3 className="booking-card__header-id">
                             {booking.id}
                           </h3>
                         </div>
-                        <div style={{ textAlign: "right" }}>
+                        <div className="booking-card__header-cost">
                           <span style={{ color: "var(--text-muted)", fontSize: "0.8rem", fontWeight: "600" }}>TOTAL COST</span>
                           <div style={{ color: "var(--gold)", fontWeight: "bold", fontSize: "1.1rem" }}>
                             ₹{booking.finalPrice.toLocaleString("en-IN")}
                           </div>
                         </div>
-                        <div>
+                        <div className="booking-card__invoice-btn-wrap">
                           <button 
                             onClick={() => setSelectedInvoice(booking)}
-                            className="btn-navy-outline"
-                            style={{ padding: "8px 16px", fontSize: "0.75rem" }}
+                            className="btn-navy-outline booking-card__invoice-btn"
                           >
                             📄 VIEW INVOICE
                           </button>
@@ -172,18 +154,14 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
                         </div>
                       </div>
 
-                      {/* Horizontal Booking Tracker */}
+                      {/* Booking Tracker */}
                       <div>
                         <h4 style={{ color: "var(--navy)", fontSize: "0.85rem", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "20px" }}>
                           Booking Progress Tracker
                         </h4>
 
-                        <div style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          position: "relative",
-                          padding: "0 10px"
-                        }}>
+                        {/* Desktop Horizontal Tracker */}
+                        <div className="tracker__desktop">
                           {/* Background line */}
                           <div style={{
                             position: "absolute",
@@ -249,18 +227,85 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
                             </div>
                           ))}
                         </div>
-                      </div>
 
+                        {/* Mobile Vertical Tracker */}
+                        <div className="tracker__mobile">
+                          {trackingSteps.map((step, idx) => (
+                            <div 
+                              key={step.label}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "16px",
+                                textAlign: "left",
+                                marginBottom: idx === trackingSteps.length - 1 ? 0 : "8px"
+                              }}
+                            >
+                              {/* Left Column: Circle and vertical line */}
+                              <div style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                width: "30px"
+                              }}>
+                                <div style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                  backgroundColor: currentIndex >= idx ? "var(--gold)" : "white",
+                                  border: currentIndex >= idx ? "2px solid var(--gold)" : "2px solid #e2ddd6",
+                                  color: currentIndex >= idx ? "white" : "var(--text-muted)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  fontWeight: "bold",
+                                  fontSize: "0.8rem",
+                                  zIndex: 2,
+                                  transition: "all 0.3s ease"
+                                }}>
+                                  {currentIndex >= idx ? "✓" : idx + 1}
+                                </div>
+                                {idx < trackingSteps.length - 1 && (
+                                  <div style={{
+                                    width: "3px",
+                                    height: "32px",
+                                    backgroundColor: currentIndex > idx ? "var(--gold)" : "#e2ddd6",
+                                    zIndex: 1,
+                                    transition: "background-color 0.3s ease",
+                                    marginTop: "4px",
+                                    marginBottom: "4px"
+                                  }} />
+                                )}
+                              </div>
+                              
+                              {/* Right Column: Text content */}
+                              <div style={{ paddingTop: "4px" }}>
+                                <span style={{ 
+                                  fontSize: "0.85rem", 
+                                  fontWeight: currentIndex >= idx ? "bold" : "500", 
+                                  color: currentIndex >= idx ? "var(--navy)" : "var(--text-muted)",
+                                  display: "block"
+                                }}>
+                                  {step.label}
+                                </span>
+                                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px", display: "block" }}>
+                                  {step.desc}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
               </div>
-            )}
+            }
           </div>
 
           {/* Section 2: Saved Designs Wishlist */}
           <div>
-            <h2 style={{ fontFamily: "var(--font-display)", color: "var(--navy)", marginBottom: "20px", fontSize: "1.6rem" }}>
+            <h2 className="dashboard__title-sub">
               My Saved Designs Wishlist ({savedItems.length})
             </h2>
 
@@ -341,50 +386,36 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
 
           {/* Section 3: Collapsible Admin Testing Panel */}
           {orders.length > 0 && (
-            <div style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
-              border: "2px dashed #0d1b2a",
-              padding: "20px",
-              marginTop: "20px"
-            }}>
+            <div className="dashboard__admin-panel">
               <button 
                 onClick={() => setAdminPanelOpen(!adminPanelOpen)}
-                style={{
-                  width: "100%",
-                  background: "none",
-                  border: "none",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  cursor: "pointer",
-                  color: "var(--navy)",
-                  fontWeight: "bold",
-                  fontSize: "1rem"
-                }}
+                className="admin-panel__toggle"
               >
-                <span>🛠️ Developer Admin Control Panel (For Booking Tracker Testing)</span>
-                <span>{adminPanelOpen ? "▲ Close" : "▼ Expand"}</span>
+                <span>🛠️ Developer Admin Control Panel</span>
+                <span>{adminPanelOpen ? "▲" : "▼"}</span>
               </button>
-
               {adminPanelOpen && (
                 <div style={{ marginTop: "16px", borderTop: "1px solid #e2ddd6", paddingTop: "16px" }}>
                   <p style={{ fontSize: "0.85rem", color: "var(--text-body)", marginBottom: "12px" }}>
                     Since this is a client application, you can use these admin buttons to advance the status of your bookings and see the horizontal tracker update instantly above!
                   </p>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                  <table className="admin-table">
                     <thead>
-                      <tr style={{ textAlign: "left", borderBottom: "1px solid var(--border)" }}>
-                        <th style={{ padding: "8px" }}>Booking ID</th>
-                        <th style={{ padding: "8px" }}>Current Status</th>
-                        <th style={{ padding: "8px" }}>Advance Tracker Status</th>
+                      <tr>
+                        <th>Booking ID</th>
+                        <th>Current Status</th>
+                        <th>Advance Tracker Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {orders.map(order => (
-                        <tr key={order.id} style={{ borderBottom: "1px solid #f2f0ec" }}>
-                          <td style={{ padding: "8px", fontWeight: "600" }}>{order.id}</td>
-                          <td style={{ padding: "8px" }}>
+                        <tr key={order.id}>
+                          <td style={{ fontWeight: "600" }}>
+                            <span className="admin-table__mobile-label">ID:</span>
+                            {order.id}
+                          </td>
+                          <td>
+                            <span className="admin-table__mobile-label">Status:</span>
                             <span style={{ 
                               padding: "4px 8px", 
                               borderRadius: "4px", 
@@ -395,24 +426,21 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
                               {order.status}
                             </span>
                           </td>
-                          <td style={{ padding: "8px", display: "flex", gap: "6px" }}>
-                            {["Pending", "Confirmed", "In Progress", "Completed"].map(status => (
-                              <button
-                                key={status}
-                                onClick={() => updateBookingStatusAdmin(order.id, status)}
-                                style={{
-                                  padding: "4px 8px",
-                                  border: "1px solid var(--navy)",
-                                  backgroundColor: order.status === status ? "var(--navy)" : "white",
-                                  color: order.status === status ? "white" : "var(--navy)",
-                                  fontSize: "0.7rem",
-                                  borderRadius: "4px",
-                                  cursor: "pointer"
-                                }}
-                              >
-                                {status}
-                              </button>
-                            ))}
+                          <td>
+                            <div className="admin-table__actions">
+                              {["Pending", "Confirmed", "In Progress", "Completed"].map(status => (
+                                <button
+                                  key={status}
+                                  onClick={() => updateBookingStatusAdmin(order.id, status)}
+                                  style={{
+                                    backgroundColor: order.status === status ? "var(--navy)" : "white",
+                                    color: order.status === status ? "white" : "var(--navy)"
+                                  }}
+                                >
+                                  {status}
+                                </button>
+                              ))}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -442,36 +470,29 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
           zIndex: 1200,
           padding: "20px"
         }}>
-          <div className="animate-scale-in" style={{
-            backgroundColor: "white",
-            borderRadius: "12px",
-            width: "100%",
-            maxWidth: "640px",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
-            overflow: "hidden"
-          }}>
+          <div className="animate-scale-in invoice-modal__card">
             {/* Header print area */}
-            <div id="print-area" style={{ padding: "40px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px", borderBottom: "2px solid var(--gold)", paddingBottom: "20px" }}>
+            <div id="print-area" className="invoice-modal__print-area">
+              <div className="invoice-modal__header">
                 <div>
-                  <h2 style={{ fontFamily: "var(--font-display)", color: "var(--navy)", margin: 0 }}>Mela Celebrations</h2>
+                  <h2 className="invoice-modal__header-title">Mela Celebrations</h2>
                   <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Bangalore, India | mela@celebrations.com</span>
                 </div>
-                <div style={{ textAlign: "right" }}>
+                <div className="invoice-modal__header-meta">
                   <h3 style={{ margin: 0, color: "var(--navy)", fontSize: "1.4rem" }}>INVOICE</h3>
                   <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-muted)" }}>#{selectedInvoice.id}</span>
                 </div>
               </div>
 
               {/* Invoice details */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "30px", fontSize: "0.85rem" }}>
+              <div className="invoice-modal__details">
                 <div>
                   <span style={{ color: "var(--text-muted)", display: "block", fontWeight: "bold" }}>Billed To:</span>
                   <strong>{selectedInvoice.name}</strong><br />
                   {selectedInvoice.email}<br />
                   Phone: {selectedInvoice.phone}
                 </div>
-                <div style={{ textAlign: "right" }}>
+                <div className="invoice-modal__details-right">
                   <span style={{ color: "var(--text-muted)", display: "block", fontWeight: "bold" }}>Event Details:</span>
                   Date: <strong>{selectedInvoice.date}</strong><br />
                   Venue: <strong>{selectedInvoice.venue}</strong><br />
@@ -542,7 +563,7 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
             </div>
 
             {/* Modal Controls */}
-            <div style={{ backgroundColor: "#f2f0ec", padding: "20px", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+            <div className="invoice-modal__controls">
               <button 
                 onClick={handlePrintInvoice}
                 style={{

@@ -295,9 +295,9 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
 
                     {/* Customer Login / Dashboard integration */}
                     {isAuthenticated ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="navbar__user-auth-group" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                             <button 
-                                className="navbar__pill" 
+                                className="navbar__pill navbar__user-pill" 
                                 onClick={() => setCurrentPage("dashboard")}
                                 style={{ 
                                     display: "flex", 
@@ -326,7 +326,7 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                                 )}
                             </button>
                             <button 
-                                className="btn-navy-outline" 
+                                className="btn-navy-outline navbar__logout-btn" 
                                 style={{ padding: "8px 14px", height: "38px", fontSize: "0.75rem" }} 
                                 onClick={logout}
                             >
@@ -335,7 +335,7 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                         </div>
                     ) : (
                         <button 
-                            className="btn-navy-outline" 
+                            className="btn-navy-outline navbar__login-btn" 
                             style={{ padding: "8px 20px", height: "38px", fontSize: "0.75rem" }} 
                             onClick={() => setCurrentPage("login")}
                         >
@@ -509,6 +509,14 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                         </div>
                     ))}
                     <button className="navbar__mobile-link" onClick={() => { setCurrentPage("how-it-works"); setMenuOpen(false); }}>HOW IT WORKS</button>
+                    {isAuthenticated ? (
+                        <>
+                            <button className="navbar__mobile-link" onClick={() => { setCurrentPage("dashboard"); setMenuOpen(false); }}>DASHBOARD</button>
+                            <button className="navbar__mobile-link" onClick={() => { logout(); setMenuOpen(false); }} style={{ color: "#e63946" }}>LOGOUT</button>
+                        </>
+                    ) : (
+                        <button className="navbar__mobile-link" onClick={() => { setCurrentPage("login"); setMenuOpen(false); }}>LOGIN</button>
+                    )}
                     <button className="navbar__cta" style={{ marginTop: "12px", width: "100%", justifyContent: "center" }} onClick={() => { setCurrentPage("order"); setMenuOpen(false); }}>CONSULTATION</button>
                 </div>
             )}

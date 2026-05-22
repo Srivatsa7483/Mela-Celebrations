@@ -378,3 +378,10 @@ h5 {
         padding: 0 16px;
     }
 }
+
+@media (max-width: 768px) {
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+}
