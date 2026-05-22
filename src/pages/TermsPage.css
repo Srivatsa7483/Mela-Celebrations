@@ -1,0 +1,354 @@
+.terms-page {
+    padding-top: calc(var(--navbar-height, 143px) + 24px);
+    min-height: 100vh;
+    background-color: var(--white);
+}
+
+.terms-page__header {
+    background: var(--navy);
+    padding: 80px 0 60px;
+    text-align: center;
+    margin-bottom: 40px;
+    border-bottom: 2px solid rgba(201, 168, 76, 0.2);
+}
+
+.terms-page__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--white);
+    margin: 12px 0 16px;
+}
+
+.terms-page__sub {
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.terms-page__nav-container {
+    max-width: 900px;
+    margin: 0 auto 40px;
+}
+
+.terms-page__tabs {
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 12px;
+    gap: 16px;
+}
+
+.terms-page__tab-btn {
+    background: transparent;
+    border: none;
+    padding: 12px 24px;
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    border-radius: var(--radius);
+}
+
+.terms-page__tab-btn:hover {
+    color: var(--navy);
+    background-color: var(--section-bg);
+}
+
+.terms-page__tab-btn.active {
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.terms-page__tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--gold);
+    border-radius: 3px;
+}
+
+.terms-page__content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+}
+
+/* Terms Tab Styles */
+.terms-intro-card {
+    background: var(--section-bg);
+    padding: 32px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.terms-intro-card h2 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--navy);
+    margin-bottom: 12px;
+}
+
+.terms-intro-card p {
+    font-family: var(--font-sans);
+    color: var(--text-body);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.terms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.terms-section-card {
+    display: flex;
+    gap: 24px;
+    padding: 28px;
+    background: var(--white);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.terms-section-card:hover {
+    box-shadow: var(--shadow-card);
+    border-color: rgba(201, 168, 76, 0.4);
+}
+
+.terms-section-card__number {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold);
+    background: var(--section-bg);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    flex-shrink: 0;
+}
+
+.terms-section-card__body h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--navy);
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.terms-section-card__body p {
+    font-family: var(--font-sans);
+    color: var(--text-body);
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+/* Refunds Tab Styles */
+.refunds-intro {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.refunds-intro h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--navy);
+    margin-bottom: 12px;
+}
+
+.refunds-intro p {
+    font-family: var(--font-sans);
+    color: var(--text-body);
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.refunds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.refund-card {
+    background: var(--white);
+    padding: 36px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(13, 27, 42, 0.03);
+    transition: var(--transition);
+}
+
+.refund-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+
+.refund-card__badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+}
+
+.refund-card__timeline {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--navy);
+    margin-bottom: 12px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.refund-card__amount {
+    font-family: var(--font-sans);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--navy);
+}
+
+.refund-notes-card {
+    background: #faf9f6;
+    padding: 32px;
+    border-radius: 12px;
+    border-left: 4px solid var(--gold);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.refund-notes-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--navy);
+    margin-bottom: 16px;
+}
+
+.refund-notes-card ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.refund-notes-card li {
+    font-family: var(--font-sans);
+    color: var(--text-body);
+    font-size: 1rem;
+    position: relative;
+    padding-left: 24px;
+    line-height: 1.5;
+}
+
+.refund-notes-card li::before {
+    content: "•";
+    color: var(--gold);
+    font-size: 1.5rem;
+    position: absolute;
+    left: 4px;
+    top: -4px;
+}
+
+/* Disclaimer Tab Styles */
+.disclaimer-container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 50px 40px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+}
+
+.disclaimer-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    display: inline-block;
+    background: var(--section-bg);
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border-radius: 80px;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+}
+
+.disclaimer-container h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--navy);
+    margin-bottom: 24px;
+}
+
+.disclaimer-text {
+    font-family: var(--font-sans);
+    color: var(--text-body);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    text-align: justify;
+}
+
+.disclaimer-footer {
+    margin-top: 40px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+    .terms-page__tabs {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .terms-page__tab-btn.active::after {
+        display: none;
+    }
+
+    .terms-page__tab-btn.active {
+        background-color: var(--navy);
+        color: var(--white);
+    }
+
+    .terms-section-card {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .disclaimer-container {
+        padding: 30px 20px;
+    }
+}

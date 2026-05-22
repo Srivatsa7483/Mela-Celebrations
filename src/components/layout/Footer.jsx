@@ -112,17 +112,17 @@ export default function Footer({ setCurrentPage }) {
                                 </button>
                             </li>
                             <li>
-                                <button className="footer__col-link" onClick={() => setCurrentPage("home")}>
+                                <button className="footer__col-link" onClick={() => setCurrentPage("faqs")}>
                                     FAQs
                                 </button>
                             </li>
                             <li>
-                                <button className="footer__col-link" onClick={() => setCurrentPage("home")}>
+                                <button className="footer__col-link" onClick={() => setCurrentPage("privacy")}>
                                     Privacy Policy
                                 </button>
                             </li>
                             <li>
-                                <button className="footer__col-link" onClick={() => setCurrentPage("home")}>
+                                <button className="footer__col-link" onClick={() => setCurrentPage("terms")}>
                                     Terms of Service
                                 </button>
                             </li>

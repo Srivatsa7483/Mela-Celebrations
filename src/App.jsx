@@ -13,6 +13,9 @@ import DashboardPage from './pages/DashboardPage.jsx';
 import BudgetCalculatorPage from './pages/BudgetCalculatorPage.jsx';
 import EventBuilderPage from './pages/EventBuilderPage.jsx';
 import RecentGalleryPage from './pages/RecentGalleryPage.jsx';
+import FAQPage from './pages/FAQPage.jsx';
+import PrivacyPage from './pages/PrivacyPage.jsx';
+import TermsPage from './pages/TermsPage.jsx';
 // AdminLogin.jsx deprecated — admin login is now integrated into LoginPage
 import AdminDashboardPage from './components/admin/AdminDashboard.jsx';
 
@@ -31,7 +34,7 @@ function AppContent() {
   const getInitialPage = () => {
     if (typeof window === "undefined") return "home";
     const path = window.location.pathname.replace(/^\//, "");
-    const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact'];
+    const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact', 'faqs', 'privacy', 'terms'];
     return validPages.includes(path) ? path : "home";
   };
 
@@ -149,6 +152,12 @@ function AppContent() {
         return <EventBuilderPage setCurrentPage={navigateToPage} />;
       case 'recent-gallery':
         return <RecentGalleryPage setCurrentPage={navigateToPage} />;
+      case 'faqs':
+        return <FAQPage setCurrentPage={navigateToPage} />;
+      case 'privacy':
+        return <PrivacyPage setCurrentPage={navigateToPage} />;
+      case 'terms':
+        return <TermsPage setCurrentPage={navigateToPage} />;
       case 'admin':
         return <LoginPage setCurrentPage={navigateToPage} initialMode="admin" />;
       case 'admin-dashboard':
