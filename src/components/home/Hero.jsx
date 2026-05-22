@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import "./Hero.css";
 
 /* ─────────────────────────────────────────────────────────────────
@@ -36,7 +37,68 @@ function buildStroke() {
 const FILL_PATH   = buildFillPath();
 const STROKE_PATH = buildStroke();
 
+const slides = [
+    { id: 1, image: "/banner1_new.png", alt: "Celebrate Your Love, Beautifully - Anniversary Decoration" },
+    { id: 2, image: "/banner2_new.png", alt: "Happy 1st Birthday - One Year of Passion, Growth & Gratitude" },
+    { id: 3, image: "/banner3_new.jpg", alt: "Kid Activities for Birthday Party - Fun, Play, Laugh, Memories" },
+    { id: 4, image: "/banner4_new.png", alt: "Make Your New House a Beautiful Beginning - Premium House Warming Decoration" },
+    { id: 5, image: "/banner5_new.png", alt: "Welcome Baby - Beautiful Decorations for Your Baby's Special Welcome" },
+    { id: 6, image: "/banner6_new.png", alt: "Elevate Your Brand with Corporate Balloon Decoration", objectPosition: "left center" },
+    { id: 7, image: "/banner7_new.png", alt: "Beautiful Haldi Decoration - Vibrant Decor, Joyful Moments, Timeless Memories" }
+];
+
 export default function Hero({ setCurrentPage }) {
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [direction, setDirection] = useState("right");
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+
+    const minSwipeDistance = 50;
+
+    const handlePrev = (e) => {
+        if (e) e.stopPropagation();
+        setDirection("left");
+        setCurrentSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1));
+    };
+
+    const handleNext = (e) => {
+        if (e) e.stopPropagation();
+        setDirection("right");
+        setCurrentSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1));
+    };
+
+    const onTouchStart = (e) => {
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+        
+        if (isLeftSwipe) {
+            handleNext();
+        } else if (isRightSwipe) {
+            handlePrev();
+        }
+        
+        setTouchStart(null);
+        setTouchEnd(null);
+    };
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setDirection("right");
+            setCurrentSlide(prev => (prev + 1) % slides.length);
+        }, 3000);
+        return () => clearInterval(timer);
+    }, [currentSlide]);
+
     return (
         <div className="hero-wrapper">
 
@@ -107,23 +169,74 @@ export default function Hero({ setCurrentPage }) {
             {/* ── Hero Stage ── */}
             <div className="hero-stage">
 
-                {/* ── Hero section (no CSS clipPath needed, covered by wave overlay) ── */}
+                {/* ── Hero section ── */}
                 <section className="hero">
-                    <div
-                        className="hero__slide hero__slide--active"
-                        onClick={() => setCurrentPage("gallery")}
-                        style={{ cursor: "pointer" }}
-                    >
-                        {/* Reverted to existing image temporarily to stop it from being blank */}
-                        <img src="/testimg.jpeg" alt="Mela Celebrations" className="hero__img" />
+                    {slides.map((slide, index) => {
+                        const isActive = index === currentSlide;
+                        return (
+                            <div
+                                key={slide.id}
+                                className={`hero__slide ${isActive ? "hero__slide--active" : ""} ${isActive ? `hero__slide--${direction}` : ""}`}
+                                onClick={() => setCurrentPage("gallery")}
+                                onTouchStart={onTouchStart}
+                                onTouchMove={onTouchMove}
+                                onTouchEnd={onTouchEnd}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <img
+                                    src={slide.image}
+                                    alt={slide.alt}
+                                    className="hero__img"
+                                    style={{ objectPosition: slide.objectPosition || "center center" }}
+                                />
 
-                        <div className="hero__sparkles" aria-hidden="true">
-                            {Array.from({ length: 18 }).map((_, d) => (
-                                <div key={d} className="hero__particle" />
-                            ))}
-                        </div>
-                    </div>
+                                {isActive && (
+                                    <div className="hero__sparkles" aria-hidden="true">
+                                        {Array.from({ length: 18 }).map((_, d) => (
+                                            <div key={d} className="hero__particle" />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </section>
+
+                {/* ── Navigation Arrows ── */}
+                <button
+                    className="hero__arrow hero__arrow--left"
+                    onClick={handlePrev}
+                    aria-label="Previous banner"
+                >
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor" />
+                    </svg>
+                </button>
+                <button
+                    className="hero__arrow hero__arrow--right"
+                    onClick={handleNext}
+                    aria-label="Next banner"
+                >
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor" />
+                    </svg>
+                </button>
+
+                {/* ── Dot Indicators ── */}
+                <div className="hero__dots">
+                    {slides.map((_, index) => (
+                        <button
+                            key={index}
+                            className={`hero__dot ${index === currentSlide ? "hero__dot--active" : ""}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setDirection(index > currentSlide ? "right" : "left");
+                                setCurrentSlide(index);
+                            }}
+                            aria-label={`Go to banner ${index + 1}`}
+                        />
+                    ))}
+                </div>
 
                 {/*
                  * Wave overlay container — includes both the white fill (forming the wave edge on the images)

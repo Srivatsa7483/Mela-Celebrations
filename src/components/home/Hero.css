@@ -298,8 +298,8 @@
     width: calc(100% - 48px);
     max-width: 1300px;
     margin: 0 auto;
-    /* height = image height + wave dip + breathing room */
-    height: 410px;
+    height: auto;
+    aspect-ratio: 1024 / 431;
     z-index: 2;
 }
 
@@ -442,8 +442,55 @@
     100% { opacity: 1; transform: scale(1) translateX(0); }
 }
 
-.hero__slide--active {
+.hero__slide--active.hero__slide--right {
     animation: slideEnterRight 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.hero__slide--active.hero__slide--left {
+    animation: slideEnterLeft 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ── Navigation Arrows ── */
+.hero__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(13, 27, 42, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0;
+}
+
+.hero__arrow:hover {
+    background: rgba(201, 168, 76, 0.85); /* brand gold with opacity */
+    border-color: rgba(201, 168, 76, 0.5);
+    color: var(--white);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 20px rgba(201, 168, 76, 0.3);
+}
+
+.hero__arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.hero__arrow--left {
+    left: 24px;
+}
+
+.hero__arrow--right {
+    right: 24px;
 }
 
 .hero__content {
@@ -500,7 +547,7 @@
     transform: translateX(-50%);
     display: flex;
     gap: 12px;
-    z-index: 3;
+    z-index: 10; /* sits above wave border (z-index: 5) */
 }
 
 .hero__dot {
@@ -534,12 +581,26 @@
     .hero-stage {
         width: calc(100% - 8px);
         height: auto;
-        /* 13:4 ≈ 3.25 : 1  matches testimg.jpeg natural ratio (1300×410 = 3.17:1)
-           → image fills the container with no visible letterbox, so the wave
-             appears right at the image bottom edge exactly like desktop */
-        aspect-ratio: 13 / 4;
-        min-height: 160px;
+        aspect-ratio: 1024 / 431;
+        min-height: auto;
         background: transparent;
+    }
+
+    /* Mobile styles for navigation arrows */
+    .hero__arrow {
+        width: 32px;
+        height: 32px;
+        background: rgba(13, 27, 42, 0.6);
+    }
+    .hero__arrow--left {
+        left: 8px;
+    }
+    .hero__arrow--right {
+        right: 8px;
+    }
+    .hero__arrow svg {
+        width: 18px;
+        height: 18px;
     }
     /* Hero section must fill the stage height */
     .hero {
@@ -594,6 +655,7 @@
 
     .hero__dots {
         bottom: 24px;
+        z-index: 10;
     }
     .hero__curve-container {
         display: none;
