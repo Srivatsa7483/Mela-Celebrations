@@ -639,8 +639,11 @@
         z-index: 10;          /* above hero-stage (z-index:2) and wave (z-index:5) */
         pointer-events: none;
     }
-    /* Scale elements to fit the narrow 48px side strips */
-    .hero-decor__balloon,
+    /* Hide balloon animation on mobile */
+    .hero-decor__balloon {
+        display: none !important;
+    }
+    /* Scale remaining elements to fit the narrow 48px side strips */
     .hero-decor__star {
         transform: scale(0.55);
         transform-origin: center;
