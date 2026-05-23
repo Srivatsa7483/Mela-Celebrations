@@ -228,6 +228,21 @@ const S = {
     fontFamily: 'inherit',
     letterSpacing: '0.04em',
   },
+  editBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    backgroundColor: 'rgba(255, 179, 0, 0.12)',
+    border: '1px solid rgba(255, 179, 0, 0.35)',
+    color: '#0B192C',
+    borderRadius: '8px',
+    padding: '7px 14px',
+    fontSize: '0.78rem',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    fontFamily: 'inherit',
+    letterSpacing: '0.04em',
+    marginRight: '8px',
+  },
 };
 
 const CustomSelect = ({ value, onChange, options, placeholder, disabled, name, required }) => {
@@ -324,8 +339,9 @@ const CustomSelect = ({ value, onChange, options, placeholder, disabled, name, r
 };
 
 const AdminDashboard = ({ setCurrentPage }) => {
-  const { designs, categories, loading, createDesignAction, deleteDesignAction } = useContext(DesignContext);
+  const { designs, categories, loading, createDesignAction, deleteDesignAction, updateDesignAction } = useContext(DesignContext);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingDesign, setEditingDesign] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [adminSearchQuery, setAdminSearchQuery] = useState('');
 
@@ -333,6 +349,29 @@ const AdminDashboard = ({ setCurrentPage }) => {
     name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '',
   });
   const [file, setFile] = useState(null);
+
+  const handleEditClick = (design) => {
+    setEditingDesign(design);
+    setIsAdding(true);
+    setFormData({
+      name: design.name || '',
+      description: design.description || '',
+      category: design.category || '',
+      subcategory: design.subcategory || '',
+      price: design.price || '',
+      originalPrice: design.originalPrice || '',
+      features: design.features ? design.features.join(', ') : '',
+    });
+    setFile(null);
+    window.scrollTo({ top: 300, behavior: 'smooth' }); // Scroll up to form
+  };
+
+  const handleCancelClick = () => {
+    setIsAdding(false);
+    setEditingDesign(null);
+    setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '' });
+    setFile(null);
+  };
 
   useEffect(() => {
     if (sessionStorage.getItem('mela_admin_auth') !== 'true') {
@@ -399,12 +438,19 @@ const AdminDashboard = ({ setCurrentPage }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) { alert('Please upload an image for the design.'); return; }
+    if (!editingDesign && !file) {
+      alert('Please upload an image for the design.');
+      return;
+    }
     setUploading(true);
     try {
-      const imageUrl = await uploadImage(file);
+      let imageUrl = editingDesign ? editingDesign.image : '';
+      if (file) {
+        imageUrl = await uploadImage(file);
+      }
+      
       const selectedCategoryObj = categories.find(c => c.id === formData.category);
-      const newDesign = {
+      const designPayload = {
         name: formData.name,
         description: formData.description,
         category: formData.category,
@@ -414,16 +460,26 @@ const AdminDashboard = ({ setCurrentPage }) => {
         originalPrice: Number(formData.originalPrice),
         features: formData.features.split(',').map(f => f.trim()),
         image: imageUrl,
-        badge: 'NEW',
       };
-      await createDesignAction(newDesign);
-      alert('Design added successfully!');
+
+      if (editingDesign) {
+        await updateDesignAction(editingDesign.id, designPayload);
+        alert('Design updated successfully!');
+      } else {
+        const newDesign = {
+          ...designPayload,
+          badge: 'NEW',
+        };
+        await createDesignAction(newDesign);
+        alert('Design added successfully!');
+      }
       setIsAdding(false);
+      setEditingDesign(null);
       setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '' });
       setFile(null);
     } catch (error) {
       console.error(error);
-      alert('Error adding design.');
+      alert(editingDesign ? 'Error updating design.' : 'Error adding design.');
     } finally {
       setUploading(false);
     }
@@ -512,7 +568,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
         {/* Action row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
           <button
-            onClick={() => setIsAdding(!isAdding)}
+            onClick={isAdding ? handleCancelClick : () => setIsAdding(true)}
             style={isAdding ? S.cancelBtn : S.addBtn}
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(11,25,44,0.15)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isAdding ? 'none' : '0 4px 12px rgba(11,25,44,0.15)'; }}
@@ -538,7 +594,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
         {isAdding && (
           <div style={S.formPanel}>
             <h3 style={S.formTitle}>
-              ✨ New Design Details
+              {editingDesign ? '✏️ Edit Design Details' : '✨ New Design Details'}
             </h3>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }} className="admin-form-grid">
 
@@ -617,7 +673,9 @@ const AdminDashboard = ({ setCurrentPage }) => {
 
               {/* Image Upload */}
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={S.label}>Upload Design Image *</label>
+                <label style={S.label}>
+                  {editingDesign ? 'Change Design Image (Optional)' : 'Upload Design Image *'}
+                </label>
                 <div style={{
                   border: '2px dashed rgba(11,25,44,0.2)',
                   borderRadius: '12px',
@@ -631,9 +689,9 @@ const AdminDashboard = ({ setCurrentPage }) => {
                   onDragLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,25,44,0.2)'; }}
                 >
                   <p style={{ color: '#6B7280', fontSize: '0.82rem', margin: '0 0 10px' }}>
-                    {file ? `📎 ${file.name}` : '📁 Drag & drop or click to browse'}
+                    {file ? `📎 ${file.name}` : editingDesign ? '📁 Drag & drop or click to replace image' : '📁 Drag & drop or click to browse'}
                   </p>
-                  <input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} required
+                  <input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} required={!editingDesign}
                     style={{ color: '#4B5563', fontSize: '0.85rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
                 </div>
               </div>
@@ -780,6 +838,17 @@ const AdminDashboard = ({ setCurrentPage }) => {
                         </td>
                         <td style={{ ...S.td, textAlign: 'center' }}>
                           <button
+                            onClick={() => handleEditClick(d)}
+                            style={S.editBtn}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.22)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.55)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.12)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                            Edit
+                          </button>
+                          <button
                             onClick={() => handleDelete(d.id)}
                             style={S.deleteBtn}
                             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
@@ -818,15 +887,38 @@ const AdminDashboard = ({ setCurrentPage }) => {
                           </span>
                         )}
                       </p>
-                      <button
-                        className="admin-design-card__delete"
-                        onClick={() => handleDelete(d.id)}
-                      >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                        </svg>
-                        Delete
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                        <button
+                          onClick={() => handleEditClick(d)}
+                          style={{
+                            ...S.editBtn,
+                            marginRight: 0,
+                            flex: 1,
+                            justifyContent: 'center',
+                            padding: '8px 12px',
+                          }}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                          </svg>
+                          Edit
+                        </button>
+                        <button
+                          className="admin-design-card__delete"
+                          onClick={() => handleDelete(d.id)}
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            padding: '8px 12px',
+                            margin: 0,
+                          }}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

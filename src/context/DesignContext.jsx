@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { categories as staticCategories, designs as staticDesigns } from "../data/index.js";
-import { getCategories, getDesigns, createDesign, deleteDesign } from "../services/designService.js";
+import { getCategories, getDesigns, createDesign, deleteDesign, updateDesign } from "../services/designService.js";
 
 export const DesignContext = createContext();
 
@@ -52,6 +52,19 @@ export function DesignProvider({ children }) {
     }
   };
 
+  const updateDesignAction = async (designId, updatedData) => {
+    try {
+      const updated = await updateDesign(designId, updatedData);
+      setDesigns((prev) =>
+        prev.map((d) => (String(d.id) === String(designId) ? updated : d))
+      );
+      return updated;
+    } catch (err) {
+      console.error("Error updating design:", err);
+      throw err;
+    }
+  };
+
   return (
     <DesignContext.Provider
       value={{
@@ -61,6 +74,7 @@ export function DesignProvider({ children }) {
         error,
         createDesignAction,
         deleteDesignAction,
+        updateDesignAction,
       }}
     >
       {children}

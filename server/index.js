@@ -389,6 +389,51 @@ app.delete("/api/designs/:id", async (req, res) => {
   }
 });
 
+app.put("/api/designs/:id", async (req, res) => {
+  try {
+    const designId = req.params.id;
+    const updateData = req.body;
+    const db = await getDB();
+    const designsCol = db.collection("designs");
+    
+    const numericId = Number(designId);
+    const query = {
+      $or: [
+        { id: designId },
+        { id: isNaN(numericId) ? null : numericId }
+      ]
+    };
+    
+    // Clean data: prevent modifying immutable _id
+    delete updateData._id;
+    if (updateData.id) {
+      updateData.id = isNaN(Number(updateData.id)) ? updateData.id : Number(updateData.id);
+    }
+    if (updateData.price) {
+      updateData.price = Number(updateData.price);
+    }
+    if (updateData.originalPrice) {
+      updateData.originalPrice = Number(updateData.originalPrice);
+    }
+
+    const result = await designsCol.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { returnDocument: "after" }
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Design not found" });
+    }
+
+    const { _id, ...clean } = result;
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Update Design Error:", error);
+    res.status(500).json({ error: "Server error updating design" });
+  }
+});
+
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 app.post("/api/auth/register", async (req, res) => {
   try {

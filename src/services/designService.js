@@ -28,6 +28,16 @@ export async function deleteDesign(designId) {
   return res.json();
 }
 
+export async function updateDesign(designId, updatedDesign) {
+  const res = await fetch(`/api/designs/${designId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedDesign),
+  });
+  if (!res.ok) throw new Error("Failed to update design");
+  return res.json();
+}
+
 export async function uploadImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
