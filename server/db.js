@@ -51,6 +51,13 @@ export async function connectDB() {
     console.log("🌱 Designs seeded into MongoDB");
   }
 
+  // Clean up kidsactivities dropdown in existing database
+  await categoriesCol.updateOne(
+    { id: "kidsactivities" },
+    { $unset: { dropdown: "" } }
+  );
+  console.log("🧹 Kids Activities dropdown unset from MongoDB");
+
   return dbInstance;
 }
 

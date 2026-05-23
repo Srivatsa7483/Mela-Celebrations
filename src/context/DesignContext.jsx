@@ -18,8 +18,15 @@ export function DesignProvider({ children }) {
           getDesigns(),
           getCategories(),
         ]);
+        const cleanedCategories = dbCategories.map(cat => {
+          if (cat.id === "kidsactivities") {
+            const { dropdown, ...rest } = cat;
+            return rest;
+          }
+          return cat;
+        });
         setDesigns(dbDesigns);
-        setCategories(dbCategories);
+        setCategories(cleanedCategories);
       } catch (err) {
         console.error("Failed to fetch designs or categories from database, using static fallback:", err);
         setError(err.message);
