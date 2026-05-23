@@ -35,13 +35,17 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // ── EMAIL SETUP ───────────────────────────────────────────────────────────────
+import { Resend } from "resend";
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
 const smtpConfig = {
   host: process.env.SMTP_HOST || process.env.EMAIL_HOST || "",
   port: Number(process.env.SMTP_PORT || process.env.EMAIL_PORT || 587),
   secure: process.env.SMTP_SECURE === "true" || process.env.EMAIL_SECURE === "true",
-  family: 4, // Strictly force IPv4 connection at the socket level
+  family: 4, // Force IPv4 connection at the socket level
   tls: {
-    rejectUnauthorized: false // Avoid connection timeouts due to SSL/TLS handshake strictness
+    rejectUnauthorized: false
   },
   auth: process.env.SMTP_USER && process.env.SMTP_PASS
     ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
@@ -50,13 +54,53 @@ const smtpConfig = {
     : undefined,
 };
 
-
-
-
 const emailTransporter = smtpConfig.host && smtpConfig.auth
   ? nodemailer.createTransport(smtpConfig)
   : null;
-const isEmailConfigured = Boolean(emailTransporter);
+
+const isEmailConfigured = Boolean(emailTransporter) || Boolean(resend);
+
+// Generic Email Dispatcher supporting both Resend HTTP API and Nodemailer SMTP
+async function sendMailHelper({ to, subject, text, html, replyTo }) {
+  const from = process.env.EMAIL_FROM || "Mela Celebrations <onboarding@resend.dev>";
+  
+  if (resend) {
+    try {
+      const response = await resend.emails.send({
+        from,
+        to,
+        subject,
+        html,
+        text,
+        replyTo: replyTo || process.env.EMAIL_REPLY_TO || undefined,
+      });
+      if (response && response.error) {
+        throw new Error(response.error.message || JSON.stringify(response.error));
+      }
+      console.log(`📧 Email sent to ${to} via Resend (${(response && response.data && response.data.id) || "success"})`);
+      return;
+    } catch (error) {
+      console.error("⚠️ Resend HTTP API failed, trying SMTP fallback...", error);
+    }
+  }
+
+  if (emailTransporter) {
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
+      to,
+      subject,
+      text,
+      html,
+      replyTo: replyTo || process.env.EMAIL_REPLY_TO || undefined,
+    };
+    const info = await emailTransporter.sendMail(mailOptions);
+    console.log(`📧 Email sent to ${to} via SMTP (${info.messageId})`);
+    return;
+  }
+
+  console.warn("⚠️ No email service configured. Logging email to console.");
+  console.log(`📧 [SIMULATED] To: ${to} | Subject: ${subject}`);
+}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function renderServiceItems(booking) {
@@ -167,26 +211,12 @@ async function sendBookingConfirmationEmail(booking) {
     <p>Best regards,<br>The Mela Celebrations Team</p>
   </div>`;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
+  await sendMailHelper({
     to: booking.email,
     subject,
     text: createInvoiceText(booking),
     html,
-    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
-  };
-
-  if (!isEmailConfigured) {
-    console.warn("⚠️ SMTP not configured. Logging email to console.");
-    console.log(`📧 [SIMULATED] Booking confirmation to ${booking.email}`);
-    return;
-  }
-  try {
-    const info = await emailTransporter.sendMail(mailOptions);
-    console.log(`📧 Booking confirmation sent to ${booking.email} (${info.messageId})`);
-  } catch (error) {
-    console.error("Failed to send booking confirmation email:", error);
-  }
+  });
 }
 
 async function sendWelcomeEmail(user) {
@@ -206,24 +236,11 @@ async function sendWelcomeEmail(user) {
     <p>Best regards,<br>The Mela Celebrations Team</p>
   </div>`;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
+  await sendMailHelper({
     to: user.email,
     subject,
     html,
-    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
-  };
-
-  if (!isEmailConfigured) {
-    console.log(`📧 [SIMULATED] Welcome email to ${user.email}`);
-    return;
-  }
-  try {
-    const info = await emailTransporter.sendMail(mailOptions);
-    console.log(`📧 Welcome email sent to ${user.email} (${info.messageId})`);
-  } catch (error) {
-    console.error("Failed to send welcome email:", error);
-  }
+  });
 }
 
 async function sendBookingStatusUpdateEmail(booking) {
@@ -246,24 +263,11 @@ async function sendBookingStatusUpdateEmail(booking) {
     <p>Best regards,<br>The Mela Celebrations Team</p>
   </div>`;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
+  await sendMailHelper({
     to: booking.email,
     subject,
     html,
-    replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
-  };
-
-  if (!isEmailConfigured) {
-    console.log(`📧 [SIMULATED] Status update email to ${booking.email} — ${booking.status}`);
-    return;
-  }
-  try {
-    const info = await emailTransporter.sendMail(mailOptions);
-    console.log(`📧 Status update email sent to ${booking.email} (${info.messageId})`);
-  } catch (error) {
-    console.error("Failed to send status update email:", error);
-  }
+  });
 }
 
 async function sendContactFormEmails(contactData) {
@@ -290,29 +294,20 @@ async function sendContactFormEmails(contactData) {
     <p>Best regards,<br>The Mela Celebrations Team</p>
   </div>`;
 
-  if (!isEmailConfigured) {
-    console.log(`📧 [SIMULATED] Contact form from ${contactData.email}`);
-    return;
-  }
-  try {
-    await emailTransporter.sendMail({
-      from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
-      to: adminEmail,
-      replyTo: contactData.email,
-      subject: `New Contact Inquiry: ${contactData.subject} - from ${contactData.name}`,
-      html: adminHtml,
-    });
-    await emailTransporter.sendMail({
-      from: process.env.EMAIL_FROM || `Mela Celebrations <${process.env.SMTP_USER || process.env.EMAIL_USER || "melacelebrations@gmail.com"}>`,
-      to: contactData.email,
-      replyTo: process.env.EMAIL_REPLY_TO || process.env.SMTP_USER || "melacelebrations@gmail.com",
-      subject: "We received your message - Mela Celebrations",
-      html: userHtml,
-    });
-    console.log(`📧 Contact emails sent for ${contactData.email}`);
-  } catch (error) {
-    console.error("Failed to send contact emails:", error);
-  }
+  // Send email to admin
+  await sendMailHelper({
+    to: adminEmail,
+    subject: `New Contact Inquiry: ${contactData.subject} - from ${contactData.name}`,
+    html: adminHtml,
+    replyTo: contactData.email,
+  });
+
+  // Send confirmation to user
+  await sendMailHelper({
+    to: contactData.email,
+    subject: "We received your message - Mela Celebrations",
+    html: userHtml,
+  });
 }
 
 // ── API ROUTES ────────────────────────────────────────────────────────────────
