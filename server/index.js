@@ -49,10 +49,7 @@ const smtpConfig = {
     : undefined,
 };
 
-// If using Gmail, let Nodemailer use its optimized built-in Gmail service configuration!
-if (smtpConfig.host && smtpConfig.host.toLowerCase().includes("gmail")) {
-  smtpConfig.service = "gmail";
-}
+
 
 
 const emailTransporter = smtpConfig.host && smtpConfig.auth
