@@ -34,10 +34,10 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
   ];
 
   const activityPrices = {
-    magic: { name: "Magic Show (30 mins)", price: 3500 },
-    puppet: { name: "Puppet Show (30 mins)", price: 3000 },
-    facepaint: { name: "Face Painting & Tattoos", price: 2000 },
-    mascot: { name: "Mascot Character (2 hrs)", price: 2500 }
+    magic: { name: "Magic Show (45 mins)", price: 4999 },
+    puppet: { name: "Puppet Show (40 mins)", price: 5499 },
+    facepaint: { name: "Face Painting & Tattoos", price: 6299 },
+    mascot: { name: "Mascot Character (2 hrs)", price: 3499 }
   };
 
   const handleActivityToggle = (key) => {
@@ -75,7 +75,7 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
       }
     };
     sessionStorage.setItem("mela_custom_package", JSON.stringify(customSummary));
-    
+
     // Redirect to order page with custom design ID trigger
     setCurrentPage("order");
   };
@@ -83,7 +83,7 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
   return (
     <div className="budget-calculator-page" style={{ paddingTop: "calc(var(--navbar-height, 143px) + 24px)", paddingBottom: "60px", paddingLeft: 0, paddingRight: 0, backgroundColor: "#f7f4ef", minHeight: "100vh", fontFamily: "'Jost', sans-serif" }}>
       <div className="container" style={{ maxWidth: "1000px" }}>
-        
+
         {/* Title Section */}
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
           <span className="tag" style={{ color: "var(--gold)" }}>SMART ESTIMATOR</span>
@@ -97,10 +97,10 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
 
         {/* Content Layout */}
         <div className="calculator-layout">
-          
+
           {/* Options Panels */}
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            
+
             {/* Decor Tier Card */}
             <div style={{ backgroundColor: "white", padding: "24px", borderRadius: "12px", boxShadow: "var(--shadow-card)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
@@ -111,8 +111,8 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {decorOptions.map((opt) => (
-                  <label 
-                    key={opt.name} 
+                  <label
+                    key={opt.name}
                     style={{
                       display: "flex",
                       padding: "16px",
@@ -123,11 +123,11 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
                       gap: "12px"
                     }}
                   >
-                    <input 
-                      type="radio" 
-                      name="decor" 
-                      value={opt.price} 
-                      checked={decor === opt.price} 
+                    <input
+                      type="radio"
+                      name="decor"
+                      value={opt.price}
+                      checked={decor === opt.price}
                       onChange={() => setDecor(opt.price)}
                       style={{ marginTop: "4px" }}
                     />
@@ -153,8 +153,8 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {cakeTableOptions.map((opt) => (
-                  <label 
-                    key={opt.name} 
+                  <label
+                    key={opt.name}
                     style={{
                       display: "flex",
                       padding: "16px",
@@ -165,11 +165,11 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
                       gap: "12px"
                     }}
                   >
-                    <input 
-                      type="radio" 
-                      name="cakeTable" 
-                      value={opt.price} 
-                      checked={cakeTable === opt.price} 
+                    <input
+                      type="radio"
+                      name="cakeTable"
+                      value={opt.price}
+                      checked={cakeTable === opt.price}
                       onChange={() => setCakeTable(opt.price)}
                       style={{ marginTop: "4px" }}
                     />
@@ -198,8 +198,8 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
                   const item = activityPrices[key];
                   const active = activities[key];
                   return (
-                    <label 
-                      key={key} 
+                    <label
+                      key={key}
                       style={{
                         display: "flex",
                         padding: "16px",
@@ -211,9 +211,9 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
                         alignItems: "center"
                       }}
                     >
-                      <input 
-                        type="checkbox" 
-                        checked={active} 
+                      <input
+                        type="checkbox"
+                        checked={active}
                         onChange={() => handleActivityToggle(key)}
                       />
                       <div>
@@ -238,8 +238,8 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {mediaOptions.map((opt) => (
-                  <label 
-                    key={opt.name} 
+                  <label
+                    key={opt.name}
                     style={{
                       display: "flex",
                       padding: "16px",
@@ -250,11 +250,11 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
                       gap: "12px"
                     }}
                   >
-                    <input 
-                      type="radio" 
-                      name="media" 
-                      value={opt.price} 
-                      checked={media === opt.price} 
+                    <input
+                      type="radio"
+                      name="media"
+                      value={opt.price}
+                      checked={media === opt.price}
                       onChange={() => setMedia(opt.price)}
                       style={{ marginTop: "4px" }}
                     />
@@ -313,7 +313,7 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handleProceedToBooking}
                 disabled={grandTotal === 0}
                 style={{
@@ -337,8 +337,8 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
                 PROCEED TO BOOKING →
               </button>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => setCurrentPage("home")}
               style={{
                 width: "100%",
@@ -358,7 +358,7 @@ export default function BudgetCalculatorPage({ setCurrentPage }) {
           </aside>
 
         </div>
-        
+
       </div>
     </div>
   );
