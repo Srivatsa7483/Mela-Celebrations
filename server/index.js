@@ -10,6 +10,9 @@ import { connectDB, getDB } from "./db.js";
 
 dotenv.config();
 
+// Globally prefer IPv4 over IPv6 in DNS resolution to prevent ENETUNREACH errors on Render
+dns.setDefaultResultOrder("ipv4first");
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 const JWT_SECRET = process.env.JWT_SECRET || "mela_dev_secret_change_in_production";
