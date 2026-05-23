@@ -91,7 +91,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
     }
     setLoading(true);
     setTimeout(() => {
-      if (adminUsername === "admin" && adminPassword === "admin123") {
+      if (adminUsername === "Melacelebrations" && adminPassword === "Sudha_#06") {
         sessionStorage.setItem("mela_admin_auth", "true");
         setSuccess("Admin authenticated! Redirecting...");
         setTimeout(() => setCurrentPage("admin-dashboard"), 600);
@@ -201,7 +201,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
               {error && (
                 <div className="login-alert login-alert--error">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                   </svg>
                   <span>{error}</span>
                 </div>
@@ -209,7 +209,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
               {success && (
                 <div className="login-alert login-alert--success">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
                   <span>{success}</span>
                 </div>
@@ -225,7 +225,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                       onClick={() => switchLoginMode("user")}
                     >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                       </svg>
                       Customer Login
                     </button>
@@ -235,7 +235,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                       onClick={() => switchLoginMode("admin")}
                     >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                       </svg>
                       Admin Login
                     </button>
@@ -245,7 +245,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                   {loginMode === "admin" && (
                     <div className="admin-badge">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
                       Secure Admin Portal
                     </div>
@@ -258,8 +258,8 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                         <label className="login-label">Email Address</label>
                         <div className="login-input-wrapper">
                           <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                            <polyline points="22,6 12,13 2,6"/>
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
                           </svg>
                           <input
                             className="login-input"
@@ -275,8 +275,8 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                         <label className="login-label">Password</label>
                         <div className="login-input-wrapper">
                           <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                           </svg>
                           <input
                             className="login-input"
@@ -295,7 +295,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                           <>
                             <span>Log In</span>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                             </svg>
                           </>
                         )}
@@ -310,7 +310,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                         <label className="login-label">Admin Username</label>
                         <div className="login-input-wrapper">
                           <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                           </svg>
                           <input
                             className="login-input"
@@ -327,8 +327,8 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                         <label className="login-label">Admin Password</label>
                         <div className="login-input-wrapper" style={{ position: "relative" }}>
                           <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                           </svg>
                           <input
                             className="login-input"
@@ -371,7 +371,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                         ) : (
                           <>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                             </svg>
                             <span>Sign In as Admin</span>
                           </>
@@ -387,8 +387,8 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                     <label className="login-label">Full Name</label>
                     <div className="login-input-wrapper">
                       <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
                       </svg>
                       <input
                         className="login-input"
@@ -404,8 +404,8 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                     <label className="login-label">Email Address</label>
                     <div className="login-input-wrapper">
                       <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
                       </svg>
                       <input
                         className="login-input"
@@ -421,7 +421,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                     <label className="login-label">Phone Number</label>
                     <div className="login-input-wrapper">
                       <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 11.93 19.79 19.79 0 0 1 1.04 3.23a2 2 0 0 1 1.77-2.11h3.09A2 2 0 0 1 7.93 2.87a12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 11.93 19.79 19.79 0 0 1 1.04 3.23a2 2 0 0 1 1.77-2.11h3.09A2 2 0 0 1 7.93 2.87a12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                       </svg>
                       <input
                         className="login-input"
@@ -437,8 +437,8 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                     <label className="login-label">Password</label>
                     <div className="login-input-wrapper">
                       <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
                       <input
                         className="login-input"
@@ -457,7 +457,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                       <>
                         <span>Create Account</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                          <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                         </svg>
                       </>
                     )}
@@ -475,7 +475,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
             onClick={() => setCurrentPage("home")}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '4px' }}>
-              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+              <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
             Return to Homepage
           </button>

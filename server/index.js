@@ -434,6 +434,71 @@ app.put("/api/designs/:id", async (req, res) => {
   }
 });
 
+// ── RECENT PROJECTS ──────────────────────────────────────────────────────────
+app.get("/api/recent-projects", async (req, res) => {
+  try {
+    const db = await getDB();
+    const recentProjects = await db.collection("recent_projects").find({}).toArray();
+    const clean = recentProjects.map(({ _id, ...p }) => p);
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Get Recent Projects Error:", error);
+    res.status(500).json({ error: "Server error fetching recent projects" });
+  }
+});
+
+app.post("/api/recent-projects", async (req, res) => {
+  try {
+    const newProject = req.body;
+    const db = await getDB();
+    const recentProjectsCol = db.collection("recent_projects");
+    const projects = await recentProjectsCol.find({}).toArray();
+    
+    // Generate new numeric ID
+    const nextId = projects.length > 0 
+      ? Math.max(...projects.map(p => Number(p.id) || 0)) + 1 
+      : 1;
+      
+    const projectWithId = {
+      ...newProject,
+      id: nextId
+    };
+    
+    await recentProjectsCol.insertOne(projectWithId);
+    const { _id, ...clean } = projectWithId;
+    res.status(201).json(clean);
+  } catch (error) {
+    console.error("Create Recent Project Error:", error);
+    res.status(500).json({ error: "Server error creating recent project" });
+  }
+});
+
+app.delete("/api/recent-projects/:id", async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const db = await getDB();
+    const recentProjectsCol = db.collection("recent_projects");
+    
+    const numericId = Number(projectId);
+    const query = {
+      $or: [
+        { id: projectId },
+        { id: isNaN(numericId) ? null : numericId }
+      ]
+    };
+    
+    const result = await recentProjectsCol.deleteOne(query);
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Recent project not found" });
+    }
+    
+    res.status(200).json({ success: true, message: "Recent project deleted successfully" });
+  } catch (error) {
+    console.error("Delete Recent Project Error:", error);
+    res.status(500).json({ error: "Server error deleting recent project" });
+  }
+});
+
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 app.post("/api/auth/register", async (req, res) => {
   try {

@@ -339,16 +339,53 @@ const CustomSelect = ({ value, onChange, options, placeholder, disabled, name, r
 };
 
 const AdminDashboard = ({ setCurrentPage }) => {
-  const { designs, categories, loading, createDesignAction, deleteDesignAction, updateDesignAction } = useContext(DesignContext);
+  const { 
+    designs, categories, recentProjects, loading, 
+    createDesignAction, deleteDesignAction, updateDesignAction,
+    createRecentProjectAction, deleteRecentProjectAction
+  } = useContext(DesignContext);
+
+  const [activeTab, setActiveTab] = useState('designs'); // 'designs' or 'projects'
+  const [adminSearchQuery, setAdminSearchQuery] = useState('');
+  const [projectSearchQuery, setProjectSearchQuery] = useState('');
+
+  /* ─── Designs Tab States ─── */
   const [isAdding, setIsAdding] = useState(false);
   const [editingDesign, setEditingDesign] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [adminSearchQuery, setAdminSearchQuery] = useState('');
-
   const [formData, setFormData] = useState({
     name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '',
   });
   const [file, setFile] = useState(null);
+
+  /* ─── Recent Projects Tab States ─── */
+  const [isAddingProject, setIsAddingProject] = useState(false);
+  const [projectUploading, setProjectUploading] = useState(false);
+  const [projectFormData, setProjectFormData] = useState({
+    title: '', category: '', venue: '', date: '', cost: '', desc: '', review: ''
+  });
+  const [projectFile, setProjectFile] = useState(null);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('mela_admin_auth') !== 'true') {
+      setCurrentPage('admin');
+    }
+  }, [setCurrentPage]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('mela_admin_auth');
+    setCurrentPage('home');
+  };
+
+  /* ─── Designs Handlers ─── */
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'category') {
+      setFormData(prev => ({ ...prev, category: value, subcategory: '' }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
 
   const handleEditClick = (design) => {
     setEditingDesign(design);
@@ -363,7 +400,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
       features: design.features ? design.features.join(', ') : '',
     });
     setFile(null);
-    window.scrollTo({ top: 300, behavior: 'smooth' }); // Scroll up to form
+    window.scrollTo({ top: 300, behavior: 'smooth' });
   };
 
   const handleCancelClick = () => {
@@ -371,26 +408,6 @@ const AdminDashboard = ({ setCurrentPage }) => {
     setEditingDesign(null);
     setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '' });
     setFile(null);
-  };
-
-  useEffect(() => {
-    if (sessionStorage.getItem('mela_admin_auth') !== 'true') {
-      setCurrentPage('admin');
-    }
-  }, [setCurrentPage]);
-
-  const handleLogout = () => {
-    sessionStorage.removeItem('mela_admin_auth');
-    setCurrentPage('home');
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'category') {
-      setFormData(prev => ({ ...prev, category: value, subcategory: '' }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
   };
 
   const getSubcategoriesForCategory = (catId) => {
@@ -473,10 +490,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
         await createDesignAction(newDesign);
         alert('Design added successfully!');
       }
-      setIsAdding(false);
-      setEditingDesign(null);
-      setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '' });
-      setFile(null);
+      handleCancelClick();
     } catch (error) {
       console.error(error);
       alert(editingDesign ? 'Error updating design.' : 'Error adding design.');
@@ -497,7 +511,72 @@ const AdminDashboard = ({ setCurrentPage }) => {
     }
   };
 
-  /* ─── Focus style helper ─── */
+  /* ─── Recent Projects Handlers ─── */
+  const handleProjectInputChange = (e) => {
+    const { name, value } = e.target;
+    setProjectFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleProjectSubmit = async (e) => {
+    e.preventDefault();
+    if (!projectFile) {
+      alert('Please upload an image for the project.');
+      return;
+    }
+    setProjectUploading(true);
+    try {
+      const imageUrl = await uploadImage(projectFile);
+      const projectPayload = {
+        title: projectFormData.title,
+        category: projectFormData.category,
+        venue: projectFormData.venue,
+        date: projectFormData.date,
+        cost: projectFormData.cost,
+        desc: projectFormData.desc,
+        review: projectFormData.review || '',
+        image: imageUrl,
+      };
+
+      await createRecentProjectAction(projectPayload);
+      alert('Recent completed project added successfully!');
+      
+      setIsAddingProject(false);
+      setProjectFormData({ title: '', category: '', venue: '', date: '', cost: '', desc: '', review: '' });
+      setProjectFile(null);
+    } catch (error) {
+      console.error(error);
+      alert('Error saving completed project.');
+    } finally {
+      setProjectUploading(false);
+    }
+  };
+
+  const handleProjectDelete = async (projId) => {
+    if (window.confirm('Are you sure you want to permanently delete this completed project?')) {
+      try {
+        await deleteRecentProjectAction(projId);
+        alert('Completed project deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        alert('Failed to delete the project.');
+      }
+    }
+  };
+
+  const filteredProjects = recentProjects.filter(p => {
+    const query = projectSearchQuery.toLowerCase().trim();
+    if (!query) return true;
+
+    const matchesTitle = p.title && p.title.toLowerCase().includes(query);
+    const matchesVenue = p.venue && p.venue.toLowerCase().includes(query);
+    const matchesDesc = p.desc && p.desc.toLowerCase().includes(query);
+    const categoryName = categories.find(c => c.id === p.category)?.name || p.category;
+    const matchesCategory = categoryName.toLowerCase().includes(query);
+
+    return matchesTitle || matchesVenue || matchesDesc || matchesCategory;
+  });
+
+  /* ─── Focus style helpers ─── */
   const onFocus = (e) => {
     e.target.style.borderColor = '#FFB300';
     e.target.style.boxShadow = '0 0 0 3px rgba(255, 179, 0, 0.15)';
@@ -531,7 +610,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }} className="admin-topbar-right">
           <span style={{ color: '#6B7280', fontSize: '0.78rem' }} className="admin-stats-count">
-            {designs.length} designs · {categories.length} categories
+            {designs.length} designs · {recentProjects.length} projects · {categories.length} categories
           </span>
           <button
             onClick={handleLogout}
@@ -554,8 +633,8 @@ const AdminDashboard = ({ setCurrentPage }) => {
         <div style={{ display: 'flex', gap: '18px', marginBottom: '36px', flexWrap: 'wrap' }}>
           {[
             { num: designs.length, label: 'Total Designs', icon: '🖼️' },
-            { num: categories.length, label: 'Categories', icon: '📁' },
-            { num: designs.filter(d => d.badge === 'NEW').length, label: 'New Additions', icon: '✨' },
+            { num: recentProjects.length, label: 'Recent Projects', icon: '📸' },
+            { num: categories.length, label: 'Active Categories', icon: '📁' },
           ].map(stat => (
             <div key={stat.label} style={S.statCard}>
               <div style={{ fontSize: '1.6rem', marginBottom: '6px' }}>{stat.icon}</div>
@@ -565,367 +644,715 @@ const AdminDashboard = ({ setCurrentPage }) => {
           ))}
         </div>
 
-        {/* Action row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
+        {/* ── Tab Selector ── */}
+        <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid #D8DCE3', marginBottom: '28px', paddingBottom: '2px' }} className="admin-tabs">
           <button
-            onClick={isAdding ? handleCancelClick : () => setIsAdding(true)}
-            style={isAdding ? S.cancelBtn : S.addBtn}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(11,25,44,0.15)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isAdding ? 'none' : '0 4px 12px rgba(11,25,44,0.15)'; }}
+            onClick={() => setActiveTab('designs')}
+            style={{
+              padding: '12px 24px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'designs' ? '3px solid #FFB300' : '3px solid transparent',
+              color: activeTab === 'designs' ? '#0B192C' : '#6B7280',
+              fontWeight: '700',
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit',
+            }}
           >
-            {isAdding ? (
-              <>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                Cancel
-              </>
-            ) : (
-              <>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add New Design
-              </>
-            )}
+            🖼️ Celebration Designs
           </button>
-          <p style={{ color: '#6B7280', fontSize: '0.8rem', margin: 0 }}>
-            Manage your celebration designs below
-          </p>
+          <button
+            onClick={() => setActiveTab('projects')}
+            style={{
+              padding: '12px 24px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'projects' ? '3px solid #FFB300' : '3px solid transparent',
+              color: activeTab === 'projects' ? '#0B192C' : '#6B7280',
+              fontWeight: '700',
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit',
+            }}
+          >
+            📸 Recent Completed Projects
+          </button>
         </div>
 
-        {/* ── Add Design Form ── */}
-        {isAdding && (
-          <div style={S.formPanel}>
-            <h3 style={S.formTitle}>
-              {editingDesign ? '✏️ Edit Design Details' : '✨ New Design Details'}
-            </h3>
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }} className="admin-form-grid">
-
-              {/* Name */}
-              <div style={{ gridColumn: 'span 2' }}>
-                <label style={S.label}>Design Name *</label>
-                <input style={S.input} type="text" name="name" value={formData.name}
-                  onChange={handleInputChange} required placeholder="e.g. Royal Birthday Setup"
-                  onFocus={onFocus} onBlur={onBlur} />
-              </div>
-
-              {/* Description */}
-              <div style={{ gridColumn: 'span 2' }}>
-                <label style={S.label}>Description *</label>
-                <textarea style={S.textarea} name="description" value={formData.description}
-                  onChange={handleInputChange} required placeholder="Describe the decoration theme and ambiance…"
-                  onFocus={onFocus} onBlur={onBlur} />
-              </div>
-
-              {/* Price */}
-              <div>
-                <label style={S.label}>Price (₹) *</label>
-                <input style={S.input} type="number" name="price" value={formData.price}
-                  onChange={handleInputChange} required placeholder="e.g. 4999"
-                  onFocus={onFocus} onBlur={onBlur} />
-              </div>
-
-              {/* Original Price */}
-              <div>
-                <label style={S.label}>Original / MRP (₹) *</label>
-                <input style={S.input} type="number" name="originalPrice" value={formData.originalPrice}
-                  onChange={handleInputChange} required placeholder="e.g. 6999"
-                  onFocus={onFocus} onBlur={onBlur} />
-              </div>
-
-              {/* Category */}
-              <div>
-                <label style={S.label}>Main Category *</label>
-                <div style={{ position: 'relative' }}>
-                  <CustomSelect
-                    name="category"
-                    value={formData.category}
-                    options={categories.map(c => ({ value: c.id, label: c.name }))}
-                    placeholder="Select a Category"
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Subcategory */}
-              <div>
-                <label style={S.label}>
-                  Subcategory {subcategories.length > 0 ? '*' : <span style={{ color: '#9CA3AF', fontWeight: 400, textTransform: 'none', fontSize: '0.7rem' }}> (select a category first)</span>}
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <CustomSelect
-                    name="subcategory"
-                    value={formData.subcategory}
-                    options={subcategories.map(sub => ({ value: sub.id, label: sub.label }))}
-                    placeholder="Select a Subcategory"
-                    onChange={handleInputChange}
-                    disabled={subcategories.length === 0}
-                    required={subcategories.length > 0}
-                  />
-                </div>
-              </div>
-
-              {/* Features */}
-              <div style={{ gridColumn: 'span 2' }}>
-                <label style={S.label}>Features (comma separated) *</label>
-                <input style={S.input} type="text" name="features" value={formData.features}
-                  onChange={handleInputChange} required placeholder="e.g. Red Balloons, Fairy Lights, Flower Arch"
-                  onFocus={onFocus} onBlur={onBlur} />
-              </div>
-
-              {/* Image Upload */}
-              <div style={{ gridColumn: 'span 2' }}>
-                <label style={S.label}>
-                  {editingDesign ? 'Change Design Image (Optional)' : 'Upload Design Image *'}
-                </label>
-                <div style={{
-                  border: '2px dashed rgba(11,25,44,0.2)',
-                  borderRadius: '12px',
-                  padding: '20px',
-                  textAlign: 'center',
-                  background: 'rgba(255, 179, 0, 0.02)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                  onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#FFB300'; }}
-                  onDragLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,25,44,0.2)'; }}
-                >
-                  <p style={{ color: '#6B7280', fontSize: '0.82rem', margin: '0 0 10px' }}>
-                    {file ? `📎 ${file.name}` : editingDesign ? '📁 Drag & drop or click to replace image' : '📁 Drag & drop or click to browse'}
-                  </p>
-                  <input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} required={!editingDesign}
-                    style={{ color: '#4B5563', fontSize: '0.85rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
-                </div>
-              </div>
-
-              {/* Submit */}
-              <div style={{ gridColumn: 'span 2', display: 'flex', gap: '14px', alignItems: 'center' }}>
-                <button type="submit" disabled={uploading} style={S.saveBtn}
-                  onMouseEnter={e => { if (!uploading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,179,0,0.35)'; } }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(255,179,0,0.2)'; }}
-                >
-                  {uploading ? (
-                    <>⏳ Saving Design…</>
-                  ) : (
-                    <>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                      Save Design
-                    </>
-                  )}
-                </button>
-                {uploading && <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Uploading image and saving...</span>}
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* ── Designs Table ── */}
-        <div style={{ marginTop: '10px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '14px' }}>
-            <p style={{ ...S.sectionTitle, margin: 0 }}>
-              📋 All Designs — {filteredDesigns.length !== designs.length ? `${filteredDesigns.length} of ${designs.length}` : `${designs.length}`} total
-            </p>
-            
-            {/* Search input field */}
-            <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
-              <input
-                type="text"
-                value={adminSearchQuery}
-                onChange={(e) => setAdminSearchQuery(e.target.value)}
-                placeholder="Search designs..."
-                style={{
-                  ...S.input,
-                  paddingLeft: '40px',
-                  background: '#ffffff',
-                }}
-                onFocus={onFocus}
-                onBlur={onBlur}
-              />
-              <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="#6B7280" 
-                strokeWidth="2.5" 
-                style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+        {/* ─── DESIGNS TAB PANEL ─── */}
+        {activeTab === 'designs' && (
+          <>
+            {/* Action row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
+              <button
+                onClick={isAdding ? handleCancelClick : () => setIsAdding(true)}
+                style={isAdding ? S.cancelBtn : S.addBtn}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(11,25,44,0.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isAdding ? 'none' : '0 4px 12px rgba(11,25,44,0.15)'; }}
               >
-                <circle cx="11" cy="11" r="7" /><path d="m21 21-4.35-4.35" />
-              </svg>
-              {adminSearchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setAdminSearchQuery('')}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: '#9CA3AF',
-                    fontSize: '1.25rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: 0,
-                    lineHeight: 1,
-                  }}
-                  title="Clear search"
-                >
-                  &times;
-                </button>
-              )}
+                {isAdding ? (
+                  <>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add New Design
+                  </>
+                )}
+              </button>
+              <p style={{ color: '#6B7280', fontSize: '0.8rem', margin: 0 }}>
+                Manage your celebration designs below
+              </p>
             </div>
-          </div>
 
-          {designs.length === 0 ? (
-            <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
-              <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🖼️</p>
-              <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No designs yet. Click "Add New Design" to get started.</p>
-            </div>
-          ) : filteredDesigns.length === 0 ? (
-            <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
-              <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔍</p>
-              <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No designs found matching "{adminSearchQuery}".</p>
-            </div>
-          ) : (
-            <>
-              {/* Desktop Table */}
-              <div style={S.tableWrap} className="admin-designs-table">
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      <th style={S.th}>Image</th>
-                      <th style={S.th}>Name</th>
-                      <th style={S.th}>Category</th>
-                      <th style={S.th}>Price</th>
-                      <th style={{ ...S.th, textAlign: 'center' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDesigns.map((d, i) => (
-                      <tr
-                        key={d.id}
-                        style={{ background: i % 2 === 0 ? 'transparent' : '#F9FAFB' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 179, 0, 0.04)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : '#F9FAFB'; }}
-                      >
-                        <td style={S.td}>
-                          <img src={d.image} alt={d.name} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #D8DCE3' }} />
-                        </td>
-                        <td style={{ ...S.td, fontWeight: '700', color: '#0B192C' }}>
-                          {d.name}
-                          {d.badge && (
-                            <span style={{ marginLeft: '8px', background: 'rgba(255, 179, 0, 0.12)', border: '1px solid rgba(255, 179, 0, 0.3)', borderRadius: '8px', padding: '2px 8px', fontSize: '0.65rem', color: '#FFA000', fontWeight: '700', letterSpacing: '0.1em', verticalAlign: 'middle' }}>
-                              {d.badge}
-                            </span>
-                          )}
-                        </td>
-                        <td style={S.td}>
-                          <span style={{ color: '#4B5563' }}>{d.categoryName}</span>
-                          {d.subcategory && (
-                            <div style={{ fontSize: '0.75rem', color: '#FFA000', marginTop: '4px', fontWeight: '600' }}>
-                              ↳ {getSubcategoryLabel(d.category, d.subcategory)}
-                            </div>
-                          )}
-                        </td>
-                        <td style={S.td}>
-                          <span style={{ color: '#0B192C', fontWeight: '700', fontSize: '0.95rem' }}>₹{d.price.toLocaleString('en-IN')}</span>
-                          {d.originalPrice && d.originalPrice > d.price && (
-                            <div style={{ fontSize: '0.73rem', color: '#9CA3AF', textDecoration: 'line-through', marginTop: '2px' }}>
-                              ₹{d.originalPrice.toLocaleString('en-IN')}
-                            </div>
-                          )}
-                        </td>
-                        <td style={{ ...S.td, textAlign: 'center' }}>
-                          <button
-                            onClick={() => handleEditClick(d)}
-                            style={S.editBtn}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.22)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.55)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.12)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
-                          >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                            </svg>
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(d.id)}
-                            style={S.deleteBtn}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
-                          >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                            </svg>
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            {/* Add Design Form */}
+            {isAdding && (
+              <div style={S.formPanel}>
+                <h3 style={S.formTitle}>
+                  {editingDesign ? '✏️ Edit Design Details' : '✨ New Design Details'}
+                </h3>
+                <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }} className="admin-form-grid">
 
-              {/* Mobile Cards */}
-              <div className="admin-designs-cards">
-                {filteredDesigns.map((d) => (
-                  <div key={d.id} className="admin-design-card">
-                    <img src={d.image} alt={d.name} className="admin-design-card__img" />
-                    <div className="admin-design-card__info">
-                      <p className="admin-design-card__name">
-                        {d.name}
-                        {d.badge && <span className="admin-design-card__badge">{d.badge}</span>}
-                      </p>
-                      <p className="admin-design-card__cat">
-                        {d.categoryName}{d.subcategory ? ` › ${getSubcategoryLabel(d.category, d.subcategory)}` : ''}
-                      </p>
-                      <p className="admin-design-card__price">
-                        ₹{d.price.toLocaleString('en-IN')}
-                        {d.originalPrice && d.originalPrice > d.price && (
-                          <span style={{ marginLeft: '6px', fontSize: '0.75rem', color: '#9CA3AF', textDecoration: 'line-through', fontWeight: '400' }}>
-                            ₹{d.originalPrice.toLocaleString('en-IN')}
-                          </span>
-                        )}
-                      </p>
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                        <button
-                          onClick={() => handleEditClick(d)}
-                          style={{
-                            ...S.editBtn,
-                            marginRight: 0,
-                            flex: 1,
-                            justifyContent: 'center',
-                            padding: '8px 12px',
-                          }}
-                        >
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                          </svg>
-                          Edit
-                        </button>
-                        <button
-                          className="admin-design-card__delete"
-                          onClick={() => handleDelete(d.id)}
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            padding: '8px 12px',
-                            margin: 0,
-                          }}
-                        >
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                          </svg>
-                          Delete
-                        </button>
-                      </div>
+                  {/* Name */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>Design Name *</label>
+                    <input style={S.input} type="text" name="name" value={formData.name}
+                      onChange={handleInputChange} required placeholder="e.g. Royal Birthday Setup"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Description */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>Description *</label>
+                    <textarea style={S.textarea} name="description" value={formData.description}
+                      onChange={handleInputChange} required placeholder="Describe the decoration theme and ambiance…"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Price */}
+                  <div>
+                    <label style={S.label}>Price (₹) *</label>
+                    <input style={S.input} type="number" name="price" value={formData.price}
+                      onChange={handleInputChange} required placeholder="e.g. 4999"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Original Price */}
+                  <div>
+                    <label style={S.label}>Original / MRP (₹) *</label>
+                    <input style={S.input} type="number" name="originalPrice" value={formData.originalPrice}
+                      onChange={handleInputChange} required placeholder="e.g. 6999"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <label style={S.label}>Main Category *</label>
+                    <div style={{ position: 'relative' }}>
+                      <CustomSelect
+                        name="category"
+                        value={formData.category}
+                        options={categories.map(c => ({ value: c.id, label: c.name }))}
+                        placeholder="Select a Category"
+                        onChange={handleInputChange}
+                        required
+                      />
                     </div>
                   </div>
-                ))}
+
+                  {/* Subcategory */}
+                  <div>
+                    <label style={S.label}>
+                      Subcategory {subcategories.length > 0 ? '*' : <span style={{ color: '#9CA3AF', fontWeight: 400, textTransform: 'none', fontSize: '0.7rem' }}> (select a category first)</span>}
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <CustomSelect
+                        name="subcategory"
+                        value={formData.subcategory}
+                        options={subcategories.map(sub => ({ value: sub.id, label: sub.label }))}
+                        placeholder="Select a Subcategory"
+                        onChange={handleInputChange}
+                        disabled={subcategories.length === 0}
+                        required={subcategories.length > 0}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Features */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>Features (comma separated) *</label>
+                    <input style={S.input} type="text" name="features" value={formData.features}
+                      onChange={handleInputChange} required placeholder="e.g. Red Balloons, Fairy Lights, Flower Arch"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Image Upload */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>
+                      {editingDesign ? 'Change Design Image (Optional)' : 'Upload Design Image *'}
+                    </label>
+                    <div style={{
+                      border: '2px dashed rgba(11,25,44,0.2)',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      textAlign: 'center',
+                      background: 'rgba(255, 179, 0, 0.02)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                      onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#FFB300'; }}
+                      onDragLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,25,44,0.2)'; }}
+                    >
+                      <p style={{ color: '#6B7280', fontSize: '0.82rem', margin: '0 0 10px' }}>
+                        {file ? `📎 ${file.name}` : editingDesign ? '📁 Drag & drop or click to replace image' : '📁 Drag & drop or click to browse'}
+                      </p>
+                      <input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} required={!editingDesign}
+                        style={{ color: '#4B5563', fontSize: '0.85rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
+                    </div>
+                  </div>
+
+                  {/* Submit */}
+                  <div style={{ gridColumn: 'span 2', display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <button type="submit" disabled={uploading} style={S.saveBtn}
+                      onMouseEnter={e => { if (!uploading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,179,0,0.35)'; } }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(255,179,0,0.2)'; }}
+                    >
+                      {uploading ? (
+                        <>⏳ Saving Design…</>
+                      ) : (
+                        <>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                          Save Design
+                        </>
+                      )}
+                    </button>
+                    {uploading && <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Uploading image and saving...</span>}
+                  </div>
+                </form>
               </div>
-            </>
-          )}
-        </div>
+            )}
+
+            {/* Designs Table */}
+            <div style={{ marginTop: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '14px' }}>
+                <p style={{ ...S.sectionTitle, margin: 0 }}>
+                  📋 All Designs — {filteredDesigns.length !== designs.length ? `${filteredDesigns.length} of ${designs.length}` : `${designs.length}`} total
+                </p>
+                
+                {/* Search */}
+                <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
+                  <input
+                    type="text"
+                    value={adminSearchQuery}
+                    onChange={(e) => setAdminSearchQuery(e.target.value)}
+                    placeholder="Search designs..."
+                    style={{
+                      ...S.input,
+                      paddingLeft: '40px',
+                      background: '#ffffff',
+                    }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                  />
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="#6B7280" 
+                    strokeWidth="2.5" 
+                    style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                  >
+                    <circle cx="11" cy="11" r="7" /><path d="m21 21-4.35-4.35" />
+                  </svg>
+                  {adminSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setAdminSearchQuery('')}
+                      style={{
+                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', color: '#9CA3AF', fontSize: '1.25rem', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', padding: 0, lineHeight: 1
+                      }}
+                      title="Clear search"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {designs.length === 0 ? (
+                <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🖼️</p>
+                  <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No designs yet. Click "Add New Design" to get started.</p>
+                </div>
+              ) : filteredDesigns.length === 0 ? (
+                <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔍</p>
+                  <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No designs found matching "{adminSearchQuery}".</p>
+                </div>
+              ) : (
+                <>
+                  {/* Desktop Table */}
+                  <div style={S.tableWrap} className="admin-designs-table">
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={S.th}>Image</th>
+                          <th style={S.th}>Name</th>
+                          <th style={S.th}>Category</th>
+                          <th style={S.th}>Price</th>
+                          <th style={{ ...S.th, textAlign: 'center' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredDesigns.map((d, i) => (
+                          <tr
+                            key={d.id}
+                            style={{ background: i % 2 === 0 ? 'transparent' : '#F9FAFB' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 179, 0, 0.04)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : '#F9FAFB'; }}
+                          >
+                            <td style={S.td}>
+                              <img src={d.image} alt={d.name} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #D8DCE3' }} />
+                            </td>
+                            <td style={{ ...S.td, fontWeight: '700', color: '#0B192C' }}>
+                              {d.name}
+                              {d.badge && (
+                                <span style={{ marginLeft: '8px', background: 'rgba(255, 179, 0, 0.12)', border: '1px solid rgba(255, 179, 0, 0.3)', borderRadius: '8px', padding: '2px 8px', fontSize: '0.65rem', color: '#FFA000', fontWeight: '700', letterSpacing: '0.1em', verticalAlign: 'middle' }}>
+                                  {d.badge}
+                                </span>
+                              )}
+                            </td>
+                            <td style={S.td}>
+                              <span style={{ color: '#4B5563' }}>{d.categoryName}</span>
+                              {d.subcategory && (
+                                <div style={{ fontSize: '0.75rem', color: '#FFA000', marginTop: '4px', fontWeight: '600' }}>
+                                  ↳ {getSubcategoryLabel(d.category, d.subcategory)}
+                                </div>
+                              )}
+                            </td>
+                            <td style={S.td}>
+                              <span style={{ color: '#0B192C', fontWeight: '700', fontSize: '0.95rem' }}>₹{d.price.toLocaleString('en-IN')}</span>
+                              {d.originalPrice && d.originalPrice > d.price && (
+                                <div style={{ fontSize: '0.73rem', color: '#9CA3AF', textDecoration: 'line-through', marginTop: '2px' }}>
+                                  ₹{d.originalPrice.toLocaleString('en-IN')}
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ ...S.td, textAlign: 'center' }}>
+                              <button
+                                onClick={() => handleEditClick(d)}
+                                style={S.editBtn}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.22)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.55)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.12)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(d.id)}
+                                style={S.deleteBtn}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                </svg>
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Cards */}
+                  <div className="admin-designs-cards">
+                    {filteredDesigns.map((d) => (
+                      <div key={d.id} className="admin-design-card">
+                        <img src={d.image} alt={d.name} className="admin-design-card__img" />
+                        <div className="admin-design-card__info">
+                          <p className="admin-design-card__name">
+                            {d.name}
+                            {d.badge && <span className="admin-design-card__badge">{d.badge}</span>}
+                          </p>
+                          <p className="admin-design-card__cat">
+                            {d.categoryName}{d.subcategory ? ` › ${getSubcategoryLabel(d.category, d.subcategory)}` : ''}
+                          </p>
+                          <p className="admin-design-card__price">
+                            ₹{d.price.toLocaleString('en-IN')}
+                            {d.originalPrice && d.originalPrice > d.price && (
+                              <span style={{ marginLeft: '6px', fontSize: '0.75rem', color: '#9CA3AF', textDecoration: 'line-through', fontWeight: '400' }}>
+                                ₹{d.originalPrice.toLocaleString('en-IN')}
+                              </span>
+                            )}
+                          </p>
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                            <button
+                              onClick={() => handleEditClick(d)}
+                              style={{
+                                ...S.editBtn,
+                                marginRight: 0,
+                                flex: 1,
+                                justifyContent: 'center',
+                                padding: '8px 12px',
+                              }}
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                              </svg>
+                              Edit
+                            </button>
+                            <button
+                              className="admin-design-card__delete"
+                              onClick={() => handleDelete(d.id)}
+                              style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                padding: '8px 12px',
+                                margin: 0,
+                              }}
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                              </svg>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ─── RECENT PROJECTS TAB PANEL ─── */}
+        {activeTab === 'projects' && (
+          <>
+            {/* Action row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
+              <button
+                onClick={isAddingProject ? () => setIsAddingProject(false) : () => setIsAddingProject(true)}
+                style={isAddingProject ? S.cancelBtn : S.addBtn}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(11,25,44,0.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isAddingProject ? 'none' : '0 4px 12px rgba(11,25,44,0.15)'; }}
+              >
+                {isAddingProject ? (
+                  <>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Completed Project
+                  </>
+                )}
+              </button>
+              <p style={{ color: '#6B7280', fontSize: '0.8rem', margin: 0 }}>
+                Manage your dynamic completed portfolio showcase below
+              </p>
+            </div>
+
+            {/* Add Project Form */}
+            {isAddingProject && (
+              <div style={S.formPanel}>
+                <h3 style={S.formTitle}>
+                  ✨ New Completed Project Details
+                </h3>
+                <form onSubmit={handleProjectSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }} className="admin-form-grid">
+
+                  {/* Title */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>Project Title *</label>
+                    <input style={S.input} type="text" name="title" value={projectFormData.title}
+                      onChange={handleProjectInputChange} required placeholder="e.g. Forest Safari 1st Birthday"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Description */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>Project Description *</label>
+                    <textarea style={S.textarea} name="desc" value={projectFormData.desc}
+                      onChange={handleProjectInputChange} required placeholder="Briefly describe what elements were created…"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Venue */}
+                  <div>
+                    <label style={S.label}>Venue & Location *</label>
+                    <input style={S.input} type="text" name="venue" value={projectFormData.venue}
+                      onChange={handleProjectInputChange} required placeholder="e.g. Prestige Clubhouse, Bangalore"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Date */}
+                  <div>
+                    <label style={S.label}>Completion Date *</label>
+                    <input style={S.input} type="text" name="date" value={projectFormData.date}
+                      onChange={handleProjectInputChange} required placeholder="e.g. May 12, 2026"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Cost */}
+                  <div>
+                    <label style={S.label}>Price / Budget Showcase *</label>
+                    <input style={S.input} type="text" name="cost" value={projectFormData.cost}
+                      onChange={handleProjectInputChange} required placeholder="e.g. ₹18,500"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Category Dropdown - Dynamic Categories from database list only */}
+                  <div>
+                    <label style={S.label}>Project Category *</label>
+                    <div style={{ position: 'relative' }}>
+                      <CustomSelect
+                        name="category"
+                        value={projectFormData.category}
+                        options={categories.map(c => ({ value: c.id, label: c.name }))}
+                        placeholder="Select a Category"
+                        onChange={handleProjectInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Customer Review */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>Customer Review (Optional)</label>
+                    <textarea style={{ ...S.textarea, height: '70px' }} name="review" value={projectFormData.review}
+                      onChange={handleProjectInputChange} placeholder="What did the client say? e.g. Amazing work, loved it! - Priya"
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
+
+                  {/* Image Upload */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={S.label}>Project Image *</label>
+                    <div style={{
+                      border: '2px dashed rgba(11,25,44,0.2)',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      textAlign: 'center',
+                      background: 'rgba(255, 179, 0, 0.02)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                      onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#FFB300'; }}
+                      onDragLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,25,44,0.2)'; }}
+                    >
+                      <p style={{ color: '#6B7280', fontSize: '0.82rem', margin: '0 0 10px' }}>
+                        {projectFile ? `📎 ${projectFile.name}` : '📁 Drag & drop or click to browse'}
+                      </p>
+                      <input type="file" accept="image/*" onChange={e => setProjectFile(e.target.files[0])} required
+                        style={{ color: '#4B5563', fontSize: '0.85rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
+                    </div>
+                  </div>
+
+                  {/* Submit */}
+                  <div style={{ gridColumn: 'span 2', display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <button type="submit" disabled={projectUploading} style={S.saveBtn}
+                      onMouseEnter={e => { if (!projectUploading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,179,0,0.35)'; } }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(255,179,0,0.2)'; }}
+                    >
+                      {projectUploading ? (
+                        <>⏳ Saving Project…</>
+                      ) : (
+                        <>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                          Save Project
+                        </>
+                      )}
+                    </button>
+                    {projectUploading && <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Uploading project image and saving...</span>}
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Projects Table */}
+            <div style={{ marginTop: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '14px' }}>
+                <p style={{ ...S.sectionTitle, margin: 0 }}>
+                  📸 Portfolio Completed Projects — {filteredProjects.length !== recentProjects.length ? `${filteredProjects.length} of ${recentProjects.length}` : `${recentProjects.length}`} total
+                </p>
+                
+                {/* Search */}
+                <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
+                  <input
+                    type="text"
+                    value={projectSearchQuery}
+                    onChange={(e) => setProjectSearchQuery(e.target.value)}
+                    placeholder="Search recent projects..."
+                    style={{
+                      ...S.input,
+                      paddingLeft: '40px',
+                      background: '#ffffff',
+                    }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                  />
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="#6B7280" 
+                    strokeWidth="2.5" 
+                    style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                  >
+                    <circle cx="11" cy="11" r="7" /><path d="m21 21-4.35-4.35" />
+                  </svg>
+                  {projectSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setProjectSearchQuery('')}
+                      style={{
+                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', color: '#9CA3AF', fontSize: '1.25rem', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', padding: 0, lineHeight: 1
+                      }}
+                      title="Clear search"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {recentProjects.length === 0 ? (
+                <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>📸</p>
+                  <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No completed projects yet. Click "Add Completed Project" to get started.</p>
+                </div>
+              ) : filteredProjects.length === 0 ? (
+                <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔍</p>
+                  <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No projects found matching "{projectSearchQuery}".</p>
+                </div>
+              ) : (
+                <>
+                  {/* Desktop Table */}
+                  <div style={S.tableWrap} className="admin-designs-table">
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={S.th}>Image</th>
+                          <th style={S.th}>Title</th>
+                          <th style={S.th}>Category</th>
+                          <th style={S.th}>Venue</th>
+                          <th style={S.th}>Cost</th>
+                          <th style={{ ...S.th, textAlign: 'center' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredProjects.map((p, i) => {
+                          const catName = categories.find(c => c.id === p.category)?.name || p.category;
+                          return (
+                            <tr
+                              key={p.id}
+                              style={{ background: i % 2 === 0 ? 'transparent' : '#F9FAFB' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 179, 0, 0.04)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : '#F9FAFB'; }}
+                            >
+                              <td style={S.td}>
+                                <img src={p.image} alt={p.title} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #D8DCE3' }} />
+                              </td>
+                              <td style={{ ...S.td, fontWeight: '700', color: '#0B192C' }}>
+                                {p.title}
+                                <div style={{ fontSize: '0.73rem', color: '#9CA3AF', fontWeight: '400', marginTop: '2px' }}>
+                                  📅 {p.date}
+                                </div>
+                              </td>
+                              <td style={S.td}>
+                                <span style={{ color: '#4B5563' }}>{catName}</span>
+                              </td>
+                              <td style={S.td}>
+                                <span style={{ color: '#4B5563' }}>📍 {p.venue}</span>
+                              </td>
+                              <td style={S.td}>
+                                <span style={{ color: '#0B192C', fontWeight: '700' }}>{p.cost}</span>
+                              </td>
+                              <td style={{ ...S.td, textAlign: 'center' }}>
+                                <button
+                                  onClick={() => handleProjectDelete(p.id)}
+                                  style={S.deleteBtn}
+                                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                                >
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                  </svg>
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Cards */}
+                  <div className="admin-designs-cards">
+                    {filteredProjects.map((p) => {
+                      const catName = categories.find(c => c.id === p.category)?.name || p.category;
+                      return (
+                        <div key={p.id} className="admin-design-card">
+                          <img src={p.image} alt={p.title} className="admin-design-card__img" />
+                          <div className="admin-design-card__info">
+                            <p className="admin-design-card__name">
+                              {p.title}
+                            </p>
+                            <p className="admin-design-card__cat">
+                              {catName} · 📍 {p.venue}
+                            </p>
+                            <p style={{ fontSize: '0.78rem', color: '#6B7280', margin: '4px 0' }}>
+                              📅 {p.date}
+                            </p>
+                            <p className="admin-design-card__price">
+                              {p.cost}
+                            </p>
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                              <button
+                                className="admin-design-card__delete"
+                                onClick={() => handleProjectDelete(p.id)}
+                                style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  padding: '8px 12px',
+                                  margin: 0,
+                                }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                </svg>
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
+
       </div>
     </div>
   );
