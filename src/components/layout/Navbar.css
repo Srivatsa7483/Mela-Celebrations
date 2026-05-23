@@ -19,7 +19,7 @@
     max-width: 100%;
     margin: 0 auto;
     padding: 0 32px;
-    height: 95px;
+    height: 115px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -36,7 +36,7 @@
 }
 
 .navbar__logo-img {
-    height: 78px;
+    height: 98px;
     width: auto;
     object-fit: contain;
     transition: transform 0.2s;
@@ -738,21 +738,21 @@
 
 @media (max-width: 768px) {
     .navbar__inner {
-        height: 75px;
+        height: 95px;
         padding: 0 16px;
     }
     .navbar__logo-img {
-        height: 55px;
+        height: 75px;
     }
 }
 
 @media (max-width: 580px) {
     .navbar__inner {
-        height: 65px;
+        height: 85px;
         padding: 0 12px;
     }
     .navbar__logo-img {
-        height: 48px;
+        height: 65px;
     }
     /* On very small screens keep icons hidden in main row — they live in the mobile search row */
     .navbar__icon-wrapper {

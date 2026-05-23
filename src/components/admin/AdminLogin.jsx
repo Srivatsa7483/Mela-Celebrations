@@ -99,7 +99,7 @@ const AdminLogin = ({ setCurrentPage }) => {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <img
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="Mela Celebrations"
             style={{
               height: '90px',

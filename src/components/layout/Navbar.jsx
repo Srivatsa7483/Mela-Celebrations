@@ -134,7 +134,7 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
                     <div className="navbar__inner">
                 <div className="navbar__logo-wrapper-container" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <button className="navbar__logo" onClick={() => setCurrentPage("home")}>
-                        <img src="/logo.png" alt="Mela Celebrations" className="navbar__logo-img" />
+                        <img src="/logo.png?v=2" alt="Mela Celebrations" className="navbar__logo-img" />
                     </button>
                     
                     {/* Menu Bar Icon Dropdown */}
