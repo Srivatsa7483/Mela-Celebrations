@@ -39,15 +39,9 @@ const smtpConfig = {
   host: process.env.SMTP_HOST || process.env.EMAIL_HOST || "",
   port: Number(process.env.SMTP_PORT || process.env.EMAIL_PORT || 587),
   secure: process.env.SMTP_SECURE === "true" || process.env.EMAIL_SECURE === "true",
-  lookup: (hostname, options, callback) => {
-    dns.lookup(hostname, { ...options, family: 4 }, (err, address, family) => {
-      if (err) return callback(err);
-      if (Array.isArray(address)) {
-        callback(null, address.filter(addr => addr.family === 4));
-      } else {
-        callback(null, address, family);
-      }
-    });
+  family: 4, // Strictly force IPv4 connection at the socket level
+  tls: {
+    rejectUnauthorized: false // Avoid connection timeouts due to SSL/TLS handshake strictness
   },
   auth: process.env.SMTP_USER && process.env.SMTP_PASS
     ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
