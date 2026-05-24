@@ -94,7 +94,7 @@ const keywordMapping = {
     "wall-decorations": ["wall", "balloon arch", "bedroom", "background"],
     "jungle-theme": ["jungle", "safari", "forest"],
     "superman-theme": ["super hero", "superman", "hero"],
-    "cars-theme": ["car", "cars theme"],
+    "cars-theme": ["cars theme", "lightning mcqueen", "racing car", "cars birthday"],
     "mickey-theme": ["mickey", "mouse"],
     "football-theme": ["football", "soccer"],
     "boss-baby-theme": ["boss baby"],
@@ -133,8 +133,13 @@ const keywordMapping = {
 };
 
 const matchSubcategory = (design, subId) => {
-    if (design.subcategory === subId) return true;
+    // If the design has an explicit subcategory set in the database/JSON,
+    // match strictly on that and do NOT fall back to keyword scanning.
+    if (design.subcategory !== undefined && design.subcategory !== null && design.subcategory !== "") {
+        return design.subcategory === subId;
+    }
     
+    // Legacy fallback only for old seed designs without a subcategory field
     const text = (design.name + " " + design.description + " " + design.categoryName).toLowerCase();
     const keywords = keywordMapping[subId];
     if (!keywords) return false;
