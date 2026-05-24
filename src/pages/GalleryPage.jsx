@@ -220,9 +220,16 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                 "mickey-theme", "football-theme", "boss-baby-theme", 
                 "space-theme", "construction-theme", "aeroplane-theme", "paw-patrol-theme"
             ];
-            matchCat = kidsSubcategories.some(subId => matchSubcategory(d, subId)) || d.category === "birthday";
+            // Must strictly be a birthday decoration, AND either belong to kids-theme, a nested subcategory, or match a keyword
+            matchCat = d.category === "birthday" && (
+                d.subcategory === "kids-theme" ||
+                kidsSubcategories.includes(d.subcategory) ||
+                kidsSubcategories.some(subId => matchSubcategory(d, subId))
+            );
         } else if (activeCategory in keywordMapping) {
-            matchCat = matchSubcategory(d, activeCategory);
+            const parentCat = getParentCategory(activeCategory);
+            // Must match parent category AND match subcategory ID/keywords
+            matchCat = d.category === parentCat && matchSubcategory(d, activeCategory);
         } else {
             matchCat = d.category === activeCategory;
         }
