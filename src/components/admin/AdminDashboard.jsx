@@ -3,6 +3,60 @@ import { uploadImage } from '../../services/designService';
 import { DesignContext } from '../../context/DesignContext';
 import './AdminDashboard.css';
 
+/* ─── Render Wakeup Error Component ──────────────────────────────────────── */
+function RenderWakeupError({ onRetry }) {
+  const [countdown, setCountdown] = useState(20);
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    // Auto-retry after countdown
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onRetry();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    // Animate dots
+    const dotsTimer = setInterval(() => {
+      setDots(d => d.length >= 3 ? '' : d + '.');
+    }, 500);
+    return () => { clearInterval(timer); clearInterval(dotsTimer); };
+  }, [onRetry]);
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#F8F9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px', padding: '40px', textAlign: 'center', fontFamily: "'Jost', 'Inter', sans-serif" }}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      {/* Animated spinner */}
+      <div style={{ width: '64px', height: '64px', border: '4px solid rgba(11,25,44,0.08)', borderTopColor: '#FFB300', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <h2 style={{ color: '#0B192C', fontSize: '1.4rem', fontWeight: '800', margin: 0 }}>
+        ☕ Backend is Waking Up{dots}
+      </h2>
+      <p style={{ color: '#6B7280', fontSize: '0.92rem', maxWidth: '440px', lineHeight: '1.7', margin: '0' }}>
+        Your Render server was sleeping (free tier goes idle after 15 mins).<br />
+        It's now starting up — this takes <strong>30–60 seconds</strong> on the first visit.
+      </p>
+      <div style={{ background: 'rgba(255,179,0,0.1)', border: '1.5px solid #FFB300', borderRadius: '12px', padding: '14px 28px' }}>
+        <p style={{ margin: 0, color: '#0B192C', fontWeight: '700', fontSize: '1rem' }}>
+          Auto-retrying in <span style={{ color: '#FFB300', fontSize: '1.3rem' }}>{countdown}s</span>
+        </p>
+      </div>
+      <button
+        onClick={onRetry}
+        style={{ background: '#FFB300', color: '#0B192C', border: 'none', borderRadius: '30px', padding: '12px 28px', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 18px rgba(255,179,0,0.3)', transition: 'transform 0.2s' }}
+        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+      >
+        🔄 Retry Now
+      </button>
+    </div>
+  );
+}
+
+
 /* ─── Shared style tokens ─────────────────────────────────────────────── */
 const S = {
   page: {
@@ -595,28 +649,9 @@ const AdminDashboard = ({ setCurrentPage }) => {
   );
 
   if (error) return (
-    <div style={{ ...S.page, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px', padding: '40px', textAlign: 'center' }}>
-      <span style={{ fontSize: '3.5rem' }}>⚠️</span>
-      <h2 style={{ color: '#0B192C', fontSize: '1.4rem', fontWeight: '800', margin: 0 }}>Database Connection Error</h2>
-      <p style={{ color: '#6B7280', fontSize: '0.92rem', maxWidth: '480px', lineHeight: '1.6', margin: '0' }}>
-        {error}
-      </p>
-      <button 
-        onClick={() => window.location.reload()}
-        style={{
-          ...S.addBtn,
-          background: '#FFB300',
-          color: '#0B192C',
-          boxShadow: '0 4px 18px rgba(255, 179, 0, 0.25)',
-          marginTop: '10px'
-        }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
-      >
-        🔄 Retry Connection
-      </button>
-    </div>
+    <RenderWakeupError onRetry={() => window.location.reload()} />
   );
+
 
   const subcategories = getSubcategoriesForCategory(formData.category);
 

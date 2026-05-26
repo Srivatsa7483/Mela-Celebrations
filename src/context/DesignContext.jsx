@@ -86,9 +86,9 @@ export function DesignProvider({ children }) {
       try {
         setLoading(true);
         
-        // 60-second timeout to handle sleeping Render servers (cold start on free tier can take 45-55s)
+        // 90-second timeout to handle sleeping Render servers (cold start on free tier can take up to 80s)
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Database connection timed out. Your Render backend server might still be waking up (Render free tier sleeps after 15 mins of inactivity) or the configured backend URL is unreachable. Please wait a moment and refresh.")), 60000)
+          setTimeout(() => reject(new Error("Database connection timed out. Your Render backend server is still waking up (Render free tier sleeps after 15 mins of inactivity). Please click 'Retry Connection' and wait 30–60 seconds.")), 90000)
         );
 
         const [dbDesigns, dbCategories, dbRecentProjects] = await Promise.race([
