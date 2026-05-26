@@ -16,14 +16,25 @@ dns.setDefaultResultOrder("ipv4first");
 const app = express();
 const PORT = process.env.PORT || 5001;
 const JWT_SECRET = process.env.JWT_SECRET || "mela_dev_secret_change_in_production";
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://localhost:5173";
 const APP_URL = process.env.INVOICE_URL || "http://localhost:5173/dashboard";
+
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "https://melacelebrations.com",
+  "https://www.melacelebrations.com"
+];
+
+if (process.env.ALLOWED_ORIGIN) {
+  ALLOWED_ORIGINS.push(process.env.ALLOWED_ORIGIN);
+}
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman) or matching origin
-    if (!origin || origin === ALLOWED_ORIGIN) {
+    // Allow requests with no origin (mobile apps, Postman) or matching origins
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || origin.endsWith("melacelebrations.com")) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: origin ${origin} not allowed`));
