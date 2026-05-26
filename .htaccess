@@ -1,11 +1,13 @@
 Options -MultiViews
 RewriteEngine On
 
-# Proxy all /api/* requests to your Render backend
-# WARNING: Replace 'mela-celebrations-api.onrender.com' with your actual Render service URL if it's different!
+# ── Proxy /api/* requests to Render backend ──────────────────────────────────
+# This avoids CORS issues since the request appears same-origin to the browser.
+# Requires Apache mod_proxy and mod_proxy_http to be enabled.
 RewriteCond %{REQUEST_URI} ^/api/
 RewriteRule ^api/(.*)$ https://mela-celebrations-api.onrender.com/api/$1 [P,L]
 
-# React Router — send all other routes to index.html
+# ── React Router SPA fallback ─────────────────────────────────────────────────
+# Send all non-file routes to index.html for client-side routing
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.html [QSA,L]
