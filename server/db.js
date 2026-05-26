@@ -66,6 +66,7 @@ export async function connectDB() {
   }
 
   // Clean up kidsactivities dropdown in existing database
+  const categoriesCol = dbInstance.collection("categories");
   await categoriesCol.updateOne(
     { id: "kidsactivities" },
     { $unset: { dropdown: "" } }
