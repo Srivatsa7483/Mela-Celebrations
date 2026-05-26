@@ -5,7 +5,7 @@ RewriteEngine On
 # This avoids CORS issues since the request appears same-origin to the browser.
 # Requires Apache mod_proxy and mod_proxy_http to be enabled.
 RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^api/(.*)$ https://mela-celebrations-api.onrender.com/api/$1 [P,L]
+RewriteRule ^api/(.*)$ https://mela-celebrations.onrender.com/api/$1 [P,L]
 
 # ── React Router SPA fallback ─────────────────────────────────────────────────
 # Send all non-file routes to index.html for client-side routing
