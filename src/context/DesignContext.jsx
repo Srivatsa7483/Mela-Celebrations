@@ -85,11 +85,21 @@ export function DesignProvider({ children }) {
     async function fetchData() {
       try {
         setLoading(true);
-        const [dbDesigns, dbCategories, dbRecentProjects] = await Promise.all([
-          getDesigns(),
-          getCategories(),
-          getRecentProjects(),
+        
+        // 20-second timeout to handle sleeping Render servers
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Database connection timed out. Your Render backend server might still be waking up (Render free tier sleeps after 15 mins of inactivity) or the configured backend URL is unreachable. Please wait a moment and refresh.")), 20000)
+        );
+
+        const [dbDesigns, dbCategories, dbRecentProjects] = await Promise.race([
+          Promise.all([
+            getDesigns(),
+            getCategories(),
+            getRecentProjects(),
+          ]),
+          timeoutPromise
         ]);
+
         const cleanedCategories = dbCategories.map(cat => {
           if (cat.id === "kidsactivities") {
             const { dropdown, ...rest } = cat;
@@ -100,9 +110,20 @@ export function DesignProvider({ children }) {
         setDesigns(dbDesigns);
         setCategories(cleanedCategories);
         setRecentProjects(dbRecentProjects);
+        setError(null);
       } catch (err) {
-        console.error("Failed to fetch designs, categories, or recent projects from database, using static fallback:", err);
-        setError(err.message);
+        console.error("Failed to fetch designs, categories, or recent projects from database:", err);
+        
+        // Only use static fallback in development; in production, fail explicitly so connection issues are obvious
+        if (import.meta.env.DEV) {
+          console.warn("Using static fallback data in development mode.");
+          setError(null); // Clear error in dev to allow static fallback to load without blocking the dashboard
+        } else {
+          setError(err.message);
+          setDesigns([]);
+          setCategories([]);
+          setRecentProjects([]);
+        }
       } finally {
         setLoading(false);
       }

@@ -19,44 +19,50 @@ export async function connectDB() {
   dbInstance = client.db(process.env.MONGODB_DB_NAME || "mela-celebrations");
   console.log("✅ Connected to MongoDB Atlas");
 
-  // Seed coupons if empty
-  const couponsCol = dbInstance.collection("coupons");
-  const count = await couponsCol.countDocuments();
-  if (count === 0) {
-    await couponsCol.insertMany([
-      { code: "WELCOME10",  type: "percentage",    value: 10, description: "10% off on your first booking!" },
-      { code: "MELA20",     type: "percentage",    value: 20, description: "Mela Celebrations special 20% off!" },
-      { code: "FESTIVE15",  type: "percentage",    value: 15, description: "Festive season 15% off!" },
-      { code: "SPINWIN10",  type: "percentage",    value: 10, description: "Spin Wheel Reward: 10% Off!" },
-      { code: "SPINWIN20",  type: "percentage",    value: 20, description: "Spin Wheel Reward: 20% Off!" },
-      { code: "SPINPHOTO50",type: "photography_50",value: 0,  description: "Spin Wheel Reward: 50% Off on Photography!" },
-      { code: "SUPER2",     type: "flat",          value: 2000, description: "Flat ₹2,000 off on premium setups!" },
-    ]);
-    console.log("🌱 Coupons seeded into MongoDB");
-  }
+  // Only seed database if we are NOT in production
+  const isProduction = process.env.NODE_ENV === "production";
+  if (!isProduction) {
+    // Seed coupons if empty
+    const couponsCol = dbInstance.collection("coupons");
+    const count = await couponsCol.countDocuments();
+    if (count === 0) {
+      await couponsCol.insertMany([
+        { code: "WELCOME10",  type: "percentage",    value: 10, description: "10% off on your first booking!" },
+        { code: "MELA20",     type: "percentage",    value: 20, description: "Mela Celebrations special 20% off!" },
+        { code: "FESTIVE15",  type: "percentage",    value: 15, description: "Festive season 15% off!" },
+        { code: "SPINWIN10",  type: "percentage",    value: 10, description: "Spin Wheel Reward: 10% Off!" },
+        { code: "SPINWIN20",  type: "percentage",    value: 20, description: "Spin Wheel Reward: 20% Off!" },
+        { code: "SPINPHOTO50",type: "photography_50",value: 0,  description: "Spin Wheel Reward: 50% Off on Photography!" },
+        { code: "SUPER2",     type: "flat",          value: 2000, description: "Flat ₹2,000 off on premium setups!" },
+      ]);
+      console.log("🌱 Coupons seeded into MongoDB");
+    }
 
-  // Seed categories if empty
-  const categoriesCol = dbInstance.collection("categories");
-  const categoriesCount = await categoriesCol.countDocuments();
-  if (categoriesCount === 0) {
-    await categoriesCol.insertMany(seedCategories);
-    console.log("🌱 Categories seeded into MongoDB");
-  }
+    // Seed categories if empty
+    const categoriesCol = dbInstance.collection("categories");
+    const categoriesCount = await categoriesCol.countDocuments();
+    if (categoriesCount === 0) {
+      await categoriesCol.insertMany(seedCategories);
+      console.log("🌱 Categories seeded into MongoDB");
+    }
 
-  // Seed designs if empty
-  const designsCol = dbInstance.collection("designs");
-  const designsCount = await designsCol.countDocuments();
-  if (designsCount === 0) {
-    await designsCol.insertMany(seedDesigns);
-    console.log("🌱 Designs seeded into MongoDB");
-  }
+    // Seed designs if empty
+    const designsCol = dbInstance.collection("designs");
+    const designsCount = await designsCol.countDocuments();
+    if (designsCount === 0) {
+      await designsCol.insertMany(seedDesigns);
+      console.log("🌱 Designs seeded into MongoDB");
+    }
 
-  // Seed recent projects if empty
-  const recentProjectsCol = dbInstance.collection("recent_projects");
-  const recentProjectsCount = await recentProjectsCol.countDocuments();
-  if (recentProjectsCount === 0) {
-    await recentProjectsCol.insertMany(seedRecentProjects);
-    console.log("🌱 Recent Projects seeded into MongoDB");
+    // Seed recent projects if empty
+    const recentProjectsCol = dbInstance.collection("recent_projects");
+    const recentProjectsCount = await recentProjectsCol.countDocuments();
+    if (recentProjectsCount === 0) {
+      await recentProjectsCol.insertMany(seedRecentProjects);
+      console.log("🌱 Recent Projects seeded into MongoDB");
+    }
+  } else {
+    console.log("ℹ️ Production environment detected. Skipping database auto-seeding.");
   }
 
   // Clean up kidsactivities dropdown in existing database

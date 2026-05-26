@@ -340,7 +340,7 @@ const CustomSelect = ({ value, onChange, options, placeholder, disabled, name, r
 
 const AdminDashboard = ({ setCurrentPage }) => {
   const { 
-    designs, categories, recentProjects, loading, 
+    designs, categories, recentProjects, loading, error,
     createDesignAction, deleteDesignAction, updateDesignAction,
     createRecentProjectAction, deleteRecentProjectAction
   } = useContext(DesignContext);
@@ -591,6 +591,30 @@ const AdminDashboard = ({ setCurrentPage }) => {
       <div style={{ width: '48px', height: '48px', border: '3px solid rgba(11,25,44,0.1)', borderTopColor: '#FFB300', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       <p style={{ color: '#6B7280', fontSize: '0.9rem', letterSpacing: '0.08em' }}>Loading Dashboard…</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+
+  if (error) return (
+    <div style={{ ...S.page, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px', padding: '40px', textAlign: 'center' }}>
+      <span style={{ fontSize: '3.5rem' }}>⚠️</span>
+      <h2 style={{ color: '#0B192C', fontSize: '1.4rem', fontWeight: '800', margin: 0 }}>Database Connection Error</h2>
+      <p style={{ color: '#6B7280', fontSize: '0.92rem', maxWidth: '480px', lineHeight: '1.6', margin: '0' }}>
+        {error}
+      </p>
+      <button 
+        onClick={() => window.location.reload()}
+        style={{
+          ...S.addBtn,
+          background: '#FFB300',
+          color: '#0B192C',
+          boxShadow: '0 4px 18px rgba(255, 179, 0, 0.25)',
+          marginTop: '10px'
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+      >
+        🔄 Retry Connection
+      </button>
     </div>
   );
 
