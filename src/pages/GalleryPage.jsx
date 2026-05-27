@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useContext } from "react";
 import { DesignContext } from "../context/DesignContext.jsx";
 import { OrderContext } from "../context/OrderContext.jsx";
 import "./GalleryPage.css";
-import DesignModal from "../components/ui/DesignModal.jsx";
 
 function formatPrice(p) {
     return "₹" + p.toLocaleString("en-IN");
@@ -147,10 +146,9 @@ const matchSubcategory = (design, subId) => {
     return keywords.some(kw => text.includes(kw));
 };
 
-export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, searchQuery, setSearchQuery }) {
+export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, searchQuery, setSearchQuery, navigateToProduct }) {
     const { designs, categories } = useContext(DesignContext);
     const { wishlist, toggleWishlist } = useContext(OrderContext);
-    const [modalDesign, setModalDesign] = useState(null);
     const [visibleCards, setVisibleCards] = useState(new Set());
     const cardRefs = useRef({});
     const gridRef = useRef(null);
@@ -503,8 +501,8 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                                         </svg>
                                     </button>
 
-                                    <img src={d.image} alt={d.name} className="gcard__img" onClick={() => setModalDesign(d)} />
-                                    <div className="gcard__view-overlay" onClick={() => setModalDesign(d)}>
+                                    <img src={d.image} alt={d.name} className="gcard__img" onClick={() => navigateToProduct(d.id)} />
+                                    <div className="gcard__view-overlay" onClick={() => navigateToProduct(d.id)}>
                                         <span>View Details</span>
                                     </div>
                                 </div>
@@ -538,13 +536,6 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                 </div>
             </div>
 
-            {modalDesign && (
-                <DesignModal
-                    design={modalDesign}
-                    onClose={() => setModalDesign(null)}
-                    onOrder={(d) => { setSelectedDesign(d); setCurrentPage("order"); }}
-                />
-            )}
         </div>
     );
 }

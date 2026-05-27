@@ -18,6 +18,7 @@ import PrivacyPage from './pages/PrivacyPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 // AdminLogin.jsx deprecated — admin login is now integrated into LoginPage
 import AdminDashboardPage from './components/admin/AdminDashboard.jsx';
+import ProductDetailPage from './pages/ProductDetailPage.jsx';
 
 // Import Contexts
 import { AuthProvider, AuthContext } from './context/AuthContext.jsx';
@@ -34,12 +35,25 @@ function AppContent() {
   const getInitialPage = () => {
     if (typeof window === "undefined") return "home";
     const path = window.location.pathname.replace(/^\//, "");
-    const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact', 'faqs', 'privacy', 'terms'];
+    if (path.startsWith('product/')) return 'product-detail';
+    const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact', 'faqs', 'privacy', 'terms', 'product-detail'];
     return validPages.includes(path) ? path : "home";
+  };
+
+  // Extract product ID from URL on load (e.g. /product/101)
+  const getInitialProductId = () => {
+    if (typeof window === "undefined") return null;
+    const path = window.location.pathname.replace(/^\//, "");
+    if (path.startsWith('product/')) {
+      const id = path.split('/')[1];
+      return id || null;
+    }
+    return null;
   };
 
   const [currentPage, setCurrentPage] = useState(getInitialPage);
   const [selectedDesign, setSelectedDesign] = useState(null);
+  const [selectedProductId, setSelectedProductId] = useState(getInitialProductId);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [countdownText, setCountdownText] = useState("02:15:10");
@@ -88,6 +102,9 @@ function AppContent() {
     const handlePopState = (event) => {
       if (event.state && event.state.page) {
         setCurrentPage(event.state.page);
+        if (event.state.productId) {
+          setSelectedProductId(event.state.productId);
+        }
       } else {
         setCurrentPage('home');
       }
@@ -106,8 +123,15 @@ function AppContent() {
     if (page !== currentPage) {
       window.history.pushState({ page }, '', `/${page === 'home' ? '' : page}`);
       setCurrentPage(page);
-      window.scrollTo(0, 0); // Scroll to top on navigation
+      window.scrollTo(0, 0);
     }
+  };
+
+  const navigateToProduct = (productId) => {
+    setSelectedProductId(productId);
+    window.history.pushState({ page: 'product-detail', productId }, '', `/product/${productId}`);
+    setCurrentPage('product-detail');
+    window.scrollTo(0, 0);
   };
 
   const renderPage = () => {
@@ -129,7 +153,8 @@ function AppContent() {
             activeCategory={activeCategory} 
             setActiveCategory={setActiveCategory} 
             searchQuery={searchQuery} 
-            setSearchQuery={setSearchQuery} 
+            setSearchQuery={setSearchQuery}
+            navigateToProduct={navigateToProduct}
           />
         );
       case 'order':
@@ -163,6 +188,15 @@ function AppContent() {
         return <LoginPage setCurrentPage={navigateToPage} initialMode="admin" />;
       case 'admin-dashboard':
         return <AdminDashboardPage setCurrentPage={navigateToPage} />;
+      case 'product-detail':
+        return (
+          <ProductDetailPage
+            productId={selectedProductId}
+            setCurrentPage={navigateToPage}
+            setSelectedDesign={setSelectedDesign}
+            navigateToProduct={navigateToProduct}
+          />
+        );
       default:
         return (
           <HomePage 
