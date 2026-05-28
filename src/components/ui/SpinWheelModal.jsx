@@ -8,28 +8,50 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
   const [chancesLeft, setChancesLeft] = useState(3);
   const canvasRef = useRef(null);
 
+
+  // ── Wheel Segments with weighted win probability ──────────────────
+  // weight = relative chance of landing on this segment (sums to 100)
   const options = [
-    { label: "10% OFF", code: "SPINWIN10", color: "#0d1b2a", textColor: "#ffffff" },
-    { label: "TRY AGAIN", code: null, color: "#f7f4ef", textColor: "#0d1b2a" },
-    { label: "20% OFF", code: "SPINWIN20", color: "#c9a84c", textColor: "#ffffff" },
-    { label: "50% OFF ON\nPHOTOGRAPHY", code: "SPINPHOTO50", color: "#1e2e42", textColor: "#ffffff" },
-    { label: "TRY AGAIN", code: null, color: "#f7f4ef", textColor: "#0d1b2a" },
-    { label: "₹2,000 FLAT OFF", code: "SUPER2", color: "#c9a84c", textColor: "#ffffff" },
+    { label: "₹100 OFF",                     code: "SPIN100",    color: "#0d1b2a", textColor: "#ffffff", weight: 20 },
+    { label: "PHOTO\n₹500 OFF",              code: "PHOTO500",   color: "#c9a84c", textColor: "#0d1b2a", weight: 10 },
+    { label: "TRY AGAIN",                    code: null,         color: "#f7f4ef", textColor: "#6b7a8d", weight: 5 },
+    { label: "COMPLEMENTARY\nCAKE TABLE 🎂", code: "CAKETABLE",  color: "#1e2e42", textColor: "#ffffff", weight: 50 },
+    { label: "TRY AGAIN",                    code: null,         color: "#e8e2d6", textColor: "#6b7a8d", weight: 5 },
+    { label: "₹200 OFF",                     code: "SPIN200",    color: "#c9a84c", textColor: "#0d1b2a", weight: 10 },
   ];
+
+
 
   const numSegments = options.length;
   const segmentAngle = 360 / numSegments;
-  let startAngle = 0;
-  let spinAngleStart = 10;
-  let spinTime = 0;
-  let spinTimeTotal = 0;
-  let rotationAngle = 0;
+
+  // Animation state stored in refs (not React state — avoids re-render loops)
+  const spinTimeRef      = useRef(0);
+  const spinTimeTotalRef = useRef(0);
+  const targetRotRef     = useRef(0);   // total degrees the wheel should rotate
+  const currentRotRef    = useRef(0);   // current degrees rendered
+  const winnerIdxRef     = useRef(0);   // pre-picked winning segment index
+  const rafRef           = useRef(null);
+
+  // Weighted random: pick a segment index before the wheel starts
+  const pickWeightedSegment = () => {
+    const totalWeight = options.reduce((s, o) => s + o.weight, 0);
+    let r = Math.random() * totalWeight;
+    for (let i = 0; i < options.length; i++) {
+      r -= options[i].weight;
+      if (r <= 0) return i;
+    }
+    return options.length - 1;
+  };
+
 
   useEffect(() => {
     if (isOpen) {
+      currentRotRef.current = 0;
       drawWheel(0);
       setPrize(null);
       setSpinning(false);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (user?.email) {
         const stored = localStorage.getItem(`mela_spin_chances_${user.email}`);
         if (stored !== null) {
@@ -66,10 +88,9 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
     ctx.stroke();
 
     for (let i = 0; i < numSegments; i++) {
-      const angle = (startAngle + angleOffset + (i * segmentAngle)) * Math.PI / 180;
-      const endAngle = (startAngle + angleOffset + ((i + 1) * segmentAngle)) * Math.PI / 180;
+      const angle    = (angleOffset + i * segmentAngle) * Math.PI / 180;
+      const endAngle = (angleOffset + (i + 1) * segmentAngle) * Math.PI / 180;
 
-      // Draw segment slice
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       ctx.arc(centerX, centerY, radius, angle, endAngle);
@@ -79,25 +100,21 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
       ctx.strokeStyle = "#e2ddd6";
       ctx.stroke();
 
-      // Text label drawing
+      // Text
       ctx.save();
       ctx.translate(centerX, centerY);
-      
-      // Calculate the middle angle of this segment in degrees (normalized to [0, 360))
-      let midAngle = (startAngle + angleOffset + (i * segmentAngle) + (segmentAngle / 2)) % 360;
+      let midAngle = (angleOffset + i * segmentAngle + segmentAngle / 2) % 360;
       if (midAngle < 0) midAngle += 360;
-      
+
       ctx.fillStyle = options[i].textColor;
       const lines = options[i].label.split("\n");
       const isMultiLine = lines.length > 1;
-
-      ctx.font = isMultiLine 
-        ? "bold 10px 'Jost', sans-serif" 
-        : (options[i].label.length > 15 ? "bold 9px 'Jost', sans-serif" : "bold 12px 'Jost', sans-serif");
+      ctx.font = isMultiLine
+        ? "bold 10px 'Jost', sans-serif"
+        : (options[i].label.length > 12 ? "bold 9px 'Jost', sans-serif" : "bold 12px 'Jost', sans-serif");
       ctx.textBaseline = "middle";
-      
+
       if (midAngle > 90 && midAngle < 270) {
-        // Left side of the wheel: flip the text 180 degrees so it's readable (not upside down)
         ctx.rotate(midAngle * Math.PI / 180 + Math.PI);
         ctx.textAlign = "left";
         if (isMultiLine) {
@@ -107,7 +124,6 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
           ctx.fillText(options[i].label, -(radius - 18), 0);
         }
       } else {
-        // Right side of the wheel: draw normally
         ctx.rotate(midAngle * Math.PI / 180);
         ctx.textAlign = "right";
         if (isMultiLine) {
@@ -120,7 +136,7 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
       ctx.restore();
     }
 
-    // Draw center gold pin
+    // Center pin
     ctx.beginPath();
     ctx.arc(centerX, centerY, 18, 0, 2 * Math.PI);
     ctx.fillStyle = "#c9a84c";
@@ -130,6 +146,9 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
     ctx.stroke();
   };
 
+  // Cubic ease-out: starts fast, decelerates smoothly
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
   const spin = () => {
     if (spinning || chancesLeft <= 0) return;
     const newChances = chancesLeft - 1;
@@ -137,50 +156,61 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
     if (user?.email) {
       localStorage.setItem(`mela_spin_chances_${user.email}`, String(newChances));
     }
+
+    // 1. Pre-pick winner using weighted random
+    const winIdx = pickWeightedSegment();
+    winnerIdxRef.current = winIdx;
+
+    // 2. Calculate exact stop angle for that segment (pointer at 12 o'clock = 270°)
+    //    Segment i occupies: i*segmentAngle to (i+1)*segmentAngle
+    //    Middle of segment i: i*segmentAngle + segmentAngle/2
+    //    We need: (270 - finalAngle) % 360 = middle of winIdx
+    const segmentMid = winIdx * segmentAngle + segmentAngle / 2;
+    const baseStop = (270 - segmentMid + 3600) % 360;   // angle in [0,360)
+    const fullSpins = 5 + Math.floor(Math.random() * 3); // 5-7 full rotations
+    const totalSpin = baseStop + fullSpins * 360;
+
+    currentRotRef.current = 0;
+    targetRotRef.current = totalSpin;
+    spinTimeRef.current = 0;
+    spinTimeTotalRef.current = 4500 + Math.random() * 2000; // 4.5–6.5 s
+
     setSpinning(true);
     setPrize(null);
-    spinAngleStart = Math.random() * 10 + 15;
-    spinTime = 0;
-    spinTimeTotal = Math.random() * 3000 + 4000; // spin for 4-7 seconds
-    animateWheel();
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(animateWheel);
   };
 
   const animateWheel = () => {
-    spinTime += 30;
-    if (spinTime >= spinTimeTotal) {
+    spinTimeRef.current += 16;
+    const elapsed = spinTimeRef.current;
+    const total   = spinTimeTotalRef.current;
+
+    if (elapsed >= total) {
+      // Snap exactly to target
+      currentRotRef.current = targetRotRef.current;
+      drawWheel(currentRotRef.current);
       stopRotate();
       return;
     }
-    const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
-    rotationAngle += spinAngle;
-    drawWheel(rotationAngle);
-    requestAnimationFrame(animateWheel);
+
+    const progress = elapsed / total;
+    const eased = easeOutCubic(progress);
+    currentRotRef.current = targetRotRef.current * eased;
+    drawWheel(currentRotRef.current);
+    rafRef.current = requestAnimationFrame(animateWheel);
   };
 
   const stopRotate = () => {
     setSpinning(false);
-    const finalAngle = rotationAngle % 360;
-    
-    // Canvas arcs start from 0 angle (3 o'clock). Segments go clockwise.
-    // The pointer is at 12 o'clock (270 degrees).
-    // Let's compute which slice aligns with the indicator at top (270 deg / -90 deg offset)
-    const degrees = (270 - finalAngle + 360) % 360;
-    const index = Math.floor(degrees / segmentAngle);
-    const won = options[index];
+    const won = options[winnerIdxRef.current];
     setPrize(won);
-
     if (won.code) {
-      // Save code in localStorage
       localStorage.setItem("mela_spin_won_coupon", won.code);
       if (onWinCoupon) onWinCoupon(won.code);
     }
   };
 
-  const easeOut = (t, b, c, d) => {
-    const ts = (t /= d) * t;
-    const tc = ts * t;
-    return b + c * (tc + -3 * ts + 3 * t);
-  };
 
   if (!isOpen) return null;
 

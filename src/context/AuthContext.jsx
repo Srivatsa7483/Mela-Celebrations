@@ -32,6 +32,13 @@ export function AuthProvider({ children }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
+      // If server returns HTML (e.g. Render cold-start or 500 page), handle gracefully
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Server is starting up. Please wait 30 seconds and try again.");
+      }
+
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Login failed");

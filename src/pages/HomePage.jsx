@@ -7,7 +7,7 @@ import Testimonials from "../components/home/Testimonials.jsx";
 import { useContext } from "react";
 import { DesignContext } from "../context/DesignContext.jsx";
 
-export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveCategory, setSearchQuery }) {
+export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveCategory, setSearchQuery, navigateToProduct }) {
     const { categories, designs } = useContext(DesignContext);
     return (
         <main>
@@ -59,11 +59,12 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
                         setCurrentPage={setCurrentPage} 
                         setActiveCategory={setActiveCategory}
                         setSelectedDesign={setSelectedDesign}
+                        navigateToProduct={navigateToProduct}
                     />
                 );
             })}
 
-            <Packages setCurrentPage={setCurrentPage} setSelectedDesign={setSelectedDesign} />
+            <Packages setCurrentPage={setCurrentPage} setSelectedDesign={setSelectedDesign} navigateToProduct={navigateToProduct} />
             <HowItWorks />
             <Testimonials />
         </main>

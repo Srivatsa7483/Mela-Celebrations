@@ -6,7 +6,7 @@ function formatPrice(p) {
     return "₹" + p.toLocaleString("en-IN");
 }
 
-export default function Packages({ setCurrentPage, setSelectedDesign }) {
+export default function Packages({ setCurrentPage, setSelectedDesign, navigateToProduct }) {
     const { designs } = useContext(DesignContext);
     const [visible, setVisible] = useState(false);
     const ref = useRef(null);
@@ -33,12 +33,22 @@ export default function Packages({ setCurrentPage, setSelectedDesign }) {
                             key={d.id}
                             className={`pkg-card${visible ? ` animate-fade-up delay-${i + 1}` : ""}`}
                         >
-                            <div className="pkg-card__img-wrap">
+                            <div 
+                                className="pkg-card__img-wrap"
+                                onClick={() => navigateToProduct && navigateToProduct(d.id)}
+                                style={{ cursor: "pointer" }}
+                            >
                                 {d.badge && <span className="pkg-card__badge">{d.badge}</span>}
                                 <img src={d.image} alt={d.name} className="pkg-card__img" />
                             </div>
                             <div className="pkg-card__body">
-                                <h3 className="pkg-card__name">{d.name}</h3>
+                                <h3 
+                                    className="pkg-card__name"
+                                    onClick={() => navigateToProduct && navigateToProduct(d.id)}
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    {d.name}
+                                </h3>
                                 <p className="pkg-card__desc">{d.description}</p>
                                 <ul className="pkg-card__features">
                                     {d.features.map((f) => (

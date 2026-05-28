@@ -6,6 +6,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dns from "dns";
 import { connectDB, getDB } from "./db.js";
+import uploadMiddleware from "./middlewares/uploadMiddleware.js";
+import { uploadToR2 } from "./utils/uploadToR2.js";
+import { deleteFromR2, extractR2Key } from "./services/r2Service.js";
 
 
 dotenv.config();
@@ -61,8 +64,8 @@ const smtpConfig = {
   auth: process.env.SMTP_USER && process.env.SMTP_PASS
     ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
     : process.env.EMAIL_USER && process.env.EMAIL_PASS
-    ? { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-    : undefined,
+      ? { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+      : undefined,
 };
 
 const emailTransporter = smtpConfig.host && smtpConfig.auth
@@ -74,7 +77,7 @@ const isEmailConfigured = Boolean(emailTransporter) || Boolean(resend);
 // Generic Email Dispatcher supporting both Resend HTTP API and Nodemailer SMTP
 async function sendMailHelper({ to, subject, text, html, replyTo }) {
   const from = process.env.EMAIL_FROM || "Mela Celebrations <onboarding@resend.dev>";
-  
+
   if (resend) {
     try {
       const response = await resend.emails.send({
@@ -323,6 +326,23 @@ async function sendContactFormEmails(contactData) {
 
 // ── API ROUTES ────────────────────────────────────────────────────────────────
 
+// ── IMAGE UPLOAD ─────────────────────────────────────────────────────────────
+// POST /api/upload — Accepts a multipart image, optimizes it via Sharp,
+// uploads to Cloudflare R2, and returns the public URL.
+app.post("/api/upload", uploadMiddleware, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image file provided" });
+    }
+    const folder = req.body.folder || "products";
+    const imageUrl = await uploadToR2(req.file, folder);
+    res.status(200).json({ imageUrl });
+  } catch (error) {
+    console.error("Upload Error:", error);
+    res.status(500).json({ error: error.message || "Failed to upload image" });
+  }
+});
+
 // ── CATEGORIES & DESIGNS ──────────────────────────────────────────────────────
 app.get("/api/categories", async (req, res) => {
   try {
@@ -351,20 +371,18 @@ app.get("/api/designs", async (req, res) => {
 app.post("/api/designs", async (req, res) => {
   try {
     const newDesign = req.body;
+    // image field should already be a public R2 URL (uploaded via /api/upload)
     const db = await getDB();
     const designsCol = db.collection("designs");
     const designs = await designsCol.find({}).toArray();
-    
+
     // Generate new numeric ID
-    const nextId = designs.length > 0 
-      ? Math.max(...designs.map(d => Number(d.id) || 0)) + 1 
+    const nextId = designs.length > 0
+      ? Math.max(...designs.map(d => Number(d.id) || 0)) + 1
       : 1001;
-      
-    const designWithId = {
-      ...newDesign,
-      id: nextId
-    };
-    
+
+    const designWithId = { ...newDesign, id: nextId };
+
     await designsCol.insertOne(designWithId);
     const { _id, ...clean } = designWithId;
     res.status(201).json(clean);
@@ -379,7 +397,7 @@ app.delete("/api/designs/:id", async (req, res) => {
     const designId = req.params.id;
     const db = await getDB();
     const designsCol = db.collection("designs");
-    
+
     const numericId = Number(designId);
     const query = {
       $or: [
@@ -387,12 +405,18 @@ app.delete("/api/designs/:id", async (req, res) => {
         { id: isNaN(numericId) ? null : numericId }
       ]
     };
-    
-    const result = await designsCol.deleteOne(query);
-    if (result.deletedCount === 0) {
+
+    // Fetch the design first so we can delete its image from R2
+    const existing = await designsCol.findOne(query);
+    if (!existing) {
       return res.status(404).json({ error: "Design not found" });
     }
-    
+
+    // Delete image from R2 (non-blocking, best-effort)
+    const r2Key = extractR2Key(existing.image);
+    if (r2Key) deleteFromR2(r2Key).catch(err => console.warn("R2 delete warning:", err));
+
+    await designsCol.deleteOne(query);
     res.status(200).json({ success: true, message: "Design deleted successfully" });
   } catch (error) {
     console.error("Delete Design Error:", error);
@@ -404,9 +428,11 @@ app.put("/api/designs/:id", async (req, res) => {
   try {
     const designId = req.params.id;
     const updateData = req.body;
+    // image field should already be a public R2 URL (uploaded via /api/upload)
+
     const db = await getDB();
     const designsCol = db.collection("designs");
-    
+
     const numericId = Number(designId);
     const query = {
       $or: [
@@ -414,7 +440,7 @@ app.put("/api/designs/:id", async (req, res) => {
         { id: isNaN(numericId) ? null : numericId }
       ]
     };
-    
+
     // Clean data: prevent modifying immutable _id
     delete updateData._id;
     if (updateData.id) {
@@ -425,6 +451,15 @@ app.put("/api/designs/:id", async (req, res) => {
     }
     if (updateData.originalPrice) {
       updateData.originalPrice = Number(updateData.originalPrice);
+    }
+
+    // If image is being replaced, delete the old R2 image (best-effort)
+    if (updateData.image) {
+      const existingDesign = await designsCol.findOne(query);
+      if (existingDesign && existingDesign.image !== updateData.image) {
+        const oldKey = extractR2Key(existingDesign.image);
+        if (oldKey) deleteFromR2(oldKey).catch(err => console.warn("R2 delete warning:", err));
+      }
     }
 
     const result = await designsCol.findOneAndUpdate(
@@ -461,20 +496,18 @@ app.get("/api/recent-projects", async (req, res) => {
 app.post("/api/recent-projects", async (req, res) => {
   try {
     const newProject = req.body;
+    // image field should already be a public R2 URL (uploaded via /api/upload)
     const db = await getDB();
     const recentProjectsCol = db.collection("recent_projects");
     const projects = await recentProjectsCol.find({}).toArray();
-    
+
     // Generate new numeric ID
-    const nextId = projects.length > 0 
-      ? Math.max(...projects.map(p => Number(p.id) || 0)) + 1 
+    const nextId = projects.length > 0
+      ? Math.max(...projects.map(p => Number(p.id) || 0)) + 1
       : 1;
-      
-    const projectWithId = {
-      ...newProject,
-      id: nextId
-    };
-    
+
+    const projectWithId = { ...newProject, id: nextId };
+
     await recentProjectsCol.insertOne(projectWithId);
     const { _id, ...clean } = projectWithId;
     res.status(201).json(clean);
@@ -489,7 +522,7 @@ app.delete("/api/recent-projects/:id", async (req, res) => {
     const projectId = req.params.id;
     const db = await getDB();
     const recentProjectsCol = db.collection("recent_projects");
-    
+
     const numericId = Number(projectId);
     const query = {
       $or: [
@@ -497,12 +530,18 @@ app.delete("/api/recent-projects/:id", async (req, res) => {
         { id: isNaN(numericId) ? null : numericId }
       ]
     };
-    
-    const result = await recentProjectsCol.deleteOne(query);
-    if (result.deletedCount === 0) {
+
+    // Fetch the project first so we can delete its image from R2
+    const existing = await recentProjectsCol.findOne(query);
+    if (!existing) {
       return res.status(404).json({ error: "Recent project not found" });
     }
-    
+
+    // Delete image from R2 (non-blocking, best-effort)
+    const r2Key = extractR2Key(existing.image);
+    if (r2Key) deleteFromR2(r2Key).catch(err => console.warn("R2 delete warning:", err));
+
+    await recentProjectsCol.deleteOne(query);
     res.status(200).json({ success: true, message: "Recent project deleted successfully" });
   } catch (error) {
     console.error("Delete Recent Project Error:", error);

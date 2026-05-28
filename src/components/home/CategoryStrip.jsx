@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import DesignModal from "../ui/DesignModal.jsx";
 import "./CategoryStrip.css";
 
-export default function CategoryStrip({ title, categoryId, designs, setCurrentPage, setActiveCategory, setSelectedDesign }) {
+export default function CategoryStrip({ title, categoryId, designs, setCurrentPage, setActiveCategory, setSelectedDesign, navigateToProduct }) {
     const [visible, setVisible] = useState(false);
-    const [modalDesign, setModalDesign] = useState(null);
     const [canScrollLeft, setCanScrollLeft]   = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(true);
     const ref       = useRef(null);
@@ -84,7 +82,7 @@ export default function CategoryStrip({ title, categoryId, designs, setCurrentPa
                                 >
                                     <div
                                         className="category-strip__img-wrap"
-                                        onClick={() => setModalDesign(design)}
+                                        onClick={() => navigateToProduct(design.id)}
                                         style={{ cursor: "pointer" }}
                                     >
                                         <img src={design.image} alt={design.name} className="category-strip__img" />
@@ -126,13 +124,6 @@ export default function CategoryStrip({ title, categoryId, designs, setCurrentPa
                     </button>
                 </div>
             </div>
-            {modalDesign && (
-                <DesignModal
-                    design={modalDesign}
-                    onClose={() => setModalDesign(null)}
-                    onOrder={(d) => { setSelectedDesign(d); setCurrentPage("order"); }}
-                />
-            )}
         </section>
     );
 }

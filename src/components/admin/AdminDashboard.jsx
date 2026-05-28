@@ -513,6 +513,10 @@ const AdminDashboard = ({ setCurrentPage }) => {
       alert('Please upload an image for the design.');
       return;
     }
+    if (!formData.category) {
+      alert('Please select a main category for the design.');
+      return;
+    }
     setUploading(true);
     try {
       let imageUrl = editingDesign ? editingDesign.image : '';

@@ -38,11 +38,22 @@ export async function updateDesign(designId, updatedDesign) {
   return res.json();
 }
 
-export async function uploadImage(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+export async function uploadImage(file, folder = "products") {
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("folder", folder);
+
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+    // Do NOT set Content-Type manually — browser sets it with boundary automatically
   });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Image upload to Cloudflare R2 failed");
+  }
+
+  const data = await res.json();
+  return data.imageUrl;
 }

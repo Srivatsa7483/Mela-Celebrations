@@ -128,7 +128,33 @@ const keywordMapping = {
     "ganesh-festival": ["ganesh", "ganpati"],
     "halloween": ["halloween", "spooky"],
     "christmas": ["christmas", "santa", "snow"],
-    "house-warming": ["house warming", "housewarming", "griha", "pravesh"]
+    "house-warming": ["house warming", "housewarming", "griha", "pravesh"],
+
+    // Kids Activities subcategories
+    "male-emcee": ["male emcee", "male host", "anchor"],
+    "female-emcee": ["female emcee", "female host", "anchor"],
+    "magician": ["magician", "magic show", "magic"],
+    "tattoo": ["tattoo", "airbrush tattoo"],
+    "arts-crafts": ["arts and crafts", "art & craft", "craft"],
+    "clay-modelling": ["clay modelling", "clay modeling", "playdough"],
+    "mascot": ["mascot", "costume character", "cartoon character"],
+    "caricature": ["caricature", "caricature artist", "cartoon drawing"],
+    "balloon-sculptor": ["balloon sculptor", "balloon twisting", "balloon animal", "balloon art"],
+    "bouncy-castle": ["bouncy castle", "bounce house", "jumping castle", "inflatable"],
+    "trampoline": ["trampoline", "bouncing"],
+    "face-painting": ["face painting", "face paint"],
+    "balloon-shooting": ["balloon shooting", "balloon dart", "dart game"],
+    "ball-pool": ["ball pool", "ball pit", "ball pit pool"],
+    "hoopla": ["hoopla", "ring toss"],
+    "angry-bird": ["angry bird", "angry birds game"],
+    "pebble-painting": ["pebble painting", "stone painting", "rock painting"],
+    "sweet-corn-counter": ["sweet corn counter", "corn counter"],
+    "archery": ["archery", "bow and arrow"],
+    "cotton-candy": ["cotton candy", "candy floss", "cotton candy stall"],
+    "chocolate-fountain": ["chocolate fountain", "chocolate fondue"],
+    "popcorn-stall": ["popcorn stall", "popcorn counter"],
+    "sweet-corn-stall": ["sweet corn stall", "sweet corn"],
+    "ice-gola": ["ice gola", "gola", "shaved ice", "ice candy"]
 };
 
 const matchSubcategory = (design, subId) => {
@@ -241,7 +267,11 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
         // (subcategory selection is informational — services/themes may not have individual designs)
         if (activeSubcategory && activeCategory !== "all") {
             const parentCat = getParentCategory(activeSubcategory);
-            matchCat = d.category === parentCat;
+            // Only apply the override if the subcategory actually belongs to the current activeCategory
+            // Prevents stale activeSubcategory from overriding when switching categories
+            if (parentCat === activeCategory) {
+                matchCat = d.category === parentCat;
+            }
         }
 
         const searchStr = searchQuery || "";

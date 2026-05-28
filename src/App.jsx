@@ -142,7 +142,8 @@ function AppContent() {
             setCurrentPage={navigateToPage} 
             setSelectedDesign={setSelectedDesign} 
             setActiveCategory={setActiveCategory} 
-            setSearchQuery={setSearchQuery} 
+            setSearchQuery={setSearchQuery}
+            navigateToProduct={navigateToProduct}
           />
         );
       case 'gallery':
@@ -203,7 +204,8 @@ function AppContent() {
             setCurrentPage={navigateToPage} 
             setSelectedDesign={setSelectedDesign} 
             setActiveCategory={setActiveCategory} 
-            setSearchQuery={setSearchQuery} 
+            setSearchQuery={setSearchQuery}
+            navigateToProduct={navigateToProduct}
           />
         );
     }

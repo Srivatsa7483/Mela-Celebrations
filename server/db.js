@@ -27,13 +27,13 @@ export async function connectDB() {
     const count = await couponsCol.countDocuments();
     if (count === 0) {
       await couponsCol.insertMany([
-        { code: "WELCOME10",  type: "percentage",    value: 10, description: "10% off on your first booking!" },
-        { code: "MELA20",     type: "percentage",    value: 20, description: "Mela Celebrations special 20% off!" },
-        { code: "FESTIVE15",  type: "percentage",    value: 15, description: "Festive season 15% off!" },
-        { code: "SPINWIN10",  type: "percentage",    value: 10, description: "Spin Wheel Reward: 10% Off!" },
-        { code: "SPINWIN20",  type: "percentage",    value: 20, description: "Spin Wheel Reward: 20% Off!" },
-        { code: "SPINPHOTO50",type: "photography_50",value: 0,  description: "Spin Wheel Reward: 50% Off on Photography!" },
-        { code: "SUPER2",     type: "flat",          value: 2000, description: "Flat ₹2,000 off on premium setups!" },
+        { code: "WELCOME10",  type: "percentage", value: 10,  description: "10% off on your first booking!" },
+        { code: "MELA20",     type: "percentage", value: 20,  description: "Mela Celebrations special 20% off!" },
+        { code: "FESTIVE15",  type: "percentage", value: 15,  description: "Festive season 15% off!" },
+        { code: "SPIN100",    type: "flat",        value: 100, description: "Spin Wheel Reward: ₹100 off!" },
+        { code: "PHOTO500",   type: "flat",        value: 500, description: "Spin Wheel Reward: ₹500 off Photography!" },
+        { code: "CAKETABLE",  type: "free_addon",  value: 0,   description: "Spin Wheel Reward: Complementary Cake Table!" },
+        { code: "SPIN200",    type: "flat",        value: 200, description: "Spin Wheel Reward: ₹200 off!" },
       ]);
       console.log("🌱 Coupons seeded into MongoDB");
     }
@@ -64,14 +64,6 @@ export async function connectDB() {
   } else {
     console.log("ℹ️ Production environment detected. Skipping database auto-seeding.");
   }
-
-  // Clean up kidsactivities dropdown in existing database
-  const categoriesCol = dbInstance.collection("categories");
-  await categoriesCol.updateOne(
-    { id: "kidsactivities" },
-    { $unset: { dropdown: "" } }
-  );
-  console.log("🧹 Kids Activities dropdown unset from MongoDB");
 
   return dbInstance;
 }
