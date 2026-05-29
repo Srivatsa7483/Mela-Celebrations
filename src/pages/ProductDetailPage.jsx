@@ -459,23 +459,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                     {/* ══════════════ LEFT: GALLERY ══════════════ */}
                     <div className="pdp-gallery">
 
-                        {/* Thumbnail strip (desktop + tablet) */}
-                        {images.length > 1 && (
-                            <div className="pdp-thumbs">
-                                {images.map((img, i) => (
-                                    <button
-                                        key={i}
-                                        className={`pdp-thumb${activeImg === i ? ' active' : ''}`}
-                                        onClick={() => { setActiveImg(i); openLightbox(i); }}
-                                        aria-label={`View image ${i + 1}`}
-                                    >
-                                        <img src={img} alt="" loading="lazy" />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Main image */}
+                        {/* ── PRIMARY IMAGE (always fixed) ── */}
                         <div
                             ref={imgWrapRef}
                             className={`pdp-img-wrap${isZoomed ? ' zoomed' : ''}`}
@@ -491,28 +475,78 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                 <span className="pdp-badge">{design.badge}</span>
                             )}
                             <img
-                                src={images[activeImg] || design.image}
+                                src={images[0] || design.image}
                                 alt={design.name}
                                 className="pdp-img"
-                                onClick={() => openLightbox(activeImg)}
+                                onClick={() => openLightbox(0)}
                                 style={{ cursor: 'zoom-in' }}
                             />
-                            <div className="pdp-zoom-hint" onClick={() => openLightbox(activeImg)} style={{ cursor: 'pointer' }}>
+                            <div className="pdp-zoom-hint" onClick={() => openLightbox(0)} style={{ cursor: 'pointer' }}>
                                 🔍 Click to enlarge
                             </div>
                         </div>
 
-                        {/* Dot indicators (mobile) */}
+                        {/* ── ALTERNATE THUMBNAILS below primary (only if there are extras) ── */}
                         {images.length > 1 && (
-                            <div className="pdp-dots">
-                                {images.map((_, i) => (
+                            <div style={{
+                                display: 'flex',
+                                gap: '10px',
+                                marginTop: '12px',
+                                flexWrap: 'wrap',
+                            }}>
+                                {images.slice(1).map((img, i) => (
                                     <button
                                         key={i}
-                                        className={`pdp-dot${activeImg === i ? ' active' : ''}`}
-                                        onClick={() => { setActiveImg(i); openLightbox(i); }}
-                                        aria-label={`Image ${i + 1}`}
-                                    />
+                                        onClick={() => openLightbox(i + 1)}
+                                        aria-label={`View alternate image ${i + 1}`}
+                                        title={`View image ${i + 2}`}
+                                        style={{
+                                            width: '76px',
+                                            height: '76px',
+                                            borderRadius: '10px',
+                                            overflow: 'hidden',
+                                            border: '2px solid #E5E7EB',
+                                            cursor: 'pointer',
+                                            background: 'none',
+                                            padding: 0,
+                                            flexShrink: 0,
+                                            transition: 'border-color 0.18s, transform 0.18s, box-shadow 0.18s',
+                                            position: 'relative',
+                                        }}
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.borderColor = '#FFB300';
+                                            e.currentTarget.style.transform = 'scale(1.06)';
+                                            e.currentTarget.style.boxShadow = '0 4px 14px rgba(255,179,0,0.3)';
+                                        }}
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.borderColor = '#E5E7EB';
+                                            e.currentTarget.style.transform = 'scale(1)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        <img
+                                            src={img}
+                                            alt={`Alternate view ${i + 1}`}
+                                            loading="lazy"
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                        />
+                                        {/* magnify icon overlay */}
+                                        <div style={{
+                                            position: 'absolute', inset: 0,
+                                            background: 'rgba(0,0,0,0)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: '1.2rem',
+                                            transition: 'background 0.18s',
+                                        }}
+                                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.28)'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0)'}
+                                        >
+                                        </div>
+                                    </button>
                                 ))}
+                                <p style={{ width: '100%', fontSize: '0.72rem', color: '#9CA3AF', margin: '4px 0 0', lineHeight: 1.4 }}>
+                                    +{images.length - 1} more view{images.length - 1 !== 1 ? 's' : ''} · click to enlarge
+                                </p>
                             </div>
                         )}
 
@@ -521,6 +555,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                             ← Back to Gallery
                         </button>
                     </div>
+
 
                     {/* ══════════════ LIGHTBOX ══════════════ */}
                     {lightboxOpen && images.length > 0 && (
