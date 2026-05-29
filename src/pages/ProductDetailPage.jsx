@@ -73,6 +73,8 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState('description');
     const imgWrapRef = useRef(null);
+    const touchStartX = useRef(0);
+    const touchEndX = useRef(0);
 
     const design = designs.find(d => String(d.id) === String(productId));
     const isWishlisted = wishlist.map(String).includes(String(productId));
@@ -90,13 +92,43 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
         setIsZoomed(false);
     }, [productId]);
 
+    const handleMouseEnter = () => {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
+        setIsZoomed(true);
+    };
+
     const handleMouseMove = (e) => {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
         if (!imgWrapRef.current) return;
         const rect = imgWrapRef.current.getBoundingClientRect();
         setZoomPos({
             x: ((e.clientX - rect.left) / rect.width) * 100,
             y: ((e.clientY - rect.top) / rect.height) * 100,
         });
+    };
+
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchEndX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e) => {
+        touchEndX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+        if (!images || images.length <= 1) return;
+        const diffX = touchStartX.current - touchEndX.current;
+        const threshold = 50; // minimum pixels swept
+        if (Math.abs(diffX) > threshold) {
+            if (diffX > 0) {
+                // Swiped left -> show next image
+                setActiveImg((prev) => (prev + 1) % images.length);
+            } else {
+                // Swiped right -> show previous image
+                setActiveImg((prev) => (prev - 1 + images.length) % images.length);
+            }
+        }
     };
 
     const handleShare = async () => {
@@ -186,9 +218,12 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                         <div
                             ref={imgWrapRef}
                             className={`pdp-img-wrap${isZoomed ? ' zoomed' : ''}`}
-                            onMouseEnter={() => setIsZoomed(true)}
+                            onMouseEnter={handleMouseEnter}
                             onMouseLeave={() => setIsZoomed(false)}
                             onMouseMove={handleMouseMove}
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
                             style={isZoomed ? { '--ox': `${zoomPos.x}%`, '--oy': `${zoomPos.y}%` } : {}}
                         >
                             {design.badge && (
