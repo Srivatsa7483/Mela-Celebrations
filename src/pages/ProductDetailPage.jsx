@@ -299,7 +299,6 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
     const { designs, loading } = useContext(DesignContext);
     const { wishlist, toggleWishlist } = useContext(OrderContext);
 
-    const [activeImg, setActiveImg] = useState(0);
     const [isZoomed, setIsZoomed] = useState(false);
     const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
     const [wishAnim, setWishAnim] = useState(false);
@@ -308,8 +307,6 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIdx, setLightboxIdx] = useState(0);
     const imgWrapRef = useRef(null);
-    const touchStartX = useRef(0);
-    const touchEndX = useRef(0);
 
     const openLightbox = (idx) => { setLightboxIdx(idx); setLightboxOpen(true); };
     const closeLightbox = () => setLightboxOpen(false);
@@ -349,7 +346,6 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        setActiveImg(0);
         setIsZoomed(false);
     }, [productId]);
 
@@ -368,29 +364,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
         });
     };
 
-    const handleTouchStart = (e) => {
-        touchStartX.current = e.touches[0].clientX;
-        touchEndX.current = e.touches[0].clientX;
-    };
 
-    const handleTouchMove = (e) => {
-        touchEndX.current = e.touches[0].clientX;
-    };
-
-    const handleTouchEnd = () => {
-        if (!images || images.length <= 1) return;
-        const diffX = touchStartX.current - touchEndX.current;
-        const threshold = 50; // minimum pixels swept
-        if (Math.abs(diffX) > threshold) {
-            if (diffX > 0) {
-                // Swiped left -> show next image
-                setActiveImg((prev) => (prev + 1) % images.length);
-            } else {
-                // Swiped right -> show previous image
-                setActiveImg((prev) => (prev - 1 + images.length) % images.length);
-            }
-        }
-    };
 
     const handleShare = async () => {
         const url = window.location.href;
@@ -466,9 +440,6 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={() => setIsZoomed(false)}
                             onMouseMove={handleMouseMove}
-                            onTouchStart={handleTouchStart}
-                            onTouchMove={handleTouchMove}
-                            onTouchEnd={handleTouchEnd}
                             style={isZoomed ? { '--ox': `${zoomPos.x}%`, '--oy': `${zoomPos.y}%` } : {}}
                         >
                             {design.badge && (
