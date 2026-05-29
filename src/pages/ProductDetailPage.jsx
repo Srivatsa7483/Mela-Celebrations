@@ -505,7 +505,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                             height: '76px',
                                             borderRadius: '10px',
                                             overflow: 'hidden',
-                                            border: '2px solid #E5E7EB',
+                                            border: '2px solid var(--border)',
                                             cursor: 'pointer',
                                             background: 'none',
                                             padding: 0,
@@ -514,12 +514,12 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                             position: 'relative',
                                         }}
                                         onMouseEnter={e => {
-                                            e.currentTarget.style.borderColor = '#FFB300';
+                                            e.currentTarget.style.borderColor = 'var(--gold)';
                                             e.currentTarget.style.transform = 'scale(1.06)';
-                                            e.currentTarget.style.boxShadow = '0 4px 14px rgba(255,179,0,0.3)';
+                                            e.currentTarget.style.boxShadow = '0 4px 14px rgba(201,168,76,0.3)';
                                         }}
                                         onMouseLeave={e => {
-                                            e.currentTarget.style.borderColor = '#E5E7EB';
+                                            e.currentTarget.style.borderColor = 'var(--border)';
                                             e.currentTarget.style.transform = 'scale(1)';
                                             e.currentTarget.style.boxShadow = 'none';
                                         }}
@@ -644,7 +644,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                     opacity: 0.5;
                                 }
                                 .pdp-lightbox-thumb-btn.active,
-                                .pdp-lightbox-thumb-btn:hover { border-color: #FFB300; opacity: 1; }
+                                .pdp-lightbox-thumb-btn:hover { border-color: var(--gold); opacity: 1; }
                                 .pdp-lightbox-thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
                                 @media (max-width: 600px) {
                                     .pdp-lightbox-arrow { width: 40px; height: 40px; font-size: 1.4rem; }
