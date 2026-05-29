@@ -28,7 +28,7 @@ function RenderWakeupError({ onRetry }) {
   }, [onRetry]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px', padding: '40px', textAlign: 'center', fontFamily: "'Jost', 'Inter', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#F8F9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px', padding: '40px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       {/* Animated spinner */}
       <div style={{ width: '64px', height: '64px', border: '4px solid rgba(11,25,44,0.08)', borderTopColor: '#FFB300', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
@@ -62,7 +62,7 @@ const S = {
   page: {
     minHeight: '100vh',
     background: '#F8F9FB', // Light Background
-    fontFamily: "'Jost', 'Inter', sans-serif",
+    fontFamily: "'DM Sans', sans-serif",
     color: '#0B192C', // Deep Navy Blue Text
     padding: '0',
   },
@@ -396,10 +396,10 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const { 
     designs, categories, recentProjects, loading, error,
     createDesignAction, deleteDesignAction, updateDesignAction,
-    createRecentProjectAction, deleteRecentProjectAction
+    createRecentProjectAction, deleteRecentProjectAction, updateRecentProjectAction
   } = useContext(DesignContext);
 
-  const [activeTab, setActiveTab] = useState('designs'); // 'designs' or 'projects'
+  const [activeTab, setActiveTab] = useState('designs'); // 'designs', 'projects', 'signature'
   const [adminSearchQuery, setAdminSearchQuery] = useState('');
   const [projectSearchQuery, setProjectSearchQuery] = useState('');
 
@@ -408,12 +408,13 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const [editingDesign, setEditingDesign] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '',
+    name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', isSignature: false,
   });
   const [file, setFile] = useState(null);
 
   /* ─── Recent Projects Tab States ─── */
   const [isAddingProject, setIsAddingProject] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
   const [projectUploading, setProjectUploading] = useState(false);
   const [projectFormData, setProjectFormData] = useState({
     title: '', category: '', venue: '', date: '', cost: '', desc: '', review: ''
@@ -452,6 +453,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
       price: design.price || '',
       originalPrice: design.originalPrice || '',
       features: design.features ? design.features.join(', ') : '',
+      isSignature: design.isSignature || false,
     });
     setFile(null);
     window.scrollTo({ top: 300, behavior: 'smooth' });
@@ -460,7 +462,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const handleCancelClick = () => {
     setIsAdding(false);
     setEditingDesign(null);
-    setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '' });
+    setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', isSignature: false });
     setFile(null);
   };
 
@@ -535,6 +537,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
         originalPrice: Number(formData.originalPrice),
         features: formData.features.split(',').map(f => f.trim()),
         image: imageUrl,
+        isSignature: Boolean(formData.isSignature),
       };
 
       if (editingDesign) {
@@ -575,15 +578,42 @@ const AdminDashboard = ({ setCurrentPage }) => {
     setProjectFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleProjectEditClick = (project) => {
+    setEditingProject(project);
+    setIsAddingProject(true);
+    setProjectFormData({
+      title: project.title || '',
+      category: project.category || '',
+      venue: project.venue || '',
+      date: project.date || '',
+      cost: project.cost || '',
+      desc: project.desc || '',
+      review: project.review || '',
+    });
+    setProjectFile(null);
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
+
+  const handleProjectCancelClick = () => {
+    setIsAddingProject(false);
+    setEditingProject(null);
+    setProjectFormData({ title: '', category: '', venue: '', date: '', cost: '', desc: '', review: '' });
+    setProjectFile(null);
+  };
+
   const handleProjectSubmit = async (e) => {
     e.preventDefault();
-    if (!projectFile) {
-      alert('Please upload an image for the project.');
+    if (!editingProject && !projectFile) {
+      alert('Please upload an image for the completed project.');
       return;
     }
     setProjectUploading(true);
     try {
-      const imageUrl = await uploadImage(projectFile);
+      let imageUrl = editingProject ? editingProject.image : '';
+      if (projectFile) {
+        imageUrl = await uploadImage(projectFile);
+      }
+      
       const projectPayload = {
         title: projectFormData.title,
         category: projectFormData.category,
@@ -595,15 +625,18 @@ const AdminDashboard = ({ setCurrentPage }) => {
         image: imageUrl,
       };
 
-      await createRecentProjectAction(projectPayload);
-      alert('Recent completed project added successfully!');
+      if (editingProject) {
+        await updateRecentProjectAction(editingProject.id, projectPayload);
+        alert('Recent completed project updated successfully!');
+      } else {
+        await createRecentProjectAction(projectPayload);
+        alert('Recent completed project added successfully!');
+      }
       
-      setIsAddingProject(false);
-      setProjectFormData({ title: '', category: '', venue: '', date: '', cost: '', desc: '', review: '' });
-      setProjectFile(null);
+      handleProjectCancelClick();
     } catch (error) {
       console.error(error);
-      alert('Error saving completed project.');
+      alert(editingProject ? 'Error updating completed project.' : 'Error saving completed project.');
     } finally {
       setProjectUploading(false);
     }
@@ -743,6 +776,23 @@ const AdminDashboard = ({ setCurrentPage }) => {
           >
             📸 Recent Completed Projects
           </button>
+          <button
+            onClick={() => setActiveTab('signature')}
+            style={{
+              padding: '12px 24px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'signature' ? '3px solid #FFB300' : '3px solid transparent',
+              color: activeTab === 'signature' ? '#0B192C' : '#6B7280',
+              fontWeight: '700',
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit',
+            }}
+          >
+            ✨ Mela Signature Packages
+          </button>
         </div>
 
         {/* ─── DESIGNS TAB PANEL ─── */}
@@ -854,7 +904,31 @@ const AdminDashboard = ({ setCurrentPage }) => {
                       onFocus={onFocus} onBlur={onBlur} />
                   </div>
 
-                  {/* Image Upload */}
+                  {/* Mela Signature Toggle */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ ...S.label, display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', userSelect: 'none' }}>
+                      <div
+                        onClick={() => setFormData(prev => ({ ...prev, isSignature: !prev.isSignature }))}
+                        style={{
+                          width: '44px', height: '24px', borderRadius: '12px', position: 'relative', cursor: 'pointer', flexShrink: 0,
+                          background: formData.isSignature ? 'linear-gradient(135deg,#FFB300,#FF8F00)' : '#D1D5DB',
+                          transition: 'background 0.25s',
+                          boxShadow: formData.isSignature ? '0 0 0 3px rgba(255,179,0,0.25)' : 'none',
+                        }}
+                      >
+                        <div style={{
+                          position: 'absolute', top: '3px', left: formData.isSignature ? '23px' : '3px',
+                          width: '18px', height: '18px', borderRadius: '50%', background: '#fff',
+                          boxShadow: '0 1px 4px rgba(0,0,0,0.2)', transition: 'left 0.25s',
+                        }} />
+                      </div>
+                      <span style={{ fontWeight: formData.isSignature ? '700' : '500', color: formData.isSignature ? '#FF8F00' : '#4B5563', transition: 'all 0.2s' }}>
+                        {formData.isSignature ? '✨ Mela Signature Package (will appear in Signature section)' : 'Mark as Mela Signature Package'}
+                      </span>
+                    </label>
+                  </div>
+
+
                   <div style={{ gridColumn: 'span 2' }}>
                     <label style={S.label}>
                       {editingDesign ? 'Change Design Image (Optional)' : 'Upload Design Image *'}
@@ -890,7 +964,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
                       ) : (
                         <>
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                          Save Design
+                          {editingDesign ? 'Update Design' : 'Save Design'}
                         </>
                       )}
                     </button>
@@ -1108,7 +1182,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
             {/* Action row */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
               <button
-                onClick={isAddingProject ? () => setIsAddingProject(false) : () => setIsAddingProject(true)}
+                onClick={isAddingProject ? handleProjectCancelClick : () => setIsAddingProject(true)}
                 style={isAddingProject ? S.cancelBtn : S.addBtn}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(11,25,44,0.15)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isAddingProject ? 'none' : '0 4px 12px rgba(11,25,44,0.15)'; }}
@@ -1130,11 +1204,11 @@ const AdminDashboard = ({ setCurrentPage }) => {
               </p>
             </div>
 
-            {/* Add Project Form */}
+            {/* Add / Edit Project Form */}
             {isAddingProject && (
               <div style={S.formPanel}>
                 <h3 style={S.formTitle}>
-                  ✨ New Completed Project Details
+                  {editingProject ? '✏️ Edit Completed Project' : '✨ New Completed Project Details'}
                 </h3>
                 <form onSubmit={handleProjectSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }} className="admin-form-grid">
 
@@ -1203,7 +1277,9 @@ const AdminDashboard = ({ setCurrentPage }) => {
 
                   {/* Image Upload */}
                   <div style={{ gridColumn: 'span 2' }}>
-                    <label style={S.label}>Project Image *</label>
+                    <label style={S.label}>
+                      {editingProject ? 'Change Project Image (Optional)' : 'Project Image *'}
+                    </label>
                     <div style={{
                       border: '2px dashed rgba(11,25,44,0.2)',
                       borderRadius: '12px',
@@ -1219,7 +1295,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
                       <p style={{ color: '#6B7280', fontSize: '0.82rem', margin: '0 0 10px' }}>
                         {projectFile ? `📎 ${projectFile.name}` : '📁 Drag & drop or click to browse'}
                       </p>
-                      <input type="file" accept="image/*" onChange={e => setProjectFile(e.target.files[0])} required
+                      <input type="file" accept="image/*" onChange={e => setProjectFile(e.target.files[0])} required={!editingProject}
                         style={{ color: '#4B5563', fontSize: '0.85rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
                     </div>
                   </div>
@@ -1350,6 +1426,17 @@ const AdminDashboard = ({ setCurrentPage }) => {
                               </td>
                               <td style={{ ...S.td, textAlign: 'center' }}>
                                 <button
+                                  onClick={() => handleProjectEditClick(p)}
+                                  style={S.editBtn}
+                                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.22)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.55)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.12)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                                >
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                  </svg>
+                                  Edit
+                                </button>
+                                <button
                                   onClick={() => handleProjectDelete(p.id)}
                                   style={S.deleteBtn}
                                   onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
@@ -1390,6 +1477,22 @@ const AdminDashboard = ({ setCurrentPage }) => {
                             </p>
                             <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
                               <button
+                                className="admin-design-card__edit"
+                                onClick={() => handleProjectEditClick(p)}
+                                style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  padding: '8px 12px',
+                                  margin: 0,
+                                  ...S.editBtn,
+                                }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                Edit
+                              </button>
+                              <button
                                 className="admin-design-card__delete"
                                 onClick={() => handleProjectDelete(p.id)}
                                 style={{
@@ -1415,6 +1518,158 @@ const AdminDashboard = ({ setCurrentPage }) => {
             </div>
           </>
         )}
+
+        {/* ─── MELA SIGNATURE PACKAGES TAB PANEL ─── */}
+        {activeTab === 'signature' && (() => {
+          const signatureDesigns = designs.filter(d => d.isSignature);
+          return (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
+                <button
+                  onClick={isAdding ? handleCancelClick : () => { setIsAdding(true); setFormData(prev => ({ ...prev, isSignature: true })); }}
+                  style={isAdding ? S.cancelBtn : S.addBtn}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(11,25,44,0.15)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isAdding ? 'none' : '0 4px 12px rgba(11,25,44,0.15)'; }}
+                >
+                  {isAdding ? (
+                    <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancel</>
+                  ) : (
+                    <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Signature Package</>
+                  )}
+                </button>
+                <p style={{ color: '#6B7280', fontSize: '0.8rem', margin: 0 }}>
+                  ✨ These exclusive packages appear in the &quot;Mela Signature&quot; section on the storefront
+                </p>
+              </div>
+
+              {/* Reuse the same design form panel */}
+              {isAdding && (
+                <div style={S.formPanel}>
+                  <h3 style={S.formTitle}>
+                    {editingDesign ? '✏️ Edit Signature Package' : '✨ New Mela Signature Package'}
+                  </h3>
+                  <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '22px', gridTemplateColumns: '1fr 1fr' }} className="admin-form-grid">
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <label style={S.label}>Package Name *</label>
+                      <input style={S.input} type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder="e.g. Royal Mela Extravaganza" onFocus={onFocus} onBlur={onBlur} />
+                    </div>
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <label style={S.label}>Description *</label>
+                      <textarea style={S.textarea} name="description" value={formData.description} onChange={handleInputChange} required placeholder="Describe this signature experience..." onFocus={onFocus} onBlur={onBlur} />
+                    </div>
+                    <div>
+                      <label style={S.label}>Category *</label>
+                      <CustomSelect name="category" value={formData.category} options={categories.map(c => ({ value: c.id, label: c.name }))} placeholder="Select Category" onChange={handleInputChange} required />
+                    </div>
+                    <div>
+                      <label style={S.label}>Price (₹) *</label>
+                      <input style={S.input} type="number" name="price" value={formData.price} onChange={handleInputChange} required placeholder="e.g. 45000" onFocus={onFocus} onBlur={onBlur} />
+                    </div>
+                    <div>
+                      <label style={S.label}>Original Price (₹) — for discount display</label>
+                      <input style={S.input} type="number" name="originalPrice" value={formData.originalPrice} onChange={handleInputChange} placeholder="e.g. 55000" onFocus={onFocus} onBlur={onBlur} />
+                    </div>
+                    <div>
+                      <label style={S.label}>Features (comma separated) *</label>
+                      <input style={S.input} type="text" name="features" value={formData.features} onChange={handleInputChange} required placeholder="e.g. Gold Arch, Premium Florals" onFocus={onFocus} onBlur={onBlur} />
+                    </div>
+                    {/* isSignature hidden — always true for signature tab */}
+                    <input type="hidden" name="isSignature" value="true" />
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <label style={S.label}>{editingDesign ? 'Change Package Image (Optional)' : 'Upload Package Image *'}</label>
+                      <div style={{ border: '2px dashed rgba(11,25,44,0.2)', borderRadius: '12px', padding: '20px', textAlign: 'center', background: 'rgba(255, 179, 0, 0.02)', cursor: 'pointer', transition: 'all 0.2s' }}
+                        onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#FFB300'; }}
+                        onDragLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,25,44,0.2)'; }}
+                      >
+                        <p style={{ color: '#6B7280', fontSize: '0.82rem', margin: '0 0 10px' }}>{file ? `📎 ${file.name}` : editingDesign ? '📁 Drag & drop or click to replace image' : '📁 Drag & drop or click to browse'}</p>
+                        <input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} required={!editingDesign}
+                          style={{ color: '#4B5563', fontSize: '0.85rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
+                      </div>
+                    </div>
+                    <div style={{ gridColumn: 'span 2', display: 'flex', gap: '14px', alignItems: 'center' }}>
+                      <button type="submit" disabled={uploading} style={S.saveBtn}
+                        onMouseEnter={e => { if (!uploading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,179,0,0.35)'; } }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(255,179,0,0.2)'; }}
+                      >
+                        {uploading ? <>⏳ Saving…</> : (<><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>{editingDesign ? ' Update Package' : ' Save Package'}</> )}
+                      </button>
+                      {uploading && <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Uploading image and saving...</span>}
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Signature Packages Table */}
+              <div style={{ marginTop: '10px' }}>
+                <p style={{ ...S.sectionTitle, marginBottom: '20px' }}>✨ Mela Signature Packages — {signatureDesigns.length} total</p>
+                {signatureDesigns.length === 0 ? (
+                  <div style={{ ...S.tableWrap, padding: '60px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>✨</p>
+                    <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>No signature packages yet. Click "Add Signature Package" to create one.</p>
+                  </div>
+                ) : (
+                  <div style={S.tableWrap} className="admin-designs-table">
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={S.th}>Image</th>
+                          <th style={S.th}>Package Name</th>
+                          <th style={S.th}>Category</th>
+                          <th style={S.th}>Price</th>
+                          <th style={{ ...S.th, textAlign: 'center' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {signatureDesigns.map((d, i) => (
+                          <tr key={d.id}
+                            style={{ background: i % 2 === 0 ? 'transparent' : '#F9FAFB' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 179, 0, 0.06)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : '#F9FAFB'; }}
+                          >
+                            <td style={S.td}>
+                              <img src={d.image} alt={d.name} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '10px', border: '2px solid rgba(255,179,0,0.4)' }} />
+                            </td>
+                            <td style={{ ...S.td, fontWeight: '700', color: '#0B192C' }}>
+                              {d.name}
+                              <span style={{ marginLeft: '8px', background: 'linear-gradient(135deg,#FFB300,#FF8F00)', borderRadius: '8px', padding: '2px 8px', fontSize: '0.62rem', color: '#fff', fontWeight: '800', letterSpacing: '0.1em', verticalAlign: 'middle' }}>SIGNATURE</span>
+                            </td>
+                            <td style={S.td}><span style={{ color: '#4B5563' }}>{d.categoryName}</span></td>
+                            <td style={S.td}>
+                              <span style={{ color: '#0B192C', fontWeight: '700' }}>₹{d.price.toLocaleString('en-IN')}</span>
+                              {d.originalPrice && d.originalPrice > d.price && (
+                                <div style={{ fontSize: '0.73rem', color: '#9CA3AF', textDecoration: 'line-through', marginTop: '2px' }}>₹{d.originalPrice.toLocaleString('en-IN')}</div>
+                              )}
+                            </td>
+                            <td style={{ ...S.td, textAlign: 'center' }}>
+                              <button
+                                onClick={() => { handleEditClick(d); setActiveTab('signature'); }}
+                                style={S.editBtn}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.22)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.55)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,179,0,0.12)'; e.currentTarget.style.borderColor = 'rgba(255,179,0,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(d.id)}
+                                style={S.deleteBtn}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.24)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          );
+        })()}
 
       </div>
     </div>

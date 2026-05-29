@@ -356,7 +356,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
   const selectedDesignObj = designs.find(d => String(d.id) === String(form.designId));
 
   return (
-    <div className="order-page" style={{ fontFamily: "'Jost', sans-serif" }}>
+    <div className="order-page" style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <div className="order-page__hero">
         <div className="container">
           <span className="tag" style={{ color: "rgba(255,255,255,0.55)" }}>SECURE CONSULTATION</span>

@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Jost', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     position: relative;
     overflow: hidden;
 }
@@ -228,7 +228,7 @@
     transition: all 0.28s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     z-index: 1;
-    font-family: 'Jost', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     white-space: nowrap;
     min-width: 0;
 }

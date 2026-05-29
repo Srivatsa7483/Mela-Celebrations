@@ -266,7 +266,7 @@ export default function EventBuilderPage({ setCurrentPage }) {
   };
 
   return (
-    <div className="event-builder-page" style={{ paddingTop: "calc(var(--navbar-height, 143px) + 24px)", paddingBottom: "60px", paddingLeft: 0, paddingRight: 0, backgroundColor: "#f7f4ef", minHeight: "100vh", fontFamily: "'Jost', sans-serif" }}>
+    <div className="event-builder-page" style={{ paddingTop: "calc(var(--navbar-height, 143px) + 24px)", paddingBottom: "60px", paddingLeft: 0, paddingRight: 0, backgroundColor: "#f7f4ef", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
       <div className="container" style={{ maxWidth: "700px" }}>
         
         {/* Header */}

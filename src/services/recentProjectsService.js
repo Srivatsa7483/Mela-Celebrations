@@ -21,3 +21,13 @@ export async function deleteRecentProject(projId) {
   if (!res.ok) throw new Error("Failed to delete recent project");
   return res.json();
 }
+
+export async function updateRecentProject(projId, updatedProj) {
+  const res = await fetch(`/api/recent-projects/${projId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedProj),
+  });
+  if (!res.ok) throw new Error("Failed to update recent project");
+  return res.json();
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { DesignContext } from '../context/DesignContext.jsx';
 import { OrderContext } from '../context/OrderContext.jsx';
 import './ProductDetailPage.css';
@@ -34,6 +34,239 @@ function FeatureItem({ text }) {
             </span>
             <span className="pdp-feat__text">{clean}</span>
         </li>
+    );
+}
+
+/* ─── Reviews Panel (real-time from API) ─────────────────────────── */
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
+function formatReviewDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+}
+
+function ReviewsPanel({ designId }) {
+    const [reviews, setReviews] = useState([]);
+    const [loadingRev, setLoadingRev] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [hoverStar, setHoverStar] = useState(0);
+    const [form, setForm] = useState({ name: '', event: '', rating: 0, text: '' });
+
+    const fetchReviews = useCallback(async () => {
+        setLoadingRev(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/reviews/${designId}`);
+            const data = await res.json();
+            setReviews(Array.isArray(data) ? data : []);
+        } catch {
+            setReviews([]);
+        } finally {
+            setLoadingRev(false);
+        }
+    }, [designId]);
+
+    useEffect(() => { fetchReviews(); }, [fetchReviews]);
+
+    // Compute rating summary from real data
+    const totalReviews = reviews.length;
+    const avgRating = totalReviews > 0
+        ? (reviews.reduce((s, r) => s + r.rating, 0) / totalReviews).toFixed(1)
+        : '—';
+    const barData = [5, 4, 3, 2, 1].map(star => {
+        const count = reviews.filter(r => r.rating === star).length;
+        return { star, pct: totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0 };
+    });
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!form.rating) { alert('Please select a star rating.'); return; }
+        setSubmitting(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/reviews/${designId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(form),
+            });
+            if (!res.ok) throw new Error('Failed');
+            setSubmitSuccess(true);
+            setForm({ name: '', event: '', rating: 0, text: '' });
+            setShowForm(false);
+            await fetchReviews();
+            setTimeout(() => setSubmitSuccess(false), 4000);
+        } catch {
+            alert('Failed to submit review. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="pdp-tab-panel">
+            {/* Rating Summary */}
+            <div className="pdp-reviews-summary">
+                <div className="pdp-reviews-score">
+                    <span className="pdp-reviews-score__num">{avgRating}</span>
+                    <div className="pdp-reviews-score__stars">
+                        {[1,2,3,4,5].map(s => (
+                            <span key={s} style={{ color: parseFloat(avgRating) >= s ? '#c9a84c' : '#ddd' }}>★</span>
+                        ))}
+                    </div>
+                    <span className="pdp-reviews-score__count">
+                        {totalReviews > 0 ? `Based on ${totalReviews} review${totalReviews !== 1 ? 's' : ''}` : 'No reviews yet — be the first!'}
+                    </span>
+                </div>
+                <div className="pdp-reviews-bars">
+                    {barData.map(({ star, pct }) => (
+                        <div key={star} className="pdp-reviews-bar">
+                            <span>{star} ★</span>
+                            <div className="pdp-bar-track"><div className="pdp-bar-fill" style={{ width: `${pct}%` }} /></div>
+                            <span>{pct}%</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Write a Review Button */}
+            {submitSuccess && (
+                <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', color: '#166534', fontWeight: '600', fontSize: '0.9rem' }}>
+                    ✅ Thank you! Your review has been posted successfully.
+                </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+                <button
+                    onClick={() => setShowForm(v => !v)}
+                    style={{
+                        background: showForm ? 'transparent' : 'var(--navy)',
+                        color: showForm ? 'var(--navy)' : '#fff',
+                        border: '2px solid var(--navy)',
+                        borderRadius: '8px', padding: '10px 22px',
+                        fontFamily: 'inherit', fontWeight: '600', fontSize: '0.85rem',
+                        cursor: 'pointer', transition: 'all 0.2s',
+                    }}
+                >
+                    {showForm ? '✕ Cancel' : '✍️ Write a Review'}
+                </button>
+            </div>
+
+            {/* Review Form */}
+            {showForm && (
+                <form onSubmit={handleSubmit} style={{
+                    background: 'var(--cream)', border: '1.5px solid var(--border)',
+                    borderRadius: '14px', padding: '28px', marginBottom: '28px',
+                }}>
+                    <h4 style={{ fontFamily: 'inherit', fontWeight: '700', marginBottom: '20px', color: 'var(--navy)', fontSize: '1rem' }}>Share Your Experience</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }} className="rev-form-grid">
+                        <div>
+                            <label style={{ display: 'block', fontWeight: '600', fontSize: '0.8rem', marginBottom: '6px', color: 'var(--text-body)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your Name *</label>
+                            <input
+                                type="text" required value={form.name}
+                                onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                                placeholder="e.g. Priya Sharma"
+                                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--border)', borderRadius: '8px', fontFamily: 'inherit', fontSize: '0.9rem', outline: 'none', background: '#fff' }}
+                                onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                                onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: '600', fontSize: '0.8rem', marginBottom: '6px', color: 'var(--text-body)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Event Type</label>
+                            <input
+                                type="text" value={form.event}
+                                onChange={e => setForm(p => ({ ...p, event: e.target.value }))}
+                                placeholder="e.g. Birthday Party, Anniversary"
+                                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--border)', borderRadius: '8px', fontFamily: 'inherit', fontSize: '0.9rem', outline: 'none', background: '#fff' }}
+                                onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                                onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                            />
+                        </div>
+                    </div>
+                    {/* Star Picker */}
+                    <div style={{ marginBottom: '16px' }}>
+                        <label style={{ display: 'block', fontWeight: '600', fontSize: '0.8rem', marginBottom: '10px', color: 'var(--text-body)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your Rating *</label>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                            {[1, 2, 3, 4, 5].map(s => (
+                                <span
+                                    key={s}
+                                    onClick={() => setForm(p => ({ ...p, rating: s }))}
+                                    onMouseEnter={() => setHoverStar(s)}
+                                    onMouseLeave={() => setHoverStar(0)}
+                                    style={{
+                                        fontSize: '2rem', cursor: 'pointer', lineHeight: 1,
+                                        color: (hoverStar || form.rating) >= s ? '#c9a84c' : '#D1D5DB',
+                                        transition: 'color 0.15s, transform 0.1s',
+                                        transform: (hoverStar || form.rating) >= s ? 'scale(1.2)' : 'scale(1)',
+                                    }}
+                                >★</span>
+                            ))}
+                            {form.rating > 0 && (
+                                <span style={{ marginLeft: '8px', alignSelf: 'center', fontSize: '0.85rem', color: 'var(--gold)', fontWeight: '600' }}>
+                                    {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][form.rating]}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                    {/* Review Text */}
+                    <div style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', fontWeight: '600', fontSize: '0.8rem', marginBottom: '6px', color: 'var(--text-body)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your Review *</label>
+                        <textarea
+                            required value={form.text}
+                            onChange={e => setForm(p => ({ ...p, text: e.target.value }))}
+                            placeholder="Tell others about your experience with this decoration setup..."
+                            rows={4}
+                            style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: '8px', fontFamily: 'inherit', fontSize: '0.9rem', outline: 'none', resize: 'vertical', background: '#fff' }}
+                            onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                            onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                        />
+                    </div>
+                    <button type="submit" disabled={submitting} style={{
+                        background: 'var(--navy)', color: '#fff', border: 'none',
+                        borderRadius: '8px', padding: '12px 28px',
+                        fontFamily: 'inherit', fontWeight: '700', fontSize: '0.9rem',
+                        cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1,
+                        transition: 'all 0.2s',
+                    }}>
+                        {submitting ? '⏳ Submitting…' : '📤 Submit Review'}
+                    </button>
+                </form>
+            )}
+
+            {/* Reviews List */}
+            {loadingRev ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                    <div style={{ display: 'inline-block', width: '28px', height: '28px', border: '3px solid var(--border)', borderTopColor: 'var(--gold)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                    <p style={{ marginTop: '12px', fontSize: '0.85rem' }}>Loading reviews…</p>
+                </div>
+            ) : reviews.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--cream)', borderRadius: '12px' }}>
+                    <p style={{ fontSize: '2rem', marginBottom: '10px' }}>⭐</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No reviews yet. Be the first to share your experience!</p>
+                </div>
+            ) : (
+                <div className="pdp-review-cards">
+                    {reviews.map((r) => (
+                        <div key={r.id} className="pdp-review-card">
+                            <div className="pdp-review-card__head">
+                                <div className="pdp-review-card__avatar">{r.name[0].toUpperCase()}</div>
+                                <div>
+                                    <strong className="pdp-review-card__name">{r.name}</strong>
+                                    <span className="pdp-review-card__event">
+                                        {r.event ? `${r.event} · ` : ''}{formatReviewDate(r.createdAt)}
+                                    </span>
+                                </div>
+                                <span className="pdp-review-card__stars">
+                                    {[1,2,3,4,5].map(s => (
+                                        <span key={s} style={{ color: r.rating >= s ? '#c9a84c' : '#ddd' }}>★</span>
+                                    ))}
+                                </span>
+                            </div>
+                            <p className="pdp-review-card__text">{r.text}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }
 
@@ -372,7 +605,6 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                         {[
                             { id: 'description', label: '📋 Description' },
                             { id: 'specifications', label: '📐 Specifications' },
-                            { id: 'delivery', label: '🚚 Delivery & Policy' },
                             { id: 'reviews', label: '⭐ Reviews' },
                         ].map(tab => (
                             <button
@@ -423,67 +655,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                 </div>
                             </div>
                         )}
-                        {activeTab === 'delivery' && (
-                            <div className="pdp-tab-panel">
-                                <div className="pdp-delivery-cards">
-                                    {[
-                                        { icon: '📍', title: 'Service Area', body: 'We serve Bangalore and surrounding areas within 50km. Contact us for other locations.' },
-                                        { icon: '📅', title: 'Booking Window', body: 'Book at least 3 days in advance. For premium packages, 7-day advance booking is recommended.' },
-                                        { icon: '🔄', title: 'Cancellation Policy', body: 'Free cancellation up to 48 hours before your event. 50% refund for cancellations within 24 hours.' },
-                                        { icon: '💳', title: 'Payment', body: '50% advance payment to confirm booking. Remaining balance due on the day of setup.' },
-                                        { icon: '🛡️', title: 'Warranty', body: 'We guarantee on-time arrival and professional setup. If we fail, you get a full refund.' },
-                                        { icon: '📸', title: 'Add-Ons Available', body: 'Photography, Videography, Catering coordination, Floral arrangements available as add-ons.' },
-                                    ].map((c, i) => (
-                                        <div key={i} className="pdp-delivery-card">
-                                            <div className="pdp-delivery-card__icon">{c.icon}</div>
-                                            <div>
-                                                <h4 className="pdp-delivery-card__title">{c.title}</h4>
-                                                <p className="pdp-delivery-card__body">{c.body}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'reviews' && (
-                            <div className="pdp-tab-panel">
-                                <div className="pdp-reviews-summary">
-                                    <div className="pdp-reviews-score">
-                                        <span className="pdp-reviews-score__num">4.8</span>
-                                        <div className="pdp-reviews-score__stars">★★★★★</div>
-                                        <span className="pdp-reviews-score__count">Based on 124 bookings</span>
-                                    </div>
-                                    <div className="pdp-reviews-bars">
-                                        {[['5 ★', 78], ['4 ★', 18], ['3 ★', 4], ['2 ★', 0], ['1 ★', 0]].map(([label, pct]) => (
-                                            <div key={label} className="pdp-reviews-bar">
-                                                <span>{label}</span>
-                                                <div className="pdp-bar-track"><div className="pdp-bar-fill" style={{ width: `${pct}%` }} /></div>
-                                                <span>{pct}%</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="pdp-review-cards">
-                                    {[
-                                        { name: 'Priya Sharma', rating: 5, date: 'April 2025', text: 'Absolutely stunning setup! The team arrived on time and transformed the venue beyond our expectations. Highly recommend Mela Celebrations!', event: 'Anniversary Celebration' },
-                                        { name: 'Rahul Mehta', rating: 5, date: 'March 2025', text: 'The decoration was exactly as described and even better in person. Very professional team, very clean work. Will definitely book again!', event: 'Birthday Party' },
-                                        { name: 'Deepa Nair', rating: 4, date: 'February 2025', text: 'Beautiful decorations and excellent service. Setup took a little longer than expected but the result was worth the wait.', event: 'Baby Shower' },
-                                    ].map((r, i) => (
-                                        <div key={i} className="pdp-review-card">
-                                            <div className="pdp-review-card__head">
-                                                <div className="pdp-review-card__avatar">{r.name[0]}</div>
-                                                <div>
-                                                    <strong className="pdp-review-card__name">{r.name}</strong>
-                                                    <span className="pdp-review-card__event">{r.event} · {r.date}</span>
-                                                </div>
-                                                <span className="pdp-review-card__stars">{'★'.repeat(r.rating)}</span>
-                                            </div>
-                                            <p className="pdp-review-card__text">{r.text}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {activeTab === 'reviews' && <ReviewsPanel designId={String(design.id)} />}
                     </div>
                 </div>
 

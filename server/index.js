@@ -480,6 +480,55 @@ app.put("/api/designs/:id", async (req, res) => {
   }
 });
 
+// ── REVIEWS ──────────────────────────────────────────────────────────────────
+// GET all reviews for a design
+app.get("/api/reviews/:designId", async (req, res) => {
+  try {
+    const db = await getDB();
+    const reviews = await db.collection("reviews")
+      .find({ designId: req.params.designId })
+      .sort({ createdAt: -1 })
+      .toArray();
+    const clean = reviews.map(({ _id, ...r }) => r);
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Get Reviews Error:", error);
+    res.status(500).json({ error: "Server error fetching reviews" });
+  }
+});
+
+// POST a new review for a design
+app.post("/api/reviews/:designId", async (req, res) => {
+  try {
+    const { name, rating, text, event } = req.body;
+    if (!name || !rating || !text) {
+      return res.status(400).json({ error: "name, rating, and text are required" });
+    }
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ error: "rating must be between 1 and 5" });
+    }
+    const db = await getDB();
+    const col = db.collection("reviews");
+    const existing = await col.find({}).sort({ id: -1 }).limit(1).toArray();
+    const newId = existing.length > 0 ? (existing[0].id || 0) + 1 : 1;
+    const review = {
+      id: newId,
+      designId: req.params.designId,
+      name: name.trim(),
+      rating: Number(rating),
+      text: text.trim(),
+      event: (event || '').trim(),
+      createdAt: new Date().toISOString(),
+    };
+    await col.insertOne(review);
+    const { _id, ...clean } = review;
+    res.status(201).json(clean);
+  } catch (error) {
+    console.error("Post Review Error:", error);
+    res.status(500).json({ error: "Server error saving review" });
+  }
+});
+
 // ── RECENT PROJECTS ──────────────────────────────────────────────────────────
 app.get("/api/recent-projects", async (req, res) => {
   try {
@@ -546,6 +595,55 @@ app.delete("/api/recent-projects/:id", async (req, res) => {
   } catch (error) {
     console.error("Delete Recent Project Error:", error);
     res.status(500).json({ error: "Server error deleting recent project" });
+  }
+});
+
+app.put("/api/recent-projects/:id", async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const updateData = req.body;
+
+    const db = await getDB();
+    const recentProjectsCol = db.collection("recent_projects");
+
+    const numericId = Number(projectId);
+    const query = {
+      $or: [
+        { id: projectId },
+        { id: isNaN(numericId) ? null : numericId }
+      ]
+    };
+
+    // Clean data: prevent modifying immutable _id
+    delete updateData._id;
+    if (updateData.id) {
+      updateData.id = isNaN(Number(updateData.id)) ? updateData.id : Number(updateData.id);
+    }
+
+    // If image is being replaced, delete the old R2 image (best-effort)
+    if (updateData.image) {
+      const existingProject = await recentProjectsCol.findOne(query);
+      if (existingProject && existingProject.image !== updateData.image) {
+        const oldKey = extractR2Key(existingProject.image);
+        if (oldKey) deleteFromR2(oldKey).catch(err => console.warn("R2 delete warning:", err));
+      }
+    }
+
+    const result = await recentProjectsCol.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { returnDocument: "after" }
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Recent project not found" });
+    }
+
+    const { _id, ...clean } = result;
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Update Recent Project Error:", error);
+    res.status(500).json({ error: "Server error updating recent project" });
   }
 });
 

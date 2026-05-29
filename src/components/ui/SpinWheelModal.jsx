@@ -110,8 +110,8 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
       const lines = options[i].label.split("\n");
       const isMultiLine = lines.length > 1;
       ctx.font = isMultiLine
-        ? "bold 10px 'Jost', sans-serif"
-        : (options[i].label.length > 12 ? "bold 9px 'Jost', sans-serif" : "bold 12px 'Jost', sans-serif");
+        ? "bold 10px 'DM Sans', sans-serif"
+        : (options[i].label.length > 12 ? "bold 9px 'DM Sans', sans-serif" : "bold 12px 'DM Sans', sans-serif");
       ctx.textBaseline = "middle";
 
       if (midAngle > 90 && midAngle < 270) {
@@ -226,7 +226,7 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
       alignItems: "center",
       justifyContent: "center",
       zIndex: 1100,
-      fontFamily: "'Jost', sans-serif",
+      fontFamily: "'DM Sans', sans-serif",
       padding: "20px",
       overflowY: "auto"
     }}>
@@ -276,7 +276,7 @@ export default function SpinWheelModal({ isOpen, onClose, onWinCoupon }) {
           fontSize: "0.85rem",
           fontWeight: "700",
           marginBottom: "20px",
-          fontFamily: "'Jost', sans-serif"
+          fontFamily: "'DM Sans', sans-serif"
         }}>
           Spins Remaining: {chancesLeft}
         </div>

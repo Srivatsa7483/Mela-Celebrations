@@ -31,7 +31,7 @@ const AdminLogin = ({ setCurrentPage }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: "'Jost', 'Inter', sans-serif",
+      fontFamily: "'DM Sans', sans-serif",
       padding: '20px',
       position: 'relative',
       overflow: 'hidden',

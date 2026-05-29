@@ -32,7 +32,7 @@ class ErrorBoundary extends React.Component {
           padding: "20px",
           backgroundColor: "#f7f4ef",
           color: "#0d1b2a",
-          fontFamily: "'Jost', sans-serif",
+          fontFamily: "'DM Sans', sans-serif",
           textAlign: "center"
         }}>
           <h1 style={{ color: "#c9a84c", fontSize: "2.5rem", marginBottom: "16px" }}>Something went wrong 😢</h1>

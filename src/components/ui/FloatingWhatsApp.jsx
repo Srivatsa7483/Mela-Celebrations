@@ -16,7 +16,7 @@ export default function FloatingWhatsApp() {
       bottom: "24px",
       right: "24px",
       zIndex: "1000",
-      fontFamily: "'Jost', sans-serif"
+      fontFamily: "'DM Sans', sans-serif"
     }}>
       {/* WhatsApp Button Badge */}
       <button 

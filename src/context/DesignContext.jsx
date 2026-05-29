@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { categories as staticCategories, designs as staticDesigns } from "../data/index.js";
 import { getCategories, getDesigns, createDesign, deleteDesign, updateDesign } from "../services/designService.js";
-import { getRecentProjects, createRecentProject, deleteRecentProject } from "../services/recentProjectsService.js";
+import { getRecentProjects, createRecentProject, deleteRecentProject, updateRecentProject } from "../services/recentProjectsService.js";
 
 export const DesignContext = createContext();
 
@@ -180,6 +180,19 @@ export function DesignProvider({ children }) {
     }
   };
 
+  const updateRecentProjectAction = async (projId, updatedData) => {
+    try {
+      const updated = await updateRecentProject(projId, updatedData);
+      setRecentProjects((prev) =>
+        prev.map((p) => (String(p.id) === String(projId) ? updated : p))
+      );
+      return updated;
+    } catch (err) {
+      console.error("Error updating recent project:", err);
+      throw err;
+    }
+  };
+
   return (
     <DesignContext.Provider
       value={{
@@ -193,6 +206,7 @@ export function DesignProvider({ children }) {
         updateDesignAction,
         createRecentProjectAction,
         deleteRecentProjectAction,
+        updateRecentProjectAction,
       }}
     >
       {children}

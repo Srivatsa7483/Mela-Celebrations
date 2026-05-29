@@ -14,7 +14,7 @@ export default function RecentGalleryPage({ setCurrentPage }) {
         alignItems: "center", 
         minHeight: "100vh", 
         backgroundColor: "#f7f4ef",
-        fontFamily: "'Jost', sans-serif"
+        fontFamily: "'DM Sans', sans-serif"
       }}>
         <div style={{
           border: "4px solid rgba(13,27,42,0.1)",
@@ -54,7 +54,7 @@ export default function RecentGalleryPage({ setCurrentPage }) {
       paddingRight: 0,
       backgroundColor: "#f7f4ef",
       minHeight: "100vh",
-      fontFamily: "'Jost', sans-serif"
+      fontFamily: "'DM Sans', sans-serif"
     }}>
       <div className="container" style={{ maxWidth: "1100px" }}>
         

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 *,
 *::before,
@@ -21,9 +21,9 @@
     --border: #e2ddd6;
     --card-bg: #ffffff;
     --section-bg: #f2f0ec;
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-serif: 'Cormorant Garamond', Georgia, serif;
-    --font-sans: 'Jost', sans-serif;
+    --font-display: 'DM Sans', sans-serif;
+    --font-serif: 'DM Sans', sans-serif;
+    --font-sans: 'DM Sans', sans-serif;
     --shadow-card: 0 4px 24px rgba(13, 27, 42, 0.10);
     --shadow-hover: 0 12px 40px rgba(13, 27, 42, 0.18);
     --radius: 6px;

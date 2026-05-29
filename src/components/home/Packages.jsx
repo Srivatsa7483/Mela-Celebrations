@@ -17,7 +17,8 @@ export default function Packages({ setCurrentPage, setSelectedDesign, navigateTo
         return () => obs.disconnect();
     }, []);
 
-    const featured = designs.slice(0, 3);
+    const signatureDesigns = designs.filter(d => d.isSignature);
+    const featured = signatureDesigns.length > 0 ? signatureDesigns : designs.slice(0, 3);
 
     return (
         <section className="packages section-sm" ref={ref} style={{ background: "var(--section-bg)" }}>

@@ -270,7 +270,7 @@ function AppContent() {
           alignItems: "center",
           gap: "8px",
           transition: "transform 0.3s ease",
-          fontFamily: "'Jost', sans-serif"
+          fontFamily: "'DM Sans', sans-serif"
         }}
         onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.08)"}
         onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
