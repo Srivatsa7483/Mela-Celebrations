@@ -305,9 +305,28 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
     const [wishAnim, setWishAnim] = useState(false);
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState('description');
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIdx, setLightboxIdx] = useState(0);
     const imgWrapRef = useRef(null);
     const touchStartX = useRef(0);
     const touchEndX = useRef(0);
+
+    const openLightbox = (idx) => { setLightboxIdx(idx); setLightboxOpen(true); };
+    const closeLightbox = () => setLightboxOpen(false);
+    const lightboxPrev = () => setLightboxIdx(i => (i - 1 + images.length) % images.length);
+    const lightboxNext = () => setLightboxIdx(i => (i + 1) % images.length);
+
+    // Keyboard nav for lightbox
+    useEffect(() => {
+        if (!lightboxOpen) return;
+        const handler = (e) => {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') lightboxPrev();
+            if (e.key === 'ArrowRight') lightboxNext();
+        };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [lightboxOpen, images.length]);
 
     const design = designs.find(d => String(d.id) === String(productId));
     const isWishlisted = wishlist.map(String).includes(String(productId));
@@ -445,7 +464,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                     <button
                                         key={i}
                                         className={`pdp-thumb${activeImg === i ? ' active' : ''}`}
-                                        onClick={() => setActiveImg(i)}
+                                        onClick={() => { setActiveImg(i); openLightbox(i); }}
                                         aria-label={`View image ${i + 1}`}
                                     >
                                         <img src={img} alt="" loading="lazy" />
@@ -473,8 +492,12 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                 src={images[activeImg] || design.image}
                                 alt={design.name}
                                 className="pdp-img"
+                                onClick={() => openLightbox(activeImg)}
+                                style={{ cursor: 'zoom-in' }}
                             />
-                            <div className="pdp-zoom-hint">🔍 Hover to zoom</div>
+                            <div className="pdp-zoom-hint" onClick={() => openLightbox(activeImg)} style={{ cursor: 'pointer' }}>
+                                🔍 Click to enlarge
+                            </div>
                         </div>
 
                         {/* Dot indicators (mobile) */}
@@ -484,7 +507,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                                     <button
                                         key={i}
                                         className={`pdp-dot${activeImg === i ? ' active' : ''}`}
-                                        onClick={() => setActiveImg(i)}
+                                        onClick={() => { setActiveImg(i); openLightbox(i); }}
                                         aria-label={`Image ${i + 1}`}
                                     />
                                 ))}
@@ -497,7 +520,153 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                         </button>
                     </div>
 
+                    {/* ══════════════ LIGHTBOX ══════════════ */}
+                    {lightboxOpen && images.length > 0 && (
+                        <div
+                            className="pdp-lightbox-overlay"
+                            onClick={closeLightbox}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Image viewer"
+                        >
+                            <style>{`
+                                .pdp-lightbox-overlay {
+                                    position: fixed; inset: 0; z-index: 9999;
+                                    background: rgba(0,0,0,0.92);
+                                    display: flex; align-items: center; justify-content: center;
+                                    animation: lbFadeIn 0.2s ease;
+                                }
+                                @keyframes lbFadeIn { from { opacity:0 } to { opacity:1 } }
+                                .pdp-lightbox-inner {
+                                    position: relative;
+                                    max-width: min(92vw, 860px);
+                                    max-height: 90vh;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    gap: 14px;
+                                }
+                                .pdp-lightbox-img {
+                                    max-width: 100%;
+                                    max-height: 72vh;
+                                    object-fit: contain;
+                                    border-radius: 12px;
+                                    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+                                    animation: lbSlide 0.2s ease;
+                                    display: block;
+                                }
+                                @keyframes lbSlide { from { opacity:0; transform: scale(0.96) } to { opacity:1; transform: scale(1) } }
+                                .pdp-lightbox-close {
+                                    position: fixed; top: 18px; right: 22px;
+                                    background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25);
+                                    color: #fff; border-radius: 50%;
+                                    width: 44px; height: 44px;
+                                    font-size: 1.4rem; line-height: 1; cursor: pointer;
+                                    display: flex; align-items: center; justify-content: center;
+                                    transition: background 0.2s;
+                                    backdrop-filter: blur(6px);
+                                    z-index: 10000;
+                                }
+                                .pdp-lightbox-close:hover { background: rgba(255,255,255,0.26); }
+                                .pdp-lightbox-arrow {
+                                    position: fixed; top: 50%; transform: translateY(-50%);
+                                    background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2);
+                                    color: #fff; border-radius: 50%;
+                                    width: 52px; height: 52px;
+                                    font-size: 1.8rem; cursor: pointer;
+                                    display: flex; align-items: center; justify-content: center;
+                                    transition: background 0.2s, transform 0.2s;
+                                    backdrop-filter: blur(6px);
+                                    z-index: 10000;
+                                    padding: 0;
+                                }
+                                .pdp-lightbox-arrow:hover { background: rgba(255,255,255,0.24); transform: translateY(-50%) scale(1.1); }
+                                .pdp-lightbox-arrow.prev { left: 18px; }
+                                .pdp-lightbox-arrow.next { right: 18px; }
+                                .pdp-lightbox-counter {
+                                    color: rgba(255,255,255,0.8);
+                                    font-size: 0.82rem; font-weight: 600; letter-spacing: 0.08em;
+                                    background: rgba(0,0,0,0.4);
+                                    padding: 5px 16px; border-radius: 20px;
+                                    backdrop-filter: blur(4px);
+                                }
+                                .pdp-lightbox-thumbs {
+                                    display: flex; gap: 8px;
+                                    max-width: min(92vw, 860px);
+                                    overflow-x: auto;
+                                    padding: 4px 2px;
+                                    scrollbar-width: none;
+                                }
+                                .pdp-lightbox-thumbs::-webkit-scrollbar { display: none; }
+                                .pdp-lightbox-thumb-btn {
+                                    flex-shrink: 0; width: 58px; height: 58px;
+                                    border-radius: 8px; overflow: hidden;
+                                    border: 2.5px solid transparent;
+                                    cursor: pointer; background: none; padding: 0;
+                                    transition: border-color 0.15s, opacity 0.15s;
+                                    opacity: 0.5;
+                                }
+                                .pdp-lightbox-thumb-btn.active,
+                                .pdp-lightbox-thumb-btn:hover { border-color: #FFB300; opacity: 1; }
+                                .pdp-lightbox-thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+                                @media (max-width: 600px) {
+                                    .pdp-lightbox-arrow { width: 40px; height: 40px; font-size: 1.4rem; }
+                                    .pdp-lightbox-arrow.prev { left: 6px; }
+                                    .pdp-lightbox-arrow.next { right: 6px; }
+                                    .pdp-lightbox-close { top: 10px; right: 10px; width: 38px; height: 38px; font-size: 1.2rem; }
+                                    .pdp-lightbox-img { max-height: 60vh; }
+                                    .pdp-lightbox-thumb-btn { width: 46px; height: 46px; }
+                                }
+                            `}</style>
+
+                            {/* × Close */}
+                            <button className="pdp-lightbox-close" onClick={closeLightbox} aria-label="Close lightbox">×</button>
+
+                            {/* ‹ › Arrows */}
+                            {images.length > 1 && (
+                                <>
+                                    <button className="pdp-lightbox-arrow prev" onClick={e => { e.stopPropagation(); lightboxPrev(); }} aria-label="Previous image">‹</button>
+                                    <button className="pdp-lightbox-arrow next" onClick={e => { e.stopPropagation(); lightboxNext(); }} aria-label="Next image">›</button>
+                                </>
+                            )}
+
+                            {/* Content — click inside doesn't close */}
+                            <div className="pdp-lightbox-inner" onClick={e => e.stopPropagation()}>
+
+                                {/* Full-size image */}
+                                <img
+                                    key={lightboxIdx}
+                                    src={images[lightboxIdx]}
+                                    alt={`${design.name} — image ${lightboxIdx + 1}`}
+                                    className="pdp-lightbox-img"
+                                />
+
+                                {/* Counter badge */}
+                                {images.length > 1 && (
+                                    <div className="pdp-lightbox-counter">{lightboxIdx + 1} of {images.length}</div>
+                                )}
+
+                                {/* Thumbnail row */}
+                                {images.length > 1 && (
+                                    <div className="pdp-lightbox-thumbs">
+                                        {images.map((img, i) => (
+                                            <button
+                                                key={i}
+                                                className={`pdp-lightbox-thumb-btn${i === lightboxIdx ? ' active' : ''}`}
+                                                onClick={() => setLightboxIdx(i)}
+                                                aria-label={`Go to image ${i + 1}`}
+                                            >
+                                                <img src={img} alt="" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {/* ══════════════ RIGHT: INFO PANEL ══════════════ */}
+
                     <div className="pdp-info">
 
                         {/* Category + Badge */}
