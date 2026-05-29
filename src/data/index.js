@@ -77,7 +77,7 @@ export const categories = [
         id: "kidsactivities",
         name: "Kids Activities",
         slug: "kidsactivities",
-        image: "/kidsactivities.jpg",
+        image: "https://pub-3783a26236214453987b32f3e8d8bd4f.r2.dev/categories/kidsactivities_1780081831544.jpg",
         count: 15,
         dropdown: [
             { id: "magician", label: "Magician", price: 4999 },
