@@ -313,20 +313,6 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
 
     const openLightbox = (idx) => { setLightboxIdx(idx); setLightboxOpen(true); };
     const closeLightbox = () => setLightboxOpen(false);
-    const lightboxPrev = () => setLightboxIdx(i => (i - 1 + images.length) % images.length);
-    const lightboxNext = () => setLightboxIdx(i => (i + 1) % images.length);
-
-    // Keyboard nav for lightbox
-    useEffect(() => {
-        if (!lightboxOpen) return;
-        const handler = (e) => {
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowLeft') lightboxPrev();
-            if (e.key === 'ArrowRight') lightboxNext();
-        };
-        window.addEventListener('keydown', handler);
-        return () => window.removeEventListener('keydown', handler);
-    }, [lightboxOpen, images.length]);
 
     const design = designs.find(d => String(d.id) === String(productId));
     const isWishlisted = wishlist.map(String).includes(String(productId));
@@ -344,6 +330,22 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
         }).slice(0, 10)
         : [];
     const discount = design ? discountPct(design.originalPrice, design.price) : 0;
+
+    // Lightbox navigation — defined after `images` so images.length is accessible
+    const lightboxPrev = () => setLightboxIdx(i => (i - 1 + images.length) % images.length);
+    const lightboxNext = () => setLightboxIdx(i => (i + 1) % images.length);
+
+    // Keyboard nav for lightbox
+    useEffect(() => {
+        if (!lightboxOpen) return;
+        const handler = (e) => {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') lightboxPrev();
+            if (e.key === 'ArrowRight') lightboxNext();
+        };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [lightboxOpen, images.length]);
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
