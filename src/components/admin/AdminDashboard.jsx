@@ -408,7 +408,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const [editingDesign, setEditingDesign] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', isSignature: false,
+    name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', badge: '', isSignature: false,
   });
   const [file, setFile] = useState(null);
 
@@ -453,6 +453,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
       price: design.price || '',
       originalPrice: design.originalPrice || '',
       features: design.features ? design.features.join(', ') : '',
+      badge: design.badge || '',
       isSignature: design.isSignature || false,
     });
     setFile(null);
@@ -462,7 +463,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const handleCancelClick = () => {
     setIsAdding(false);
     setEditingDesign(null);
-    setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', isSignature: false });
+    setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', badge: '', isSignature: false });
     setFile(null);
   };
 
@@ -538,6 +539,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
         originalPrice: Number(formData.originalPrice),
         features: formData.features.split(',').map(f => f.trim()),
         image: imageUrl,
+        badge: formData.badge || null,
         isSignature: Boolean(formData.isSignature),
       };
 
@@ -545,11 +547,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
         await updateDesignAction(editingDesign.id, designPayload);
         alert('Design updated successfully!');
       } else {
-        const newDesign = {
-          ...designPayload,
-          badge: 'NEW',
-        };
-        await createDesignAction(newDesign);
+        await createDesignAction(designPayload);
         alert('Design added successfully!');
       }
       handleCancelClick();
@@ -905,9 +903,33 @@ const AdminDashboard = ({ setCurrentPage }) => {
                       onFocus={onFocus} onBlur={onBlur} />
                   </div>
 
+                  {/* Badge */}
+                  <div>
+                    <label style={S.label}>Product Badge (Label)</label>
+                    <CustomSelect
+                      name="badge"
+                      value={formData.badge}
+                      options={[
+                        { value: '', label: 'No Badge' },
+                        { value: 'NEW', label: '🆕 NEW' },
+                        { value: 'TRENDING', label: '🔥 TRENDING' },
+                        { value: 'POPULAR', label: '⭐ POPULAR' },
+                        { value: 'BESTSELLER', label: '🏆 BESTSELLER' },
+                        { value: 'PREMIUM', label: '💎 PREMIUM' },
+                        { value: 'FEATURED', label: '✨ FEATURED' },
+                      ]}
+                      placeholder="Select a Badge"
+                      onChange={handleInputChange}
+                      required={false}
+                    />
+                    <p style={{ color: '#9CA3AF', fontSize: '0.72rem', margin: '6px 0 0', lineHeight: '1.5' }}>
+                      This label appears as a colored ribbon on the product card.
+                    </p>
+                  </div>
+
                   {/* Mela Signature Toggle */}
-                  <div style={{ gridColumn: 'span 2' }}>
-                    <label style={{ ...S.label, display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', userSelect: 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label style={{ ...S.label, display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', userSelect: 'none', marginTop: '22px' }}>
                       <div
                         onClick={() => setFormData(prev => ({ ...prev, isSignature: !prev.isSignature }))}
                         style={{
