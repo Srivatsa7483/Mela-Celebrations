@@ -314,8 +314,15 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
     const images = design
         ? (Array.isArray(design.images) && design.images.length > 0 ? design.images : [design.image])
         : [];
+    const isSelfAnniversary = design ? (design.category === "anniversary" || (design.category === "decorations" && design.subcategory === "decorations-anniversary")) : false;
     const related = design
-        ? designs.filter(d => d.category === design.category && String(d.id) !== String(productId)).slice(0, 10)
+        ? designs.filter(d => {
+            const isOtherAnniversary = d.category === "anniversary" || (d.category === "decorations" && d.subcategory === "decorations-anniversary");
+            if (isSelfAnniversary) {
+                return isOtherAnniversary && String(d.id) !== String(productId);
+            }
+            return d.category === design.category && String(d.id) !== String(productId);
+        }).slice(0, 10)
         : [];
     const discount = design ? discountPct(design.originalPrice, design.price) : 0;
 

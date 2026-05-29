@@ -457,7 +457,7 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
 
       {/* Invoice Modal Overlay */}
       {selectedInvoice && (
-        <div style={{
+        <div className="invoice-modal-overlay" style={{
           position: "fixed",
           top: 0,
           left: 0,

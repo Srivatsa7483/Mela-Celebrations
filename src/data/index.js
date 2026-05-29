@@ -38,7 +38,7 @@ export const categories = [
         id: "decorations",
         name: "Decorations",
         slug: "decorations",
-        image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80",
+        image: "https://pub-3783a26236214453987b32f3e8d8bd4f.r2.dev/categories/decorations_5d5513acde8fcda0_1780076722327.webp",
         count: 32,
         dropdown: [
             { id: "decorations-anniversary", label: "Anniversary Decorations" },

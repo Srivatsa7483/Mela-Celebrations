@@ -45,7 +45,12 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
 
             {/* Dynamic Category Strips */}
             {categories.map(category => {
-                const categoryDesigns = designs.filter(d => d.category === category.id);
+                const categoryDesigns = designs.filter(d => {
+                    if (category.id === "decorations") {
+                        return d.category === "decorations" || d.category === "anniversary";
+                    }
+                    return d.category === category.id;
+                });
                 
                 // Only show a strip if there are designs for this category
                 if (categoryDesigns.length === 0) return null;

@@ -160,7 +160,7 @@ const keywordMapping = {
 const matchSubcategory = (design, subId) => {
     // If the design has an explicit subcategory set in the database/JSON,
     // match strictly on that and do NOT fall back to keyword scanning.
-    if (design.subcategory !== undefined && design.subcategory !== null && design.subcategory !== "") {
+    if (design.subcategory !== undefined) {
         return design.subcategory === subId;
     }
     
@@ -197,9 +197,21 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
         }
     }, [activeCategory, showThemeFilter]);
 
-    // Reset subcategory when main category changes
+    // Reset subcategory when main category changes, unless the new main category is the parent of the subcategory.
+    // Also, if activeCategory is set to a subcategory ID, transition it to its parent category and select the subcategory.
     useEffect(() => {
-        setActiveSubcategory(null);
+        const parent = getParentCategory(activeCategory);
+        if (parent !== activeCategory) {
+            setActiveCategory(parent);
+            setActiveSubcategory(activeCategory);
+        } else {
+            if (activeSubcategory) {
+                const subParent = getParentCategory(activeSubcategory);
+                if (subParent !== activeCategory) {
+                    setActiveSubcategory(null);
+                }
+            }
+        }
     }, [activeCategory]);
 
     // Get subcategories for currently selected main category
@@ -243,6 +255,8 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
         
         if (activeCategory === "all") {
             matchCat = true;
+        } else if (activeCategory === "decorations") {
+            matchCat = d.category === "decorations" || d.category === "anniversary";
         } else if (activeCategory === "kids-theme") {
             const kidsSubcategories = [
                 "jungle-theme", "superman-theme", "cars-theme", 
@@ -263,14 +277,17 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
             matchCat = d.category === activeCategory;
         }
 
-        // If a subcategory is active, show all designs in the parent category
-        // (subcategory selection is informational — services/themes may not have individual designs)
+        // If a subcategory is active, filter designs matching that subcategory
         if (activeSubcategory && activeCategory !== "all") {
             const parentCat = getParentCategory(activeSubcategory);
-            // Only apply the override if the subcategory actually belongs to the current activeCategory
+            // Only apply the filter if the subcategory actually belongs to the current activeCategory
             // Prevents stale activeSubcategory from overriding when switching categories
             if (parentCat === activeCategory) {
-                matchCat = d.category === parentCat;
+                if (activeSubcategory === "decorations-anniversary") {
+                    matchCat = (d.category === "decorations" && matchSubcategory(d, "decorations-anniversary")) || d.category === "anniversary";
+                } else {
+                    matchCat = d.category === parentCat && matchSubcategory(d, activeSubcategory);
+                }
             }
         }
 

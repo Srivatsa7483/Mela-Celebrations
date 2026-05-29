@@ -770,3 +770,32 @@
         display: none !important;
     }
 }
+
+/* Desktop Responsiveness for Category Pills to prevent overflow truncation */
+@media (min-width: 901px) and (max-width: 1450px) {
+    .navbar__bottom {
+        padding: 10px 16px;
+    }
+    .navbar__bottom-inner {
+        gap: 8px;
+    }
+    .navbar__pill {
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        gap: 4px;
+    }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+    .navbar__bottom {
+        padding: 8px 12px;
+    }
+    .navbar__bottom-inner {
+        gap: 6px;
+    }
+    .navbar__pill {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        gap: 3px;
+    }
+}

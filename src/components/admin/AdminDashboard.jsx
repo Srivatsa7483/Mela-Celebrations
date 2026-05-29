@@ -471,6 +471,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
     if (!category || !category.dropdown) return [];
     const subs = [];
     category.dropdown.forEach(item => {
+      if (item.id === "decorations-anniversary") return; // Synced dynamically with Anniversary main category
       subs.push({ id: item.id, label: item.label });
       if (item.dropdown) {
         item.dropdown.forEach(subItem => {
@@ -881,17 +882,17 @@ const AdminDashboard = ({ setCurrentPage }) => {
                   {/* Subcategory */}
                   <div>
                     <label style={S.label}>
-                      Subcategory {subcategories.length > 0 ? '*' : <span style={{ color: '#9CA3AF', fontWeight: 400, textTransform: 'none', fontSize: '0.7rem' }}> (select a category first)</span>}
+                      Subcategory {subcategories.length > 0 ? '' : <span style={{ color: '#9CA3AF', fontWeight: 400, textTransform: 'none', fontSize: '0.7rem' }}> (select a category first)</span>}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <CustomSelect
                         name="subcategory"
                         value={formData.subcategory}
-                        options={subcategories.map(sub => ({ value: sub.id, label: sub.label }))}
+                        options={[{ value: '', label: 'None (Main Category Only)' }, ...subcategories.map(sub => ({ value: sub.id, label: sub.label }))]}
                         placeholder="Select a Subcategory"
                         onChange={handleInputChange}
                         disabled={subcategories.length === 0}
-                        required={subcategories.length > 0}
+                        required={false}
                       />
                     </div>
                   </div>
