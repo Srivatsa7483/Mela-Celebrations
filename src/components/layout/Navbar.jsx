@@ -5,7 +5,7 @@ import { AuthContext } from "../../context/AuthContext.jsx";
 import { OrderContext } from "../../context/OrderContext.jsx";
 import "./Navbar.css";
 
-export default function Navbar({ currentPage, setCurrentPage, setActiveCategory, setSearchQuery, countdownText }) {
+export default function Navbar({ currentPage, setCurrentPage, setActiveCategory, setSearchQuery }) {
     const { designs, categories } = useContext(DesignContext);
     const { user, isAuthenticated, logout } = useContext(AuthContext);
     const { wishlist } = useContext(OrderContext);
@@ -84,7 +84,7 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
             window.removeEventListener("orientationchange", updateNavbarHeight);
             clearTimeout(timer);
         };
-    }, [currentPage, countdownText, menuOpen]);
+    }, [currentPage, menuOpen]);
 
 
 
@@ -111,23 +111,6 @@ export default function Navbar({ currentPage, setCurrentPage, setActiveCategory,
 
     return (
         <header className={`navbar${scrolled ? " navbar--scrolled" : ""}${currentPage === "login" ? " navbar--login" : ""}`}>
-            {/* Dynamic Offer Countdown Banner */}
-            {countdownText && (
-                <div className="offer-countdown-banner" style={{
-                    background: 'linear-gradient(90deg, #0d1b2a 0%, #c9a84c 50%, #0d1b2a 100%)',
-                    color: '#ffffff',
-                    textAlign: 'center',
-                    padding: '8px 16px',
-                    fontSize: '0.85rem',
-                    fontWeight: '500',
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase',
-                    width: '100%',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                }}>
-                    ⚡ Limited Time Offer: Get 20% off with code <strong style={{ color: '#fff', textDecoration: 'underline' }}>MELA20</strong>. Deal ends in: <span style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#0d1b2a', padding: '2px 8px', borderRadius: '4px', marginLeft: '4px' }}>{countdownText}</span>
-                </div>
-            )}
             {currentPage !== "login" && (
                 <>
                     {/* Top Row: Logo & Actions */}

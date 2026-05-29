@@ -56,7 +56,7 @@ function AppContent() {
   const [selectedProductId, setSelectedProductId] = useState(getInitialProductId);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [countdownText, setCountdownText] = useState("02:15:10");
+
   const [spinModalOpen, setSpinModalOpen] = useState(false);
 
   // Handle auto-opening spin wheel after successful login redirect
@@ -68,34 +68,7 @@ function AppContent() {
     }
   }, [isAuthenticated]);
 
-  // Countdown timer logic
-  useEffect(() => {
-    // Set mock target to 2 hours 15 minutes from now on load, and keep counting down
-    let totalSeconds = 2 * 3600 + 15 * 60 + 10;
-    
-    const interval = setInterval(() => {
-      if (totalSeconds <= 0) {
-        // Reset to 3 hours to simulate continuous offer
-        totalSeconds = 3 * 3600;
-      } else {
-        totalSeconds--;
-      }
 
-      const hrs = Math.floor(totalSeconds / 3600);
-      const mins = Math.floor((totalSeconds % 3600) / 60);
-      const secs = totalSeconds % 60;
-
-      const timeString = [
-        hrs.toString().padStart(2, '0'),
-        mins.toString().padStart(2, '0'),
-        secs.toString().padStart(2, '0')
-      ].join(':');
-
-      setCountdownText(timeString);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     // Handle browser back/forward buttons
@@ -228,7 +201,6 @@ function AppContent() {
         setCurrentPage={navigateToPage} 
         setActiveCategory={setActiveCategory} 
         setSearchQuery={setSearchQuery} 
-        countdownText={countdownText}
       />
       
       <main style={{ minHeight: 'calc(100vh - 200px)' }}>
