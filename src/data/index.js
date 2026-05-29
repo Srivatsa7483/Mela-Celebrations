@@ -77,7 +77,7 @@ export const categories = [
         id: "kidsactivities",
         name: "Kids Activities",
         slug: "kidsactivities",
-        image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&q=80",
+        image: "/kidsactivities.jpg",
         count: 15,
         dropdown: [
             { id: "magician", label: "Magician", price: 4999 },
