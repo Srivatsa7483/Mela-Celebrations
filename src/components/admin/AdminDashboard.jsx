@@ -410,7 +410,9 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const [formData, setFormData] = useState({
     name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', badge: '', isSignature: false,
   });
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState(null); // Primary image file
+  const [additionalFiles, setAdditionalFiles] = useState([]); // Extra image files (new uploads)
+  const [existingImages, setExistingImages] = useState([]); // Existing image URLs (when editing)
 
   /* ─── Recent Projects Tab States ─── */
   const [isAddingProject, setIsAddingProject] = useState(false);
@@ -457,6 +459,12 @@ const AdminDashboard = ({ setCurrentPage }) => {
       isSignature: design.isSignature || false,
     });
     setFile(null);
+    setAdditionalFiles([]);
+    // Pre-fill existing images: images[] array, or fall back to single image
+    const existingImgArr = Array.isArray(design.images) && design.images.length > 0
+      ? design.images
+      : (design.image ? [design.image] : []);
+    setExistingImages(existingImgArr);
     window.scrollTo({ top: 300, behavior: 'smooth' });
   };
 
@@ -465,6 +473,8 @@ const AdminDashboard = ({ setCurrentPage }) => {
     setEditingDesign(null);
     setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', badge: '', isSignature: false });
     setFile(null);
+    setAdditionalFiles([]);
+    setExistingImages([]);
   };
 
   const getSubcategoriesForCategory = (catId) => {
@@ -514,7 +524,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!editingDesign && !file) {
-      alert('Please upload an image for the design.');
+      alert('Please upload a primary image for the design.');
       return;
     }
     if (!formData.category) {
@@ -523,11 +533,38 @@ const AdminDashboard = ({ setCurrentPage }) => {
     }
     setUploading(true);
     try {
-      let imageUrl = editingDesign ? editingDesign.image : '';
+      // ── 1. Upload primary image (if a new one was selected) ──
+      let primaryUrl = editingDesign
+        ? (existingImages[0] || editingDesign.image || '')
+        : '';
       if (file) {
-        imageUrl = await uploadImage(file);
+        primaryUrl = await uploadImage(file);
       }
-      
+
+      // ── 2. Upload any new additional images in parallel ──
+      let newAdditionalUrls = [];
+      if (additionalFiles.length > 0) {
+        newAdditionalUrls = await Promise.all(
+          additionalFiles.map(f => uploadImage(f))
+        );
+      }
+
+      // ── 3. Build final images array ──
+      // For edit: keep existing images (minus primary which may have been replaced)
+      // then append new uploads
+      let finalImages;
+      if (editingDesign) {
+        // existingImages[0] is the old primary; if new file uploaded, replace it
+        const keptExisting = file
+          ? existingImages.slice(1)   // drop old primary if replaced
+          : existingImages;           // keep all if no new primary
+        finalImages = [primaryUrl, ...keptExisting.slice(file ? 0 : 1), ...newAdditionalUrls];
+        // Remove duplicates and clean
+        finalImages = [...new Set(finalImages)].filter(Boolean);
+      } else {
+        finalImages = [primaryUrl, ...newAdditionalUrls].filter(Boolean);
+      }
+
       const selectedCategoryObj = categories.find(c => c.id === formData.category);
       const designPayload = {
         name: formData.name,
@@ -538,7 +575,8 @@ const AdminDashboard = ({ setCurrentPage }) => {
         price: Number(formData.price),
         originalPrice: Number(formData.originalPrice),
         features: formData.features.split(',').map(f => f.trim()),
-        image: imageUrl,
+        image: finalImages[0] || primaryUrl,   // backwards-compatible single image field
+        images: finalImages,                   // new multi-image array
         badge: formData.badge || null,
         isSignature: Boolean(formData.isSignature),
       };
@@ -952,27 +990,124 @@ const AdminDashboard = ({ setCurrentPage }) => {
                   </div>
 
 
+                  {/* ── Image Gallery Manager ── */}
                   <div style={{ gridColumn: 'span 2' }}>
-                    <label style={S.label}>
-                      {editingDesign ? 'Change Design Image (Optional)' : 'Upload Design Image *'}
-                    </label>
-                    <div style={{
-                      border: '2px dashed rgba(11,25,44,0.2)',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      textAlign: 'center',
-                      background: 'rgba(255, 179, 0, 0.02)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                    }}
-                      onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#FFB300'; }}
-                      onDragLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,25,44,0.2)'; }}
-                    >
-                      <p style={{ color: '#6B7280', fontSize: '0.82rem', margin: '0 0 10px' }}>
-                        {file ? `📎 ${file.name}` : editingDesign ? '📁 Drag & drop or click to replace image' : '📁 Drag & drop or click to browse'}
+                    <label style={{ ...S.label, marginBottom: '4px' }}>🖼️ Design Images</label>
+                    <p style={{ color: '#9CA3AF', fontSize: '0.72rem', margin: '0 0 16px', lineHeight: '1.5' }}>
+                      Upload a primary image (required) + optional alternate gallery images. Customers will see all images with thumbnail navigation.
+                    </p>
+
+                    {/* ─ Primary Image ─ */}
+                    <div style={{ marginBottom: '20px' }}>
+                      <p style={{ ...S.label, fontSize: '0.72rem', color: '#6B7280', marginBottom: '8px', fontWeight: '700', letterSpacing: '0.1em' }}>
+                        PRIMARY IMAGE {editingDesign ? '(leave empty to keep current)' : '*'}
                       </p>
-                      <input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} required={!editingDesign}
-                        style={{ color: '#4B5563', fontSize: '0.85rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
+
+                      {/* Show current primary if editing */}
+                      {editingDesign && existingImages[0] && !file && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', background: '#F8F9FB', borderRadius: '10px', padding: '10px 14px', border: '1px solid #D8DCE3' }}>
+                          <img src={existingImages[0]} alt="current primary" style={{ width: '52px', height: '52px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #FFB300' }} />
+                          <div>
+                            <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: '700', color: '#0B192C' }}>Current Primary Image</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.72rem', color: '#9CA3AF' }}>Upload a new file below to replace it</p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div
+                        style={{ border: `2px dashed ${file ? '#FFB300' : 'rgba(11,25,44,0.2)'}`, borderRadius: '12px', padding: '16px 20px', textAlign: 'center', background: file ? 'rgba(255,179,0,0.04)' : 'rgba(255,179,0,0.02)', transition: 'all 0.2s', cursor: 'pointer' }}
+                        onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#FFB300'; }}
+                        onDragLeave={e => { e.currentTarget.style.borderColor = file ? '#FFB300' : 'rgba(11,25,44,0.2)'; }}
+                        onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) setFile(f); }}
+                      >
+                        <p style={{ color: file ? '#0B192C' : '#6B7280', fontSize: '0.82rem', margin: '0 0 8px', fontWeight: file ? '600' : '400' }}>
+                          {file ? `✅ ${file.name}` : '📁 Drag & drop or click to browse'}
+                        </p>
+                        <input type="file" accept="image/*"
+                          onChange={e => setFile(e.target.files[0])}
+                          required={!editingDesign}
+                          style={{ color: '#4B5563', fontSize: '0.82rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }} />
+                      </div>
+                    </div>
+
+                    {/* ─ Alternate / Gallery Images ─ */}
+                    <div>
+                      <p style={{ ...S.label, fontSize: '0.72rem', color: '#6B7280', marginBottom: '10px', fontWeight: '700', letterSpacing: '0.1em' }}>
+                        ALTERNATE GALLERY IMAGES (optional)
+                      </p>
+
+                      {/* Existing alternate images (editing only) */}
+                      {editingDesign && existingImages.length > 1 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+                          {existingImages.slice(1).map((imgUrl, idx) => (
+                            <div key={idx} style={{ position: 'relative', width: '70px', height: '70px', borderRadius: '10px', overflow: 'visible', flexShrink: 0 }}>
+                              <img
+                                src={imgUrl}
+                                alt={`alt-${idx}`}
+                                style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '10px', border: '1.5px solid #D8DCE3', display: 'block' }}
+                              />
+                              <button
+                                type="button"
+                                title="Remove this image"
+                                onClick={() => setExistingImages(prev => prev.filter((_, i) => i !== idx + 1))}
+                                style={{
+                                  position: 'absolute', top: '-7px', right: '-7px',
+                                  width: '20px', height: '20px', borderRadius: '50%',
+                                  background: '#EF4444', color: '#fff', border: '2px solid #fff',
+                                  fontSize: '10px', fontWeight: '900', cursor: 'pointer',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  lineHeight: 1, padding: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                                }}
+                              >✕</button>
+                            </div>
+                          ))}
+                          <p style={{ width: '100%', fontSize: '0.72rem', color: '#9CA3AF', margin: '2px 0 0' }}>
+                            {existingImages.length - 1} existing alternate image{existingImages.length - 1 !== 1 ? 's' : ''} · click ✕ to remove
+                          </p>
+                        </div>
+                      )}
+
+                      {/* New additional files queued */}
+                      {additionalFiles.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                          {additionalFiles.map((f, idx) => (
+                            <div key={idx} style={{
+                              display: 'inline-flex', alignItems: 'center', gap: '6px',
+                              background: 'rgba(255,179,0,0.1)', border: '1px solid rgba(255,179,0,0.35)',
+                              borderRadius: '20px', padding: '4px 10px 4px 8px', fontSize: '0.75rem', color: '#0B192C',
+                            }}>
+                              <span>📎 {f.name.length > 20 ? f.name.slice(0, 18) + '…' : f.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => setAdditionalFiles(prev => prev.filter((_, i) => i !== idx))}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', fontWeight: '900', fontSize: '12px', padding: '0 0 0 2px', lineHeight: 1 }}
+                              >✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Multi-file picker */}
+                      <div
+                        style={{ border: '2px dashed rgba(11,25,44,0.15)', borderRadius: '12px', padding: '14px 20px', textAlign: 'center', background: '#FAFBFC', transition: 'all 0.2s', cursor: 'pointer' }}
+                        onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#FFB300'; e.currentTarget.style.background = 'rgba(255,179,0,0.04)'; }}
+                        onDragLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,25,44,0.15)'; e.currentTarget.style.background = '#FAFBFC'; }}
+                        onDrop={e => {
+                          e.preventDefault();
+                          const dropped = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+                          setAdditionalFiles(prev => [...prev, ...dropped]);
+                          e.currentTarget.style.borderColor = 'rgba(11,25,44,0.15)';
+                          e.currentTarget.style.background = '#FAFBFC';
+                        }}
+                      >
+                        <p style={{ color: '#9CA3AF', fontSize: '0.8rem', margin: '0 0 8px' }}>📷 Add more angles / alternate views</p>
+                        <input
+                          type="file" accept="image/*" multiple
+                          onChange={e => setAdditionalFiles(prev => [...prev, ...Array.from(e.target.files)])}
+                          style={{ color: '#4B5563', fontSize: '0.8rem', fontFamily: 'inherit', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }}
+                        />
+                        <p style={{ color: '#C0C6CF', fontSize: '0.7rem', margin: '6px 0 0' }}>You can select multiple files at once</p>
+                      </div>
                     </div>
                   </div>
 
@@ -991,7 +1126,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
                         </>
                       )}
                     </button>
-                    {uploading && <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Uploading image and saving...</span>}
+                    {uploading && <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Uploading {1 + additionalFiles.length} image{additionalFiles.length > 0 ? 's' : ''} and saving…</span>}
                   </div>
                 </form>
               </div>
