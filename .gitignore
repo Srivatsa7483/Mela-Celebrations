@@ -25,6 +25,3 @@ dist-ssr
 .env
 .env.local
 .env.*.local
-
-# Build archives
-dist.zip
