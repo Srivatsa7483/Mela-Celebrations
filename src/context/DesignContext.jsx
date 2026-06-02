@@ -1,24 +1,27 @@
 import { createContext, useState, useEffect } from "react";
 import { getCategories, getDesigns, createDesign, deleteDesign, updateDesign } from "../services/designService.js";
 import { getRecentProjects, createRecentProject, deleteRecentProject, updateRecentProject } from "../services/recentProjectsService.js";
+import { categories as staticCategories, designs as staticDesigns } from "../data/index.js";
 
 export const DesignContext = createContext();
 
 export function DesignProvider({ children }) {
-  const [designs, setDesigns] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [designs, setDesigns] = useState(staticDesigns);
+  const [categories, setCategories] = useState(staticCategories);
   const [recentProjects, setRecentProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dbStatus, setDbStatus] = useState("loading"); // 'loading' | 'connected' | 'error'
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
+        setDbStatus("loading");
 
         // 90-second timeout to handle sleeping Render servers (cold start on free tier can take up to 80s)
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Database connection timed out. Your Render backend server is still waking up (Render free tier sleeps after 15 mins of inactivity). Please click 'Retry Connection' and wait 30–60 seconds.")), 90000)
+          setTimeout(() => reject(new Error("Database connection timed out.")), 90000)
         );
 
         const [dbDesigns, dbCategories, dbRecentProjects] = await Promise.race([
@@ -30,23 +33,15 @@ export function DesignProvider({ children }) {
           timeoutPromise
         ]);
 
-        setDesigns(dbDesigns);
-        setCategories(dbCategories);
-        setRecentProjects(dbRecentProjects);
+        if (dbDesigns && dbDesigns.length > 0) setDesigns(dbDesigns);
+        if (dbCategories && dbCategories.length > 0) setCategories(dbCategories);
+        setRecentProjects(dbRecentProjects || []);
         setError(null);
+        setDbStatus("connected");
       } catch (err) {
-        console.error("Failed to fetch designs, categories, or recent projects from database:", err);
-
-        // Only use static fallback in development; in production, fail explicitly so connection issues are obvious
-        if (import.meta.env.DEV) {
-          console.warn("Using static fallback data in development mode.");
-          setError(null); // Clear error in dev to allow static fallback to load without blocking the dashboard
-        } else {
-          setError(err.message);
-          setDesigns([]);
-          setCategories([]);
-          setRecentProjects([]);
-        }
+        console.error("Failed to fetch designs, categories, or recent projects from database, using preloaded catalog:", err);
+        setError(err.message);
+        setDbStatus("error");
       } finally {
         setLoading(false);
       }
@@ -131,6 +126,7 @@ export function DesignProvider({ children }) {
         recentProjects,
         loading,
         error,
+        dbStatus,
         createDesignAction,
         deleteDesignAction,
         updateDesignAction,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import Navbar from './components/layout/Navbar.jsx';
 import Footer from './components/layout/Footer.jsx';
 import HomePage from './pages/HomePage.jsx';
@@ -29,97 +29,248 @@ import { DesignProvider, DesignContext } from './context/DesignContext.jsx';
 import FloatingWhatsApp from './components/ui/FloatingWhatsApp.jsx';
 import SpinWheelModal from './components/ui/SpinWheelModal.jsx';
 
-function FullscreenLoader() {
-  const [dots, setDots] = useState("");
-  const [showWakeupMessage, setShowWakeupMessage] = useState(false);
+// Loader Redesign Imports
+import Celebration3DCanvas from './components/home/Celebration3DCanvas.jsx';
+import { testimonials as staticTestimonials } from './data/index.js';
+import './styles/loader.css';
+
+// Helper component for counting numbers when scrolled into view
+function AnimatedCounter({ value, duration = 1800 }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    const dotsTimer = setInterval(() => {
-      setDots(d => d.length >= 3 ? "" : d + ".");
-    }, 500);
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started) {
+        setStarted(true);
+      }
+    }, { threshold: 0.1 });
 
-    const messageTimer = setTimeout(() => {
-      setShowWakeupMessage(true);
-    }, 3000);
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [started]);
 
-    return () => {
-      clearInterval(dotsTimer);
-      clearTimeout(messageTimer);
+  useEffect(() => {
+    if (!started) return;
+
+    let startTimestamp = null;
+    const numberMatch = value.replace(/,/g, "").match(/\d+/);
+    if (!numberMatch) {
+      setCount(value);
+      return;
+    }
+    const target = parseInt(numberMatch[0]);
+
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const currentVal = Math.floor(progress * target);
+      setCount(currentVal);
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        setCount(target);
+      }
     };
+
+    window.requestAnimationFrame(step);
+  }, [started, value, duration]);
+
+  const displayVal = typeof count === 'number' 
+    ? count.toLocaleString() + value.replace(/[\d,]/g, "") 
+    : value;
+
+  return <span ref={ref}>{started ? displayVal : "0"}</span>;
+}
+
+function FullscreenLoader() {
+  const [phase, setPhase] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  const phases = [
+    "Curating your celebration experience",
+    "Loading premium collections",
+    "Preparing something beautiful",
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPhase(p => (p + 1) % phases.length);
+    }, 2200);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Simulate progress bar moving up to 95% (it will snap to 100% when loading finishes)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(p => {
+        if (p >= 95) return p;
+        return p + Math.floor(Math.random() * 3) + 1;
+      });
+    }, 800);
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'column',
-      gap: '24px',
-      padding: '40px',
-      textAlign: 'center',
-      fontFamily: "'DM Sans', sans-serif",
-      background: 'radial-gradient(circle at top right, #1e293b, #0f172a)',
-      color: '#f8fafc',
-    }}>
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.6; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } }
-      `}</style>
-      
-      <div style={{ position: 'relative', width: '80px', height: '80px' }}>
-        <div style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          border: '4px solid rgba(201, 168, 76, 0.1)',
-          borderTopColor: '#c9a84c',
-          borderRadius: '50%',
-          animation: 'spin 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite'
-        }} />
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          right: '10px',
-          bottom: '10px',
-          border: '3px solid rgba(255, 255, 255, 0.05)',
-          borderBottomColor: '#ffffff',
-          borderRadius: '50%',
-          animation: 'spin 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) reverse infinite'
-        }} />
+    <div className="loader-page">
+      {/* 3D background canvas */}
+      <div className="loader-page__3d-bg">
+        <Celebration3DCanvas />
       </div>
 
-      <div style={{ animation: 'pulse 2s infinite', marginTop: '10px' }}>
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2.5">
-          <path d="M12 2L15 8L21 9L16.5 14L18 20L12 17L6 20L7.5 14L3 9L9 8L12 2Z" fill="#c9a84c" />
-        </svg>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '12px 0 0 0', letterSpacing: '0.05em', color: '#ffffff' }}>
-          Mela Celebrations
-        </h2>
+      {/* Floating particles and glowing orbs */}
+      <div className="loader-page__glow loader-page__glow--1" />
+      <div className="loader-page__glow loader-page__glow--2" />
+
+      {/* Scrollable content container */}
+      <div className="loader-page__scrollable">
+        
+        {/* Section 1: Hero / Connection Splash */}
+        <section className="loader-hero">
+          <div className="container loader-hero__container">
+            <div className="loader-hero__content">
+              {/* Brand highlights & wakeup status */}
+              <div className="loader-status">
+                <span className="loader-status__dot" />
+                <span className="loader-status__text">Connecting to Secure Server...</span>
+              </div>
+
+              <h1 className="loader-hero__title">
+                Mela <span className="loader-hero__title-gold">Celebrations</span>
+              </h1>
+              <p className="loader-hero__subtitle">
+                Premium Event Décor & Balloon Artistry
+              </p>
+
+              {/* Progress bar and wakeup message */}
+              <div className="loader-progress-card">
+                <div className="loader-progress-info">
+                  <span className="loader-progress-phase">{phases[phase]}</span>
+                  <span className="loader-progress-percent">{progress}%</span>
+                </div>
+                <div className="loader-progress-bar-track">
+                  <div className="loader-progress-bar-fill" style={{ width: `${progress}%` }} />
+                </div>
+                <p className="loader-progress-tip">
+                  Database server is waking up from sleep mode. This takes around 20-30 seconds.
+                </p>
+              </div>
+
+              {/* Scroll down indicator */}
+              <div className="loader-scroll-indicator">
+                <span className="loader-scroll-indicator__text">Explore Mela while we load</span>
+                <span className="loader-scroll-indicator__arrow">↓</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 2: Features Grid */}
+        <section className="loader-section loader-features">
+          <div className="container">
+            <div className="loader-section__header">
+              <span className="loader-section__tag">Why Choose Us</span>
+              <h2 className="loader-section__title">The Premium Difference</h2>
+            </div>
+            <div className="loader-grid">
+              <div className="loader-card">
+                <div className="loader-card__icon">🎈</div>
+                <h3>Bespoke Balloon Artistry</h3>
+                <p>Custom themes, organic arches, and sculptures styled to fit your venue perfectly.</p>
+              </div>
+              <div className="loader-card">
+                <div className="loader-card__icon">💎</div>
+                <h3>Luxury Quality Materials</h3>
+                <p>100% biodegradable, double-stuffed balloons for rich colors and long-lasting shine.</p>
+              </div>
+              <div className="loader-card">
+                <div className="loader-card__icon">✨</div>
+                <h3>End-to-End Styling</h3>
+                <p>From visual 3D design mapping and venue setup to final event teardown.</p>
+              </div>
+              <div className="loader-card">
+                <div className="loader-card__icon">⏰</div>
+                <h3>On-Time Setup Promise</h3>
+                <p>Our professional decorators finish early, ensuring your venue is ready before guests arrive.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3: Statistics Counters */}
+        <section className="loader-section loader-stats">
+          <div className="container">
+            <div className="loader-stats-grid">
+              <div className="loader-stat-item">
+                <div className="loader-stat-number">
+                  <AnimatedCounter value="15,000+" />
+                </div>
+                <div className="loader-stat-label">Events Managed</div>
+              </div>
+              <div className="loader-stat-item">
+                <div className="loader-stat-number">
+                  <AnimatedCounter value="350+" />
+                </div>
+                <div className="loader-stat-label">Exclusive Themes</div>
+              </div>
+              <div className="loader-stat-item">
+                <div className="loader-stat-number">
+                  <AnimatedCounter value="99.8%" />
+                </div>
+                <div className="loader-stat-label">Client Satisfaction</div>
+              </div>
+              <div className="loader-stat-item">
+                <div className="loader-stat-number">
+                  <AnimatedCounter value="12+" />
+                </div>
+                <div className="loader-stat-label">Cities Served</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 4: Testimonials Carousel */}
+        <section className="loader-section loader-testimonials">
+          <div className="container">
+            <div className="loader-section__header">
+              <span className="loader-section__tag">Client Reviews</span>
+              <h2 className="loader-section__title">Voices of Joy</h2>
+            </div>
+          </div>
+          <div className="loader-testimonials__wrapper">
+            <div className="loader-testimonials__track">
+              {staticTestimonials.concat(staticTestimonials).map((t, idx) => (
+                <div key={idx} className="loader-testimonial-card">
+                  <div className="loader-testimonial-stars">★★★★★</div>
+                  <p className="loader-testimonial-text">"{t.text}"</p>
+                  <div className="loader-testimonial-author">
+                    <img src={t.avatar} alt={t.name} />
+                    <div>
+                      <h4>{t.name}</h4>
+                      <p>{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: CTA */}
+        <section className="loader-section loader-cta">
+          <div className="container">
+            <div className="loader-cta__card">
+              <h3>Have Questions?</h3>
+              <p>Connect directly with our planning experts on WhatsApp for immediate support.</p>
+              <a href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener noreferrer" className="loader-cta__btn">
+                <span>💬 Chat on WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
       </div>
-
-      <p style={{ color: '#94a3b8', fontSize: '0.95rem', fontWeight: '500', margin: 0 }}>
-        {showWakeupMessage ? `☕ Waking up database server${dots}` : `Loading catalog details${dots}`}
-      </p>
-
-      {showWakeupMessage && (
-        <div style={{
-          background: 'rgba(201, 168, 76, 0.1)',
-          border: '1px solid rgba(201, 168, 76, 0.3)',
-          borderRadius: '12px',
-          padding: '16px 28px',
-          maxWidth: '440px',
-          lineHeight: '1.6',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-          backdropFilter: 'blur(8px)',
-          animation: 'fadeIn 0.5s ease'
-        }}>
-          <p style={{ margin: 0, color: '#f1f5f9', fontWeight: '600', fontSize: '0.88rem' }}>
-            Our free-tier server sleeps after 15 minutes of inactivity. Please wait 10–30 seconds while it wakes up.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
