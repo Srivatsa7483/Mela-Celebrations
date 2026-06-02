@@ -309,53 +309,82 @@ function ClientRenderWakeupError({ onRetry }) {
   }, [onRetry]);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'column',
-      gap: '24px',
-      padding: '40px',
-      textAlign: 'center',
-      fontFamily: "'DM Sans', sans-serif",
-      background: 'radial-gradient(circle at top right, #1e293b, #0f172a)',
-      color: '#f8fafc',
-    }}>
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
-      <div style={{ width: '64px', height: '64px', border: '4px solid rgba(255,255,255,0.05)', borderTopColor: '#c9a84c', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <h2 style={{ color: '#ffffff', fontSize: '1.4rem', fontWeight: '800', margin: 0 }}>
-        ☕ Database is Waking Up{dots}
-      </h2>
-      <p style={{ color: '#94a3b8', fontSize: '0.92rem', maxWidth: '440px', lineHeight: '1.7', margin: '0' }}>
-        The backend server goes to sleep when idle. It's now starting up — this takes <strong>30–60 seconds</strong> on the first visit.
-      </p>
-      <div style={{ background: 'rgba(201, 168, 76, 0.1)', border: '1.5px solid #c9a84c', borderRadius: '12px', padding: '14px 28px' }}>
-        <p style={{ margin: 0, color: '#ffffff', fontWeight: '700', fontSize: '1rem' }}>
-          Auto-retrying in <span style={{ color: '#c9a84c', fontSize: '1.3rem' }}>{countdown}s</span>
-        </p>
+    <div className="loader-page">
+      {/* 3D background canvas */}
+      <div className="loader-page__3d-bg">
+        <Celebration3DCanvas />
       </div>
-      <button
-        onClick={onRetry}
-        style={{
-          background: '#c9a84c',
-          color: '#ffffff',
-          border: 'none',
-          borderRadius: '30px',
-          padding: '12px 28px',
-          fontSize: '0.9rem',
-          fontWeight: '700',
-          cursor: 'pointer',
-          boxShadow: '0 4px 18px rgba(201, 168, 76, 0.3)',
-          transition: 'transform 0.2s'
-        }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-      >
-        🔄 Retry Now
-      </button>
+
+      {/* Floating particles and glowing orbs */}
+      <div className="loader-page__glow loader-page__glow--1" />
+      <div className="loader-page__glow loader-page__glow--2" />
+
+      {/* Dynamic Floating Glassmorphic Balloons */}
+      <div className="loader-bubbles" aria-hidden="true">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="loader-bubble" style={{
+            "--delay": `${i * 1.5}s`,
+            "--left": `${6 + i * 9.2}%`,
+            "--scale": `${0.65 + (i % 3) * 0.22}`,
+            "--sway": `${20 + (i % 2) * 20}px`
+          }} stroke="rgba(201, 168, 76, 0.2)" />
+        ))}
+      </div>
+
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        padding: '40px 20px',
+        position: 'relative',
+        zIndex: 10,
+        boxSizing: 'border-box'
+      }}>
+        <div className="loader-progress-card animate-fade-up" style={{
+          maxWidth: '500px',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '24px',
+          padding: '40px 32px'
+        }}>
+          {/* Animated Ornament Spinner */}
+          <div className="loader-error-spinner">
+            <span className="loader-error-spinner__icon">✨</span>
+          </div>
+
+          <h2 style={{ color: 'var(--navy)', fontSize: '1.5rem', fontWeight: '800', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+            Connecting to Mela World{dots}
+          </h2>
+
+          <p style={{ color: 'var(--text-body)', fontSize: '0.9rem', lineHeight: '1.7', margin: '0', fontFamily: "'DM Sans', sans-serif" }}>
+            We are preparing our bespoke design catalogs and pricing details for your celebration.
+          </p>
+
+          <div style={{
+            background: 'rgba(201, 168, 76, 0.06)',
+            border: '1.5px solid rgba(201, 168, 76, 0.35)',
+            borderRadius: '16px',
+            padding: '12px 24px',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <p style={{ margin: 0, color: 'var(--navy)', fontWeight: '700', fontSize: '0.92rem', letterSpacing: '0.04em' }}>
+              Optimizing catalog in <span style={{ color: 'var(--gold)', fontSize: '1.25rem', fontWeight: '800' }}>{countdown}s</span>
+            </p>
+          </div>
+
+          <button
+            onClick={onRetry}
+            className="loader-retry-btn"
+          >
+            🔄 Refresh Catalog
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
