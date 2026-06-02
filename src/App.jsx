@@ -114,25 +114,9 @@ function FullscreenLoader() {
 
   return (
     <div className="loader-page">
-      {/* 3D background canvas */}
+      {/* Event decoration animation canvas */}
       <div className="loader-page__3d-bg">
         <Celebration3DCanvas />
-      </div>
-
-      {/* Floating particles and glowing orbs */}
-      <div className="loader-page__glow loader-page__glow--1" />
-      <div className="loader-page__glow loader-page__glow--2" />
-
-      {/* Dynamic Floating Glassmorphic Balloons */}
-      <div className="loader-bubbles" aria-hidden="true">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="loader-bubble" style={{
-            "--delay": `${i * 1.5}s`,
-            "--left": `${6 + i * 9.2}%`,
-            "--scale": `${0.65 + (i % 3) * 0.22}`,
-            "--sway": `${20 + (i % 2) * 20}px`
-          }} />
-        ))}
       </div>
 
       {/* Scrollable content container */}
@@ -315,21 +299,7 @@ function ClientRenderWakeupError({ onRetry }) {
         <Celebration3DCanvas />
       </div>
 
-      {/* Floating particles and glowing orbs */}
-      <div className="loader-page__glow loader-page__glow--1" />
-      <div className="loader-page__glow loader-page__glow--2" />
-
-      {/* Dynamic Floating Glassmorphic Balloons */}
-      <div className="loader-bubbles" aria-hidden="true">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="loader-bubble" style={{
-            "--delay": `${i * 1.5}s`,
-            "--left": `${6 + i * 9.2}%`,
-            "--scale": `${0.65 + (i % 3) * 0.22}`,
-            "--sway": `${20 + (i % 2) * 20}px`
-          }} stroke="rgba(201, 168, 76, 0.2)" />
-        ))}
-      </div>
+      {/* Decoration handled by animation canvas */}
 
       <div style={{
         minHeight: '100vh',
