@@ -123,6 +123,18 @@ function FullscreenLoader() {
       <div className="loader-page__glow loader-page__glow--1" />
       <div className="loader-page__glow loader-page__glow--2" />
 
+      {/* Dynamic Floating Glassmorphic Balloons */}
+      <div className="loader-bubbles" aria-hidden="true">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="loader-bubble" style={{
+            "--delay": `${i * 1.5}s`,
+            "--left": `${6 + i * 9.2}%`,
+            "--scale": `${0.65 + (i % 3) * 0.22}`,
+            "--sway": `${20 + (i % 2) * 20}px`
+          }} />
+        ))}
+      </div>
+
       {/* Scrollable content container */}
       <div className="loader-page__scrollable">
         
@@ -133,7 +145,7 @@ function FullscreenLoader() {
               {/* Brand highlights & wakeup status */}
               <div className="loader-status">
                 <span className="loader-status__dot" />
-                <span className="loader-status__text">Connecting to Secure Server...</span>
+                <span className="loader-status__text">Syncing Luxury Collections...</span>
               </div>
 
               <h1 className="loader-hero__title">
@@ -153,7 +165,7 @@ function FullscreenLoader() {
                   <div className="loader-progress-bar-fill" style={{ width: `${progress}%` }} />
                 </div>
                 <p className="loader-progress-tip">
-                  Database server is waking up from sleep mode. This takes around 20-30 seconds.
+                  Curating luxury balloon installations and bespoke decorations...
                 </p>
               </div>
 
