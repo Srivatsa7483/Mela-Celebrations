@@ -306,6 +306,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
     const [activeTab, setActiveTab] = useState('description');
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIdx, setLightboxIdx] = useState(0);
+    const [selectedAddOns, setSelectedAddOns] = useState({});
     const imgWrapRef = useRef(null);
 
     const openLightbox = (idx) => { setLightboxIdx(idx); setLightboxOpen(true); };
@@ -328,6 +329,10 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
         : [];
     const discount = design ? discountPct(design.originalPrice, design.price) : 0;
 
+    const selectedAddOnsList = design?.addOns?.filter(a => selectedAddOns[a.id]) || [];
+    const addOnsTotal = selectedAddOnsList.reduce((acc, a) => acc + Number(a.price || 0), 0);
+    const estimatedTotal = design ? (design.price + addOnsTotal) : 0;
+
     // Lightbox navigation — defined after `images` so images.length is accessible
     const lightboxPrev = () => setLightboxIdx(i => (i - 1 + images.length) % images.length);
     const lightboxNext = () => setLightboxIdx(i => (i + 1) % images.length);
@@ -347,6 +352,7 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setIsZoomed(false);
+        setSelectedAddOns({});
     }, [productId]);
 
     const handleMouseEnter = () => {
@@ -701,14 +707,21 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                         {/* Price */}
                         <div className="pdp-price-block">
                             <div className="pdp-price-row">
-                                <span className="pdp-price">{fmt(design.price)}</span>
-                                {design.originalPrice && design.originalPrice > design.price && (
+                                <span className="pdp-price">{fmt(estimatedTotal)}</span>
+                                {design.originalPrice && design.originalPrice > design.price && !addOnsTotal && (
                                     <>
                                         <span className="pdp-orig">{fmt(design.originalPrice)}</span>
                                         <span className="pdp-off-badge">{discount}% OFF</span>
                                     </>
                                 )}
                             </div>
+                            {addOnsTotal > 0 && (
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '4px 0 8px', display: 'flex', gap: '8px', fontFamily: 'var(--font-sans)' }}>
+                                    <span>Base Package: {fmt(design.price)}</span>
+                                    <span>·</span>
+                                    <span style={{ color: 'var(--gold)', fontWeight: '600' }}>Add-ons: +{fmt(addOnsTotal)}</span>
+                                </p>
+                            )}
                             <p className="pdp-price-note">💡 Price varies with venue size & customizations</p>
                         </div>
 
@@ -732,13 +745,70 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
                             </div>
                         )}
 
+                        {/* Dynamic Product Add-ons Selection */}
+                        {design.addOns && design.addOns.length > 0 && (
+                            <div className="pdp-addons-container">
+                                <h3 className="pdp-section-lbl">Customize Setup with Add-ons</h3>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '-4px 0 16px', fontFamily: 'var(--font-sans)' }}>
+                                    Select upgrades specifically created for this decoration theme.
+                                </p>
+                                <div className="pdp-addons-grid">
+                                    {design.addOns.map((addon) => {
+                                        const isSelected = !!selectedAddOns[addon.id];
+                                        return (
+                                            <div 
+                                                key={addon.id} 
+                                                className={`pdp-addon-card${isSelected ? ' selected' : ''}`}
+                                                onClick={() => setSelectedAddOns(prev => ({
+                                                    ...prev,
+                                                    [addon.id]: !prev[addon.id]
+                                                }))}
+                                            >
+                                                <div className="pdp-addon-card__img-wrap">
+                                                    <img 
+                                                        src={addon.image || 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=300&q=80'} 
+                                                        alt={addon.title} 
+                                                        className="pdp-addon-card__img" 
+                                                        loading="lazy"
+                                                    />
+                                                    {isSelected && (
+                                                        <div className="pdp-addon-card__checkmark-badge">
+                                                            ✓
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="pdp-addon-card__info">
+                                                    <h4 className="pdp-addon-card__title">{addon.title}</h4>
+                                                    {addon.inclusions && (
+                                                        <p className="pdp-addon-card__inclusions" title={addon.inclusions}>
+                                                            {addon.inclusions.length > 50 ? addon.inclusions.slice(0, 48) + '...' : addon.inclusions}
+                                                        </p>
+                                                    )}
+                                                    <div className="pdp-addon-card__footer">
+                                                        <span className="pdp-addon-card__price">+{fmt(addon.price)}</span>
+                                                        <span className={`pdp-addon-card__btn${isSelected ? ' selected' : ''}`}>
+                                                            {isSelected ? 'Added' : 'Add'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="pdp-divider" />
 
                         {/* Action Buttons */}
                         <div className="pdp-actions">
                             <button
                                 className="pdp-btn-book"
-                                onClick={() => { setSelectedDesign(design); setCurrentPage('order'); }}
+                                onClick={() => {
+                                    sessionStorage.setItem("mela_selected_addons", JSON.stringify(selectedAddOns));
+                                    setSelectedDesign(design); 
+                                    setCurrentPage('order');
+                                }}
                             >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                                     <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
@@ -892,11 +962,15 @@ export default function ProductDetailPage({ productId, setCurrentPage, setSelect
             <div className="pdp-mobile-cta">
                 <div className="pdp-mobile-cta__price">
                     <span className="pdp-mobile-cta__from">From</span>
-                    <strong className="pdp-mobile-cta__amt">{fmt(design.price)}</strong>
+                    <strong className="pdp-mobile-cta__amt">{fmt(estimatedTotal)}</strong>
                 </div>
                 <button
                     className="pdp-mobile-cta__btn"
-                    onClick={() => { setSelectedDesign(design); setCurrentPage('order'); }}
+                    onClick={() => {
+                        sessionStorage.setItem("mela_selected_addons", JSON.stringify(selectedAddOns));
+                        setSelectedDesign(design); 
+                        setCurrentPage('order');
+                    }}
                 >
                     Book Now
                 </button>

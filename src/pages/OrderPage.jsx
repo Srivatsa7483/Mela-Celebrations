@@ -29,18 +29,14 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
   const [couponError, setCouponError] = useState("");
   const [couponSuccess, setCouponSuccess] = useState("");
 
-  // Add-on states
-  const [addOns, setAddOns] = useState({
-    ledBoard: false,
-    magicShow: false,
-    photos: false,
-  });
+  // Dynamic Add-ons states
+  const [selectedAddOnIds, setSelectedAddOnIds] = useState({});
 
-  const addOnDetails = {
-    ledBoard: { name: "Neon LED Name Board", price: 2000 },
-    magicShow: { name: "Magic Show Entertainment (30min)", price: 3500 },
-    photos: { name: "Standard Event Photography (4hrs)", price: 6000 }
-  };
+  const defaultAddOns = [
+    { id: "ledBoard", title: "Neon LED Name Board", price: 2000, inclusions: "Neon LED name board decoration" },
+    { id: "magicShow", title: "Magic Show Entertainment (30min)", price: 3500, inclusions: "Interactive magic show for kids" },
+    { id: "photos", title: "Standard Event Photography (4hrs)", price: 6000, inclusions: "High resolution digital photos (4 hours)" }
+  ];
 
   // Custom Planned Event from Estimator Budget Calculator
   const [customPackage, setCustomPackage] = useState(null);
@@ -53,7 +49,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
       try {
         const parsed = JSON.parse(pending);
         setForm(parsed.form);
-        if (parsed.addOns) setAddOns(parsed.addOns);
+        if (parsed.addOns) setSelectedAddOnIds(parsed.addOns);
         if (parsed.couponCode) {
           setCouponCode(parsed.couponCode);
           validateCouponCode(parsed.couponCode);
@@ -72,7 +68,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
     }
   }, [user]);
 
-  // Load custom planned event from session storage, or check spin-wheel won coupons
+  // Load custom planned event from session storage, or check spin-wheel won coupons, or load pre-selected add-ons from PDP
   useEffect(() => {
     const custom = sessionStorage.getItem("mela_custom_package");
     if (custom) {
@@ -92,22 +88,38 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
       // Auto-validate it
       validateCouponCode(wonCoupon);
     }
+
+    // Load pre-selected add-ons from PDP
+    const fromPdp = sessionStorage.getItem("mela_selected_addons");
+    if (fromPdp) {
+      try {
+        const parsed = JSON.parse(fromPdp);
+        setSelectedAddOnIds(parsed);
+        sessionStorage.removeItem("mela_selected_addons");
+      } catch (err) {
+        console.error("Failed to parse selected add-ons from sessionStorage:", err);
+      }
+    }
   }, []);
 
   const chosen = customPackage ? null : (designs.find((d) => String(d.id) === String(form.designId)) || selectedDesign);
+  const availableAddOns = (chosen && chosen.addOns && chosen.addOns.length > 0) ? chosen.addOns : defaultAddOns;
 
   // Prices calculation
   const basePrice = customPackage ? customPackage.packagePrice : (chosen ? chosen.price : 0);
   
-  const addOnsPrice = Object.keys(addOns).reduce((acc, key) => {
-    return acc + (addOns[key] ? addOnDetails[key].price : 0);
+  const addOnsPrice = availableAddOns.reduce((acc, addon) => {
+    return acc + (selectedAddOnIds[addon.id] ? Number(addon.price || 0) : 0);
   }, 0);
 
   const subtotal = basePrice + addOnsPrice;
   let discountAmount = 0;
   if (activeCoupon === "SPINPHOTO50" || (createdOrder && createdOrder.activeCoupon === "SPINPHOTO50")) {
-    if (addOns.photos) {
-      discountAmount = Math.round(addOnDetails.photos.price * 0.5);
+    if (selectedAddOnIds.photos) {
+      const photoAddon = availableAddOns.find(a => a.id === "photos");
+      if (photoAddon) {
+        discountAmount = Math.round(photoAddon.price * 0.5);
+      }
     }
   } else if (discountPercent > 0) {
     discountAmount = Math.round(subtotal * (discountPercent / 100));
@@ -178,10 +190,6 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
     setCouponError("");
   };
 
-  const handleAddOnToggle = (key) => {
-    setAddOns(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -189,7 +197,7 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
       // Save current booking details in session storage so they aren't lost
       sessionStorage.setItem("mela_pending_booking", JSON.stringify({
         form,
-        addOns,
+        addOns: selectedAddOnIds,
         couponCode
       }));
       sessionStorage.setItem("mela_login_redirect", "order");
@@ -200,9 +208,9 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
-    const selectedServices = Object.keys(addOns)
-      .filter(k => addOns[k])
-      .map(k => addOnDetails[k]);
+    const selectedServices = availableAddOns
+      .filter(addon => selectedAddOnIds[addon.id])
+      .map(addon => ({ name: addon.title, price: addon.price }));
 
     const bookingData = {
       name: form.name,
@@ -586,17 +594,28 @@ export default function OrderPage({ selectedDesign, setCurrentPage }) {
               <h3 style={{ fontSize: "0.95rem", color: "var(--navy)", borderBottom: "1px solid var(--border)", paddingBottom: "8px", marginBottom: "12px" }}>
                 Add-on Services
               </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {Object.keys(addOnDetails).map((key) => {
-                  const srv = addOnDetails[key];
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {availableAddOns.map((addon) => {
+                  const isChecked = !!selectedAddOnIds[addon.id];
                   return (
-                    <label key={key} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "0.9rem", cursor: "pointer" }}>
+                    <label key={addon.id} style={{ display: "flex", alignItems: "flex-start", gap: "10px", fontSize: "0.9rem", cursor: "pointer" }}>
                       <input 
                         type="checkbox" 
-                        checked={addOns[key]} 
-                        onChange={() => handleAddOnToggle(key)} 
+                        checked={isChecked} 
+                        onChange={() => setSelectedAddOnIds(prev => ({
+                          ...prev,
+                          [addon.id]: !prev[addon.id]
+                        }))} 
+                        style={{ marginTop: "3px" }}
                       />
-                      <span>{srv.name} (<strong>+{formatPrice(srv.price)}</strong>)</span>
+                      <div>
+                        <span>{addon.title} (<strong>+{formatPrice(addon.price)}</strong>)</span>
+                        {addon.inclusions && (
+                          <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px" }}>
+                            {addon.inclusions}
+                          </div>
+                        )}
+                      </div>
                     </label>
                   );
                 })}

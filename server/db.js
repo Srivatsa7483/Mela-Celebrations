@@ -93,13 +93,13 @@ const seedRecentProjects = [
   },
   {
     id: 3,
-    title: "Golden Sequin Candlelight Romance",
+    title: "Golden Sequin Anniversary Romance",
     category: "anniversary",
     venue: "Sheraton Grand, Whitefield",
     date: "May 08, 2026",
     desc: "Glittering sequin walls draped with warm fairy lights and custom rose bouquets.",
     image: "/a1.jpg",
-    review: "The candlelight dinner setup was magical. My wife was completely surprised! - Amit V.",
+    review: "The anniversary setup was magical. My wife was completely surprised! - Amit V.",
     cost: "₹15,000"
   },
   {

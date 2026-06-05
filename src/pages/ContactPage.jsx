@@ -89,7 +89,7 @@ export default function ContactPage({ setCurrentPage }) {
                         <div className="contact-info-card__top">
                             <h2>Bespoke Service</h2>
                             <p>
-                                Every celebration deserves to be legendary. Whether it is an intimate candlelight setup, 
+                                Every celebration deserves to be legendary. Whether it is a romantic anniversary, 
                                 a grand birthday, or an elaborate festival décor, our team is ready to assist.
                             </p>
                             

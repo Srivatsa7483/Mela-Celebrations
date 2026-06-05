@@ -410,9 +410,15 @@ const AdminDashboard = ({ setCurrentPage }) => {
   const [formData, setFormData] = useState({
     name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', badge: '', isSignature: false,
   });
+  const [formCategories, setFormCategories] = useState([]); // Array of category IDs
+  const [formSubcategories, setFormSubcategories] = useState([]); // Array of subcategory IDs
   const [file, setFile] = useState(null); // Primary image file
   const [additionalFiles, setAdditionalFiles] = useState([]); // Extra image files (new uploads)
   const [existingImages, setExistingImages] = useState([]); // Existing image URLs (when editing)
+  const [formAddOns, setFormAddOns] = useState([]); // Custom Dynamic Add-ons list
+  const [newAddOn, setNewAddOn] = useState({ title: '', price: '', inclusions: '' });
+  const [addonFile, setAddonFile] = useState(null); // File picker for addon image
+  const [uploadingAddon, setUploadingAddon] = useState(false); // Addon image upload indicator
 
   /* ─── Recent Projects Tab States ─── */
   const [isAddingProject, setIsAddingProject] = useState(false);
@@ -458,6 +464,8 @@ const AdminDashboard = ({ setCurrentPage }) => {
       badge: design.badge || '',
       isSignature: design.isSignature || false,
     });
+    setFormCategories(design.categories || (design.category ? [design.category] : []));
+    setFormSubcategories(design.subcategories || (design.subcategory ? [design.subcategory] : []));
     setFile(null);
     setAdditionalFiles([]);
     // Pre-fill existing images: images[] array, or fall back to single image
@@ -465,6 +473,9 @@ const AdminDashboard = ({ setCurrentPage }) => {
       ? design.images
       : (design.image ? [design.image] : []);
     setExistingImages(existingImgArr);
+    setFormAddOns(design.addOns || []);
+    setNewAddOn({ title: '', price: '', inclusions: '' });
+    setAddonFile(null);
     window.scrollTo({ top: 300, behavior: 'smooth' });
   };
 
@@ -472,9 +483,14 @@ const AdminDashboard = ({ setCurrentPage }) => {
     setIsAdding(false);
     setEditingDesign(null);
     setFormData({ name: '', description: '', category: '', subcategory: '', price: '', originalPrice: '', features: '', badge: '', isSignature: false });
+    setFormCategories([]);
+    setFormSubcategories([]);
     setFile(null);
     setAdditionalFiles([]);
     setExistingImages([]);
+    setFormAddOns([]);
+    setNewAddOn({ title: '', price: '', inclusions: '' });
+    setAddonFile(null);
   };
 
   const getSubcategoriesForCategory = (catId) => {
@@ -527,8 +543,8 @@ const AdminDashboard = ({ setCurrentPage }) => {
       alert('Please upload a primary image for the design.');
       return;
     }
-    if (!formData.category) {
-      alert('Please select a main category for the design.');
+    if (formCategories.length === 0) {
+      alert('Please select at least one main category for the design.');
       return;
     }
     setUploading(true);
@@ -565,13 +581,16 @@ const AdminDashboard = ({ setCurrentPage }) => {
         finalImages = [primaryUrl, ...newAdditionalUrls].filter(Boolean);
       }
 
-      const selectedCategoryObj = categories.find(c => c.id === formData.category);
+      const primaryCategory = formCategories[0];
+      const selectedCategoryObj = categories.find(c => c.id === primaryCategory);
       const designPayload = {
         name: formData.name,
         description: formData.description,
-        category: formData.category,
-        categoryName: selectedCategoryObj ? selectedCategoryObj.name : formData.category,
-        subcategory: formData.subcategory || null,
+        categories: formCategories,
+        subcategories: formSubcategories,
+        category: primaryCategory,
+        categoryName: selectedCategoryObj ? selectedCategoryObj.name : primaryCategory,
+        subcategory: formSubcategories[0] || null,
         price: Number(formData.price),
         originalPrice: Number(formData.originalPrice),
         features: formData.features.split(',').map(f => f.trim()),
@@ -579,6 +598,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
         images: finalImages,                   // new multi-image array
         badge: formData.badge || null,
         isSignature: Boolean(formData.isSignature),
+        addOns: formAddOns,                    // dynamic product add-ons
       };
 
       if (editingDesign) {
@@ -595,6 +615,39 @@ const AdminDashboard = ({ setCurrentPage }) => {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleAddAddOn = async () => {
+    if (!newAddOn.title.trim() || !newAddOn.price) {
+      alert('Please fill out both the Add-on Title and Price.');
+      return;
+    }
+    setUploadingAddon(true);
+    try {
+      let imageUrl = '';
+      if (addonFile) {
+        imageUrl = await uploadImage(addonFile, "addons");
+      }
+      const addon = {
+        id: 'addon_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4),
+        title: newAddOn.title.trim(),
+        price: Number(newAddOn.price),
+        inclusions: newAddOn.inclusions.trim(),
+        image: imageUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=300&q=80', // Default fallback premium balloon placeholder
+      };
+      setFormAddOns(prev => [...prev, addon]);
+      setNewAddOn({ title: '', price: '', inclusions: '' });
+      setAddonFile(null);
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading add-on image: ' + err.message);
+    } finally {
+      setUploadingAddon(false);
+    }
+  };
+
+  const handleRemoveAddOn = (addonId) => {
+    setFormAddOns(prev => prev.filter(a => a.id !== addonId));
   };
 
   const handleDelete = async (designId) => {
@@ -900,37 +953,89 @@ const AdminDashboard = ({ setCurrentPage }) => {
                       onFocus={onFocus} onBlur={onBlur} />
                   </div>
 
-                  {/* Category */}
-                  <div>
-                    <label style={S.label}>Main Category *</label>
-                    <div style={{ position: 'relative' }}>
-                      <CustomSelect
-                        name="category"
-                        value={formData.category}
-                        options={categories.map(c => ({ value: c.id, label: c.name }))}
-                        placeholder="Select a Category"
-                        onChange={handleInputChange}
-                        required
-                      />
+                  {/* Category Selection */}
+                  <div style={{ gridColumn: 'span 2', borderBottom: '1px solid #E5E7EB', paddingBottom: '18px' }}>
+                    <label style={S.label}>Main Categories (Select one or more) *</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px', marginTop: '8px' }}>
+                      {categories.map(c => {
+                        const isChecked = formCategories.includes(c.id);
+                        return (
+                          <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: '#0B192C' }}>
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {
+                                if (isChecked) {
+                                  setFormCategories(prev => prev.filter(id => id !== c.id));
+                                  // Also remove subcategories belonging to this category
+                                  const subsToRemove = getSubcategoriesForCategory(c.id).map(s => s.id);
+                                  setFormSubcategories(prev => prev.filter(subId => !subsToRemove.includes(subId)));
+                                } else {
+                                  setFormCategories(prev => [...prev, c.id]);
+                                }
+                              }}
+                              style={{ width: '16px', height: '16px', accentColor: '#FFB300', cursor: 'pointer' }}
+                            />
+                            {c.name}
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* Subcategory */}
-                  <div>
+                  {/* Subcategory Selection */}
+                  <div style={{ gridColumn: 'span 2', borderBottom: '1px solid #E5E7EB', paddingBottom: '18px' }}>
                     <label style={S.label}>
-                      Subcategory {subcategories.length > 0 ? '' : <span style={{ color: '#9CA3AF', fontWeight: 400, textTransform: 'none', fontSize: '0.7rem' }}> (select a category first)</span>}
+                      Subcategories {formCategories.length > 0 ? '' : <span style={{ color: '#9CA3AF', fontWeight: 400, textTransform: 'none', fontSize: '0.7rem' }}> (select a category first)</span>}
                     </label>
-                    <div style={{ position: 'relative' }}>
-                      <CustomSelect
-                        name="subcategory"
-                        value={formData.subcategory}
-                        options={[{ value: '', label: 'None (Main Category Only)' }, ...subcategories.map(sub => ({ value: sub.id, label: sub.label }))]}
-                        placeholder="Select a Subcategory"
-                        onChange={handleInputChange}
-                        disabled={subcategories.length === 0}
-                        required={false}
-                      />
-                    </div>
+                    {formCategories.length > 0 ? (
+                      (() => {
+                        // Gather subcategories for all checked main categories
+                        const allAvailableSubs = formCategories.flatMap(catId => {
+                          const catName = categories.find(c => c.id === catId)?.name || catId;
+                          return getSubcategoriesForCategory(catId).map(sub => ({ ...sub, catId, catName }));
+                        });
+
+                        if (allAvailableSubs.length === 0) {
+                          return (
+                            <p style={{ color: '#9CA3AF', fontSize: '0.8rem', margin: '6px 0 0' }}>
+                              No subcategories available for the selected category/categories.
+                            </p>
+                          );
+                        }
+
+                        return (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '10px', marginTop: '8px' }}>
+                            {allAvailableSubs.map(sub => {
+                              const isChecked = formSubcategories.includes(sub.id);
+                              return (
+                                <label key={sub.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.8rem', color: '#4B5563' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      if (isChecked) {
+                                        setFormSubcategories(prev => prev.filter(id => id !== sub.id));
+                                      } else {
+                                        setFormSubcategories(prev => [...prev, sub.id]);
+                                      }
+                                    }}
+                                    style={{ width: '15px', height: '15px', accentColor: '#FFB300', cursor: 'pointer' }}
+                                  />
+                                  <span>
+                                    {sub.label} <small style={{ color: '#9CA3AF' }}>({sub.catName})</small>
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <p style={{ color: '#9CA3AF', fontSize: '0.8rem', margin: '6px 0 0' }}>
+                        Please check at least one Main Category above to view available subcategories.
+                      </p>
+                    )}
                   </div>
 
                   {/* Features */}
@@ -1111,6 +1216,140 @@ const AdminDashboard = ({ setCurrentPage }) => {
                     </div>
                   </div>
 
+                  {/* ── Add-ons Manager ── */}
+                  <div style={{ gridColumn: 'span 2', borderTop: '1px solid #D8DCE3', paddingTop: '24px', marginTop: '12px' }}>
+                    <label style={{ ...S.label, marginBottom: '4px', fontSize: '0.8rem', color: '#0B192C' }}>🎈 Design Add-ons</label>
+                    <p style={{ color: '#9CA3AF', fontSize: '0.72rem', margin: '0 0 16px', lineHeight: '1.5' }}>
+                      Add options or upgrades specific to this decoration package (e.g. Balloon Pillar Welcome Board, Easel Stand). Customers can choose to purchase these upgrades when booking.
+                    </p>
+
+                    {/* Added Add-ons List */}
+                    {formAddOns.length > 0 ? (
+                      <div style={{ marginBottom: '18px', border: '1px solid #D8DCE3', borderRadius: '10px', overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                          <thead>
+                            <tr style={{ background: '#F8F9FB', borderBottom: '1px solid #D8DCE3' }}>
+                              <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: '700', color: '#0B192C', fontSize: '0.75rem', width: '60px' }}>Image</th>
+                              <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: '700', color: '#0B192C', fontSize: '0.75rem' }}>Title</th>
+                              <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: '700', color: '#0B192C', fontSize: '0.75rem' }}>Price</th>
+                              <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: '700', color: '#0B192C', fontSize: '0.75rem' }}>Inclusions</th>
+                              <th style={{ padding: '8px 12px', textAlign: 'center', width: '80px' }}>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {formAddOns.map((addon) => (
+                              <tr key={addon.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
+                                <td style={{ padding: '10px 12px' }}>
+                                  <img 
+                                    src={addon.image || 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=100&q=80'} 
+                                    alt="addon" 
+                                    style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #D8DCE3', display: 'block' }} 
+                                  />
+                                </td>
+                                <td style={{ padding: '10px 12px', color: '#0B192C', fontWeight: '600' }}>{addon.title}</td>
+                                <td style={{ padding: '10px 12px', color: '#FFB300', fontWeight: '700' }}>₹{addon.price}</td>
+                                <td style={{ padding: '10px 12px', color: '#4B5563', fontSize: '0.8rem' }}>{addon.inclusions || '—'}</td>
+                                <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveAddOn(addon.id)}
+                                    style={{
+                                      background: 'none', border: 'none', color: '#EF4444',
+                                      cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700'
+                                    }}
+                                  >
+                                    Remove
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div style={{ padding: '20px', textAlign: 'center', background: '#FAFBFC', border: '1px dashed #D8DCE3', borderRadius: '10px', marginBottom: '18px', color: '#9CA3AF', fontSize: '0.85rem' }}>
+                        No custom add-ons added to this design yet.
+                      </div>
+                    )}
+
+                    {/* Inputs to add a new add-on */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr 1.5fr 1.5fr auto', gap: '12px', alignItems: 'end', background: '#F8F9FB', padding: '16px', borderRadius: '12px', border: '1px solid #D8DCE3' }} className="admin-addon-form-row">
+                      <div>
+                        <label style={{ ...S.label, fontSize: '0.68rem', marginBottom: '6px' }}>Add-on Title *</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Welcome Board"
+                          value={newAddOn.title}
+                          onChange={e => setNewAddOn(prev => ({ ...prev, title: e.target.value }))}
+                          style={{ ...S.input, background: '#ffffff' }}
+                          onFocus={onFocus} onBlur={onBlur}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ ...S.label, fontSize: '0.68rem', marginBottom: '6px' }}>Price (₹) *</label>
+                        <input
+                          type="number"
+                          placeholder="e.g. 999"
+                          value={newAddOn.price}
+                          onChange={e => setNewAddOn(prev => ({ ...prev, price: e.target.value }))}
+                          style={{ ...S.input, background: '#ffffff' }}
+                          onFocus={onFocus} onBlur={onBlur}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ ...S.label, fontSize: '0.68rem', marginBottom: '6px' }}>Inclusions (optional)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 1 easel stand, balloon decoration"
+                          value={newAddOn.inclusions}
+                          onChange={e => setNewAddOn(prev => ({ ...prev, inclusions: e.target.value }))}
+                          style={{ ...S.input, background: '#ffffff' }}
+                          onFocus={onFocus} onBlur={onBlur}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ ...S.label, fontSize: '0.68rem', marginBottom: '6px' }}>Add-on Image {addonFile ? '✓' : ''}</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={e => setAddonFile(e.target.files[0])}
+                          style={{
+                            ...S.input,
+                            background: '#ffffff',
+                            padding: '8px 10px',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <button
+                          type="button"
+                          onClick={handleAddAddOn}
+                          disabled={uploadingAddon}
+                          style={{
+                            ...S.addBtn,
+                            padding: '12px 18px',
+                            background: '#0B192C',
+                            color: '#ffffff',
+                            borderRadius: '10px',
+                            fontSize: '0.8rem',
+                            fontWeight: '700',
+                            height: '42px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            whiteSpace: 'nowrap',
+                            opacity: uploadingAddon ? 0.6 : 1,
+                            cursor: uploadingAddon ? 'not-allowed' : 'pointer'
+                          }}
+                        >
+                          {uploadingAddon ? '⏳ Uploading...' : '➕ Add'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Submit */}
                   <div style={{ gridColumn: 'span 2', display: 'flex', gap: '14px', alignItems: 'center' }}>
                     <button type="submit" disabled={uploading} style={S.saveBtn}
@@ -1226,10 +1465,25 @@ const AdminDashboard = ({ setCurrentPage }) => {
                               )}
                             </td>
                             <td style={S.td}>
-                              <span style={{ color: '#4B5563' }}>{d.categoryName}</span>
-                              {d.subcategory && (
+                              <span style={{ color: '#4B5563' }}>
+                                {Array.isArray(d.categories) && d.categories.length > 0
+                                  ? d.categories.map(catId => categories.find(c => c.id === catId)?.name).filter(Boolean).join(', ')
+                                  : d.categoryName}
+                              </span>
+                              {((Array.isArray(d.subcategories) && d.subcategories.length > 0) || d.subcategory) && (
                                 <div style={{ fontSize: '0.75rem', color: '#FFA000', marginTop: '4px', fontWeight: '600' }}>
-                                  ↳ {getSubcategoryLabel(d.category, d.subcategory)}
+                                  ↳ {Array.isArray(d.subcategories) && d.subcategories.length > 0
+                                    ? d.subcategories.map(subId => {
+                                        const parentCat = categories.find(cat => 
+                                          cat.dropdown && cat.dropdown.some(item => {
+                                            if (item.id === subId) return true;
+                                            if (item.dropdown && item.dropdown.some(sub => sub.id === subId)) return true;
+                                            return false;
+                                          })
+                                        );
+                                        return getSubcategoryLabel(parentCat ? parentCat.id : d.category, subId);
+                                      }).filter(Boolean).join(', ')
+                                    : getSubcategoryLabel(d.category, d.subcategory)}
                                 </div>
                               )}
                             </td>

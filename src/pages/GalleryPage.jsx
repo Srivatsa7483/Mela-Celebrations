@@ -117,7 +117,7 @@ const keywordMapping = {
     "mothers-decorations": ["mother", "mom"],
     
     "simple-anniversary": ["simple", "minimalist"],
-    "romantic-room": ["room", "bedroom", "intimate", "candlelight"],
+    "romantic-room": ["room", "bedroom", "intimate"],
     "premium-luxury": ["premium", "luxury", "royal", "grand", "palace"],
     
     "new-year": ["new year", "countdown"],
@@ -247,7 +247,24 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
 
     const isGirlTheme = (d) => {
         const text = (d.name + " " + d.description + " " + d.categoryName).toLowerCase();
-        return text.includes("girl") || text.includes("unicorn") || text.includes("princess") || text.includes("pink") || text.includes("peppa") || text.includes("frozen") || text.includes("butterfly") || text.includes("rose") || text.includes("candlelight") || text.includes("ruby");
+        return text.includes("girl") || text.includes("unicorn") || text.includes("princess") || text.includes("pink") || text.includes("peppa") || text.includes("frozen") || text.includes("butterfly") || text.includes("rose") || text.includes("ruby");
+    };
+
+    const matchesMainCategory = (design, catId) => {
+        if (Array.isArray(design.categories) && design.categories.length > 0) {
+            return design.categories.includes(catId);
+        }
+        return design.category === catId;
+    };
+
+    const matchesSubcategory = (design, subId) => {
+        if (Array.isArray(design.subcategories) && design.subcategories.length > 0) {
+            return design.subcategories.includes(subId);
+        }
+        if (design.subcategory) {
+            return design.subcategory === subId;
+        }
+        return matchSubcategory(design, subId);
     };
 
     const filtered = designs.filter((d) => {
@@ -256,25 +273,22 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
         if (activeCategory === "all") {
             matchCat = true;
         } else if (activeCategory === "decorations") {
-            matchCat = d.category === "decorations" || d.category === "anniversary";
+            matchCat = matchesMainCategory(d, "decorations") || matchesMainCategory(d, "anniversary");
         } else if (activeCategory === "kids-theme") {
             const kidsSubcategories = [
                 "jungle-theme", "superman-theme", "cars-theme", 
                 "mickey-theme", "football-theme", "boss-baby-theme", 
                 "space-theme", "construction-theme", "aeroplane-theme", "paw-patrol-theme"
             ];
-            // Must strictly be a birthday decoration, AND either belong to kids-theme, a nested subcategory, or match a keyword
-            matchCat = d.category === "birthday" && (
-                d.subcategory === "kids-theme" ||
-                kidsSubcategories.includes(d.subcategory) ||
-                kidsSubcategories.some(subId => matchSubcategory(d, subId))
+            matchCat = matchesMainCategory(d, "birthday") && (
+                matchesSubcategory(d, "kids-theme") ||
+                kidsSubcategories.some(subId => matchesSubcategory(d, subId))
             );
         } else if (activeCategory in keywordMapping) {
             const parentCat = getParentCategory(activeCategory);
-            // Must match parent category AND match subcategory ID/keywords
-            matchCat = d.category === parentCat && matchSubcategory(d, activeCategory);
+            matchCat = matchesMainCategory(d, parentCat) && matchesSubcategory(d, activeCategory);
         } else {
-            matchCat = d.category === activeCategory;
+            matchCat = matchesMainCategory(d, activeCategory);
         }
 
         // If a subcategory is active, filter designs matching that subcategory
@@ -284,9 +298,9 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
             // Prevents stale activeSubcategory from overriding when switching categories
             if (parentCat === activeCategory) {
                 if (activeSubcategory === "decorations-anniversary") {
-                    matchCat = (d.category === "decorations" && matchSubcategory(d, "decorations-anniversary")) || d.category === "anniversary";
+                    matchCat = (matchesMainCategory(d, "decorations") && matchesSubcategory(d, "decorations-anniversary")) || matchesMainCategory(d, "anniversary");
                 } else {
-                    matchCat = d.category === parentCat && matchSubcategory(d, activeSubcategory);
+                    matchCat = matchesMainCategory(d, parentCat) && matchesSubcategory(d, activeSubcategory);
                 }
             }
         }

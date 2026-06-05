@@ -55,7 +55,7 @@ export default function Footer({ setCurrentPage }) {
                         <h4 className="footer__brand-name">Mela Celebrations</h4>
                         <p className="footer__brand-tagline">
                             Bengaluru's premier boutique event decorator. Crafting luxury, artisanal aesthetics 
-                            for birthdays, anniversaries, candlelights, and festive celebrations.
+                            for birthdays, anniversaries, and festive celebrations.
                         </p>
                         <div className="footer__social">
                             <a 

@@ -67,13 +67,6 @@ export const categories = [
         ]
     },
     {
-        id: "candlelight",
-        name: "Candle Light Dinner",
-        slug: "candlelight",
-        image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80",
-        count: 11,
-    },
-    {
         id: "kidsactivities",
         name: "Kids Activities",
         slug: "kidsactivities",
@@ -414,14 +407,14 @@ export const designs = [
     {
         id: 3,
         name: "Starlight Garden Gala",
-        category: "candlelight",
-        categoryName: "Candle Light Dinner",
+        category: "anniversary",
+        categoryName: "Anniversary Decorations",
         description: "An ethereal outdoor setup featuring hanging crystal glass and floral canopies.",
         price: 32000,
         originalPrice: 38000,
         badge: null,
         image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=700&q=80",
-        features: ["Overhead Floral Canopy", "Illuminated Garden Paths", "Mirrored Dining Tables"],
+        features: ["Overhead Floral Canopy", "Illuminated Garden Paths", "Mirrored Styling Tables"],
     },
     {
         id: 4,
@@ -578,18 +571,6 @@ export const designs = [
         badge: null,
         image: "https://images.unsplash.com/photo-1574869781294-7b350f71b09f?w=700&q=80",
         features: ["Marigold Garland Arch", "Diya Pathway Lighting", "Traditional Rangoli Art"],
-    },
-    {
-        id: 9,
-        name: "Intimate Candlelight Dinner",
-        category: "candlelight",
-        categoryName: "Candle Light Dinner",
-        description: "A private, romantic dinner setup with candles, petals and soft ambient lighting.",
-        price: 9500,
-        originalPrice: 11500,
-        badge: "BESTSELLER",
-        image: "https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=700&q=80",
-        features: ["Rose Petal Trail", "100 Candle Ambience", "Personalised Menu Card"],
     },
     {
         id: 201,

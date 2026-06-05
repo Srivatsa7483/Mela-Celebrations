@@ -5,19 +5,14 @@ import "./LoginPage.css";
 export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
   const { login, register, isAuthenticated } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("login");
-  const [loginMode, setLoginMode] = useState(initialMode); // "user" or "admin"
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // User login form states
+  // Unified login form states
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-
-  // Admin login form states
-  const [adminUsername, setAdminUsername] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Register form states
   const [regName, setRegName] = useState("");
@@ -25,12 +20,10 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
   const [regPhone, setRegPhone] = useState("");
   const [regPassword, setRegPassword] = useState("");
 
-  // Sync initialMode when it changes (e.g. navigated from /admin)
   useEffect(() => {
-    setLoginMode(initialMode);
     setError("");
     setSuccess("");
-  }, [initialMode]);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -44,62 +37,53 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
     }
   }, [isAuthenticated, setCurrentPage]);
 
-  const switchLoginMode = (mode) => {
-    setLoginMode(mode);
-    setError("");
-    setSuccess("");
-    setLoginEmail("");
-    setLoginPassword("");
-    setAdminUsername("");
-    setAdminPassword("");
-  };
-
-  const handleUserLoginSubmit = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    if (!loginEmail.includes("@")) {
-      setError("Please enter a valid email address");
+
+    const trimmedIdentifier = loginEmail.trim();
+    const trimmedPassword = loginPassword;
+
+    if (!trimmedIdentifier) {
+      setError("Email or Username is required");
       return;
     }
-    if (!loginPassword) {
+    if (!trimmedPassword) {
       setError("Password is required");
       return;
     }
+
     setLoading(true);
+
+    // 1. Check if it matches Admin credentials
+    if (trimmedIdentifier === "Melacelebrations" && trimmedPassword === "Sudha_#06") {
+      setTimeout(() => {
+        sessionStorage.setItem("mela_admin_auth", "true");
+        setSuccess("Admin authenticated! Redirecting...");
+        setTimeout(() => {
+          setCurrentPage("admin-dashboard");
+          setLoading(false);
+        }, 600);
+      }, 800);
+      return;
+    }
+
+    // 2. Otherwise treat as customer login
+    if (!trimmedIdentifier.includes("@")) {
+      setError("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
     try {
-      await login(loginEmail, loginPassword);
+      await login(trimmedIdentifier, trimmedPassword);
       setSuccess("Success! Logging in...");
     } catch (err) {
       setError(err.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAdminLoginSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    if (!adminUsername.trim()) {
-      setError("Username is required");
-      return;
-    }
-    if (!adminPassword) {
-      setError("Password is required");
-      return;
-    }
-    setLoading(true);
-    setTimeout(() => {
-      if (adminUsername === "Melacelebrations" && adminPassword === "Sudha_#06") {
-        sessionStorage.setItem("mela_admin_auth", "true");
-        setSuccess("Admin authenticated! Redirecting...");
-        setTimeout(() => setCurrentPage("admin-dashboard"), 600);
-      } else {
-        setError("Invalid admin credentials. Please try again.");
-        setLoading(false);
-      }
-    }, 800);
   };
 
   const handleRegisterSubmit = async (e) => {
@@ -127,10 +111,8 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
     }
   };
 
-  const isAdminMode = loginMode === "admin";
-
   return (
-    <div className={`login-page-container ${isAdminMode ? "admin-theme" : ""}`}>
+    <div className="login-page-container">
       {/* Decorative Glow Circles */}
       <div className="login-bg-glow login-bg-glow--1"></div>
       <div className="login-bg-glow login-bg-glow--2"></div>
@@ -139,7 +121,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
       <div className="login-card-container">
 
         {/* Card Frame */}
-        <div className={`login-card animate-fade-in ${isAdminMode ? "admin-theme" : ""}`}>
+        <div className="login-card animate-fade-in">
 
           {/* Left Side: Brand Panel */}
           <div className="login-card__image-side">
@@ -155,14 +137,10 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
 
             <div className="login-card__brand-body">
               <h2 className="login-card__marketing-title">
-                {loginMode === "admin"
-                  ? "Welcome, Admin 🛡️"
-                  : "Crafting Magical Moments & Bespoke Decor"}
+                Crafting Magical Moments & Bespoke Decor
               </h2>
               <p className="login-card__brand-desc">
-                {loginMode === "admin"
-                  ? "Sign in to manage designs, orders, and the full Mela Celebrations platform."
-                  : "Log in to explore our range of custom themes, calculate event pricing, and design your perfect celebration."}
+                Log in to explore our range of custom themes, calculate event pricing, and design your perfect celebration.
               </p>
             </div>
 
@@ -171,7 +149,6 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                 <li className="login-card__feature-tag">#Birthday</li>
                 <li className="login-card__feature-tag">#Anniversary</li>
                 <li className="login-card__feature-tag">#Festival</li>
-                <li className="login-card__feature-tag">#Candlelight</li>
               </ul>
             </div>
           </div>
@@ -188,7 +165,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
               </button>
               <button
                 className={`login-tab-btn ${activeTab === "register" ? "active" : ""}`}
-                onClick={() => { setActiveTab("register"); setError(""); setSuccess(""); setLoginMode("user"); }}
+                onClick={() => { setActiveTab("register"); setError(""); setSuccess(""); }}
               >
                 REGISTER
               </button>
@@ -217,172 +194,101 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
 
               {activeTab === "login" ? (
                 <>
-                  {/* ── Mode Toggle: Customer / Admin ── */}
-                  <div className="login-mode-toggle">
-                    <button
-                      type="button"
-                      className={`login-mode-btn ${loginMode === "user" ? "active" : ""}`}
-                      onClick={() => switchLoginMode("user")}
-                    >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <div className="login-welcome-banner">
+                    <div className="login-welcome-banner__deco">
+                      <div className="login-deco-circle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2">
+                          <path d="M12 2L15 8L21 9L16.5 14L18 20L12 17L6 20L7.5 14L3 9L9 8L12 2Z" fill="var(--gold)" />
+                        </svg>
+                      </div>
+                      <div className="login-deco-sparkle login-deco-sparkle--1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L15 8L21 9L16.5 14L18 20L12 17L6 20L7.5 14L3 9L9 8L12 2Z" fill="var(--gold)" />
+                        </svg>
+                      </div>
+                      <div className="login-deco-sparkle login-deco-sparkle--2">
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L15 8L21 9L16.5 14L18 20L12 17L6 20L7.5 14L3 9L9 8L12 2Z" fill="var(--gold)" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="login-welcome-banner__content">
+                      <h2>Welcome Back</h2>
+                      <p>Enter your details to access your account</p>
+                    </div>
+                  </div>
+                  <form onSubmit={handleLoginSubmit}>
+                  <div className="login-form-group">
+                    <label className="login-label">Email or Username</label>
+                    <div className="login-input-wrapper">
+                      <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                       </svg>
-                      Customer Login
-                    </button>
-                    <button
-                      type="button"
-                      className={`login-mode-btn admin-mode ${loginMode === "admin" ? "active" : ""}`}
-                      onClick={() => switchLoginMode("admin")}
-                    >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      </svg>
-                      Admin Login
-                    </button>
-                  </div>
-
-                  {/* Admin badge indicator */}
-                  {loginMode === "admin" && (
-                    <div className="admin-badge">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                      </svg>
-                      Secure Admin Portal
+                      <input
+                        className="login-input"
+                        type="text"
+                        placeholder="you@example.com or Username"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        required
+                        autoComplete="username"
+                      />
                     </div>
-                  )}
-
-                  {/* ── CUSTOMER LOGIN FORM ── */}
-                  {loginMode === "user" && (
-                    <form onSubmit={handleUserLoginSubmit}>
-                      <div className="login-form-group">
-                        <label className="login-label">Email Address</label>
-                        <div className="login-input-wrapper">
-                          <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                            <polyline points="22,6 12,13 2,6" />
-                          </svg>
-                          <input
-                            className="login-input"
-                            type="email"
-                            placeholder="you@example.com"
-                            value={loginEmail}
-                            onChange={(e) => setLoginEmail(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="login-form-group" style={{ marginBottom: "26px" }}>
-                        <label className="login-label">Password</label>
-                        <div className="login-input-wrapper">
-                          <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
-                          <input
-                            className="login-input"
-                            type="password"
-                            placeholder="••••••••"
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <button className="login-btn" type="submit" disabled={loading}>
-                        {loading ? (
-                          <span>Logging in...</span>
-                        ) : (
-                          <>
-                            <span>Log In</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-                            </svg>
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  )}
-
-                  {/* ── ADMIN LOGIN FORM ── */}
-                  {loginMode === "admin" && (
-                    <form onSubmit={handleAdminLoginSubmit}>
-                      <div className="login-form-group">
-                        <label className="login-label">Admin Username</label>
-                        <div className="login-input-wrapper">
-                          <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                          </svg>
-                          <input
-                            className="login-input"
-                            type="text"
-                            placeholder="Enter admin username"
-                            value={adminUsername}
-                            onChange={(e) => setAdminUsername(e.target.value)}
-                            required
-                            autoComplete="username"
-                          />
-                        </div>
-                      </div>
-                      <div className="login-form-group" style={{ marginBottom: "26px" }}>
-                        <label className="login-label">Admin Password</label>
-                        <div className="login-input-wrapper" style={{ position: "relative" }}>
-                          <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
-                          <input
-                            className="login-input"
-                            type={showAdminPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            value={adminPassword}
-                            onChange={(e) => setAdminPassword(e.target.value)}
-                            required
-                            style={{ paddingRight: "48px" }}
-                            autoComplete="current-password"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowAdminPassword(!showAdminPassword)}
-                            style={{
-                              position: "absolute", right: "14px", top: "50%",
-                              transform: "translateY(-50%)",
-                              background: "none", border: "none",
-                              color: "#94a3b8", cursor: "pointer",
-                              fontSize: "1rem", padding: 0, lineHeight: 1
-                            }}
-                          >
-                            {showAdminPassword ? "🙈" : "👁️"}
-                          </button>
-                        </div>
-                      </div>
+                  </div>
+                  <div className="login-form-group" style={{ marginBottom: "26px" }}>
+                    <label className="login-label">Password</label>
+                    <div className="login-input-wrapper" style={{ position: "relative" }}>
+                      <svg className="login-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                      <input
+                        className="login-input"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        required
+                        style={{ paddingRight: "48px" }}
+                        autoComplete="current-password"
+                      />
                       <button
-                        className="login-btn login-btn--admin"
-                        type="submit"
-                        disabled={loading}
-                        style={!loading ? {
-                          background: "linear-gradient(135deg, var(--chrome-yellow) 0%, var(--chrome-yellow-dark) 100%)",
-                          boxShadow: "0 4px 15px rgba(255, 179, 0, 0.3)",
-                          color: "var(--admin-navy)",
-                          fontWeight: "700"
-                        } : {}}
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: "absolute", right: "14px", top: "50%",
+                          transform: "translateY(-50%)",
+                          background: "none", border: "none",
+                          color: "#94a3b8", cursor: "pointer",
+                          fontSize: "1rem", padding: 0, lineHeight: 1
+                        }}
                       >
-                        {loading ? (
-                          <span>Authenticating...</span>
-                        ) : (
-                          <>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            </svg>
-                            <span>Sign In as Admin</span>
-                          </>
-                        )}
+                        {showPassword ? "🙈" : "👁️"}
                       </button>
-                    </form>
-                  )}
+                    </div>
+                  </div>
+                  <button className="login-btn" type="submit" disabled={loading}>
+                    {loading ? (
+                      <span>Logging in...</span>
+                    ) : (
+                      <>
+                        <span>Log In</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </form>
                 </>
               ) : (
                 /* ── REGISTER FORM ── */
-                <form onSubmit={handleRegisterSubmit}>
+                <>
+                  <div className="login-form-header">
+                    <h2>Create Account</h2>
+                    <p>Join Mela to plan your perfect event</p>
+                  </div>
+                  <form onSubmit={handleRegisterSubmit}>
                   <div className="login-form-group">
                     <label className="login-label">Full Name</label>
                     <div className="login-input-wrapper">
@@ -463,6 +369,7 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
                     )}
                   </button>
                 </form>
+                </>
               )}
             </div>
           </div>
