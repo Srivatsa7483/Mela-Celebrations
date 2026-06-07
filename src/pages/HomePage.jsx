@@ -11,6 +11,7 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
     const { categories, designs } = useContext(DesignContext);
     return (
         <main>
+            <h1 className="sr-only">Mela Celebrations — Premium Event Décor, Wedding Styling & Balloon Artistry in Bengaluru</h1>
             <Hero setCurrentPage={setCurrentPage} setActiveCategory={setActiveCategory} setSearchQuery={setSearchQuery} />
             
             {/* Scrolling Marquee Below Hero */}
