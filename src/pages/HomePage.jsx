@@ -13,7 +13,7 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
         <main>
             <h1 className="sr-only">Mela Celebrations — Premium Event Décor, Wedding Styling & Balloon Artistry in Bengaluru</h1>
             <Hero setCurrentPage={setCurrentPage} setActiveCategory={setActiveCategory} setSearchQuery={setSearchQuery} />
-            
+
             {/* Scrolling Marquee Below Hero */}
             <div className="homepage__marquee">
                 <div className="homepage__marquee-track">
@@ -27,7 +27,7 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
                     <span className="homepage__marquee-separator">✦</span>
                     <span className="homepage__marquee-item">Complete Event Management</span>
                     <span className="homepage__marquee-separator">✦</span>
-                    
+
                     {/* Duplicate for seamless loop */}
                     <span className="homepage__marquee-item" aria-hidden="true">Customized Balloon Decorations</span>
                     <span className="homepage__marquee-separator" aria-hidden="true">✦</span>
@@ -52,17 +52,17 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
                     }
                     return d.category === category.id;
                 });
-                
+
                 // Only show a strip if there are designs for this category
                 if (categoryDesigns.length === 0) return null;
 
                 return (
-                    <CategoryStrip 
+                    <CategoryStrip
                         key={category.id}
-                        title={category.name} 
-                        categoryId={category.id} 
-                        designs={categoryDesigns} 
-                        setCurrentPage={setCurrentPage} 
+                        title={category.name}
+                        categoryId={category.id}
+                        designs={categoryDesigns}
+                        setCurrentPage={setCurrentPage}
                         setActiveCategory={setActiveCategory}
                         setSelectedDesign={setSelectedDesign}
                         navigateToProduct={navigateToProduct}
