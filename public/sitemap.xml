@@ -28,12 +28,61 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <!-- Birthday Decoration (SEO Sitelink) -->
+  <url>
+    <loc>https://www.melacelebrations.com/birthday-decoration</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- Balloon Decoration (SEO Sitelink) -->
+  <url>
+    <loc>https://www.melacelebrations.com/balloon-decoration</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
   <!-- Anniversary Decorations Page -->
   <url>
     <loc>https://www.melacelebrations.com/anniversary</loc>
     <lastmod>2026-08-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <!-- Anniversary Decoration (SEO Sitelink) -->
+  <url>
+    <loc>https://www.melacelebrations.com/anniversary-decoration</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- Baby Shower Decoration (SEO Sitelink) -->
+  <url>
+    <loc>https://www.melacelebrations.com/baby-shower-decoration</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- Welcome Baby Decoration (SEO Sitelink) -->
+  <url>
+    <loc>https://www.melacelebrations.com/welcome-baby-decoration</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- 1st Birthday Decoration (SEO Sitelink) -->
+  <url>
+    <loc>https://www.melacelebrations.com/1st-birthday-decoration</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- Themes Page (SEO Sitelink) -->
+  <url>
+    <loc>https://www.melacelebrations.com/themes</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <!-- Gallery Page -->
   <url>

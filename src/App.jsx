@@ -370,7 +370,12 @@ function AppContent() {
     if (path.startsWith('product/')) return 'product-detail';
     
     // Map alias routes to their respective page targets
-    if (path === 'birthday' || path === 'anniversary' || path === 'services') {
+    const galleryAliases = [
+      'birthday', 'anniversary', 'services', 'gallery', 'themes',
+      'birthday-decoration', 'balloon-decoration', 'anniversary-decoration',
+      'baby-shower-decoration', 'welcome-baby-decoration', '1st-birthday-decoration'
+    ];
+    if (galleryAliases.includes(path)) {
       return 'gallery';
     }
     
@@ -392,9 +397,24 @@ function AppContent() {
   const getInitialCategory = () => {
     if (typeof window === "undefined") return "all";
     const path = window.location.pathname.replace(/^\//, "");
-    if (path === 'birthday') return 'birthday';
-    if (path === 'anniversary') return 'anniversary';
-    return "all";
+    switch (path) {
+      case 'birthday':
+      case 'birthday-decoration':
+        return 'birthday';
+      case 'anniversary':
+      case 'anniversary-decoration':
+        return 'anniversary';
+      case 'balloon-decoration':
+        return 'decorations';
+      case 'baby-shower-decoration':
+        return 'baby-shower-decorations';
+      case 'welcome-baby-decoration':
+        return 'welcome-baby-decorations';
+      case '1st-birthday-decoration':
+        return 'first-birthday-decorations';
+      default:
+        return 'all';
+    }
   };
 
   const [currentPage, setCurrentPage] = useState(getInitialPage);
