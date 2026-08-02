@@ -16,6 +16,7 @@ import RecentGalleryPage from './pages/RecentGalleryPage.jsx';
 import FAQPage from './pages/FAQPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
+import AboutPage from './pages/AboutPage.jsx';
 // AdminLogin.jsx deprecated — admin login is now integrated into LoginPage
 import AdminDashboardPage from './components/admin/AdminDashboard.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
@@ -367,7 +368,13 @@ function AppContent() {
     if (typeof window === "undefined") return "home";
     const path = window.location.pathname.replace(/^\//, "");
     if (path.startsWith('product/')) return 'product-detail';
-    const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact', 'faqs', 'privacy', 'terms', 'product-detail'];
+    
+    // Map alias routes to their respective page targets
+    if (path === 'birthday' || path === 'anniversary' || path === 'services') {
+      return 'gallery';
+    }
+    
+    const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact', 'faqs', 'privacy', 'terms', 'product-detail', 'about'];
     return validPages.includes(path) ? path : "home";
   };
 
@@ -382,10 +389,18 @@ function AppContent() {
     return null;
   };
 
+  const getInitialCategory = () => {
+    if (typeof window === "undefined") return "all";
+    const path = window.location.pathname.replace(/^\//, "");
+    if (path === 'birthday') return 'birthday';
+    if (path === 'anniversary') return 'anniversary';
+    return "all";
+  };
+
   const [currentPage, setCurrentPage] = useState(getInitialPage);
   const [selectedDesign, setSelectedDesign] = useState(null);
   const [selectedProductId, setSelectedProductId] = useState(getInitialProductId);
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategory, setActiveCategory] = useState(getInitialCategory);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [spinModalOpen, setSpinModalOpen] = useState(false);
@@ -487,6 +502,8 @@ function AppContent() {
         return <FAQPage setCurrentPage={navigateToPage} />;
       case 'privacy':
         return <PrivacyPage setCurrentPage={navigateToPage} />;
+      case 'about':
+        return <AboutPage setCurrentPage={navigateToPage} />;
       case 'terms':
         return <TermsPage setCurrentPage={navigateToPage} />;
       case 'admin':

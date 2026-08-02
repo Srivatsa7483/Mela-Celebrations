@@ -1,0 +1,197 @@
+.about-page {
+    padding-top: calc(var(--navbar-height, 143px) + 24px);
+    min-height: 100vh;
+    background-color: var(--white);
+}
+
+.about-page__header {
+    background: var(--navy);
+    padding: 85px 0 65px;
+    text-align: center;
+    margin-bottom: 48px;
+    border-bottom: 2px solid rgba(201, 168, 76, 0.2);
+}
+
+.about-page__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--white);
+    margin: 12px 0 16px;
+}
+
+.about-page__sub {
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.about-page__content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+
+/* Brand Story Section */
+.about-story-section {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 48px;
+    align-items: center;
+    margin-bottom: 80px;
+}
+
+.about-story-body h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    color: var(--navy);
+    margin-bottom: 24px;
+    font-weight: 700;
+}
+
+.about-story-body p {
+    font-family: var(--font-sans);
+    font-size: 1.02rem;
+    line-height: 1.75;
+    color: var(--text-body);
+    margin-bottom: 18px;
+}
+
+.about-story-body p:last-child {
+    margin-bottom: 0;
+}
+
+.about-story-media {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    aspect-ratio: 4 / 3;
+}
+
+.about-story-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.about-story-media:hover .about-story-img {
+    transform: scale(1.05);
+}
+
+/* Core Values Section */
+.about-values-section {
+    margin-bottom: 80px;
+}
+
+.about-values-heading {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    color: var(--navy);
+    margin-bottom: 36px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.about-values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 28px;
+}
+
+.value-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.value-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-card);
+}
+
+.value-card__icon {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.value-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--navy);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.value-card p {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-body);
+}
+
+/* Call to Action Section */
+.about-page__cta {
+    text-align: center;
+    padding: 56px 40px;
+    background: var(--section-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+}
+
+.about-page__cta h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    color: var(--navy);
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.about-page__cta p {
+    font-family: var(--font-sans);
+    color: var(--text-body);
+    margin-bottom: 32px;
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.about-cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+    .about-story-section {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    
+    .about-story-media {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .about-page__cta {
+        padding: 36px 20px;
+    }
+}
