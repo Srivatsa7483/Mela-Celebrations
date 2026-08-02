@@ -32,7 +32,7 @@ import SpinWheelModal from './components/ui/SpinWheelModal.jsx';
 
 // Loader Redesign Imports
 import Celebration3DCanvas from './components/home/Celebration3DCanvas.jsx';
-import { testimonials as staticTestimonials } from './data/index.js';
+import { testimonials as staticTestimonials, categories as staticCategories } from './data/index.js';
 import './styles/loader.css';
 
 // Helper component for counting numbers when scrolled into view
@@ -360,6 +360,42 @@ function ClientRenderWakeupError({ onRetry }) {
   );
 }
 
+// Helper utilities for dynamic category alias routing
+const getAllCategoryIds = (cats) => {
+  const ids = [];
+  const recurse = (list) => {
+    if (!list) return;
+    list.forEach(item => {
+      if (item.id) ids.push(item.id);
+      if (item.dropdown) recurse(item.dropdown);
+    });
+  };
+  recurse(cats);
+  return ids;
+};
+
+const normalizeCategoryString = (str) => {
+  return str.toLowerCase()
+    .replace(/^1st-/, "first-")
+    .replace(/-(decorations|decoration|setups|setup|decor|party|events|event|activities|activity)$/g, "");
+};
+
+const findMatchedCategory = (path, cats) => {
+  if (!cats || !path) return null;
+  const allIds = getAllCategoryIds(cats);
+  const normPath = normalizeCategoryString(path);
+  
+  if (normPath === "balloon") return "decorations";
+  
+  // Find exact match or normalized match
+  const matched = allIds.find(id => {
+    return id.toLowerCase() === path.toLowerCase() || 
+           normalizeCategoryString(id) === normPath;
+  });
+  
+  return matched || null;
+};
+
 function AppContent() {
   const { isAuthenticated } = useContext(AuthContext);
   const { loading, error } = useContext(DesignContext);
@@ -369,13 +405,8 @@ function AppContent() {
     const path = window.location.pathname.replace(/^\//, "");
     if (path.startsWith('product/')) return 'product-detail';
     
-    // Map alias routes to their respective page targets
-    const galleryAliases = [
-      'birthday', 'anniversary', 'services', 'gallery', 'themes',
-      'birthday-decoration', 'balloon-decoration', 'anniversary-decoration',
-      'baby-shower-decoration', 'welcome-baby-decoration', '1st-birthday-decoration'
-    ];
-    if (galleryAliases.includes(path)) {
+    // Map alias routes dynamically to gallery page
+    if (path === 'services' || path === 'themes' || findMatchedCategory(path, staticCategories)) {
       return 'gallery';
     }
     
@@ -397,24 +428,8 @@ function AppContent() {
   const getInitialCategory = () => {
     if (typeof window === "undefined") return "all";
     const path = window.location.pathname.replace(/^\//, "");
-    switch (path) {
-      case 'birthday':
-      case 'birthday-decoration':
-        return 'birthday';
-      case 'anniversary':
-      case 'anniversary-decoration':
-        return 'anniversary';
-      case 'balloon-decoration':
-        return 'decorations';
-      case 'baby-shower-decoration':
-        return 'baby-shower-decorations';
-      case 'welcome-baby-decoration':
-        return 'welcome-baby-decorations';
-      case '1st-birthday-decoration':
-        return 'first-birthday-decorations';
-      default:
-        return 'all';
-    }
+    const matched = findMatchedCategory(path, staticCategories);
+    return matched || "all";
   };
 
   const [currentPage, setCurrentPage] = useState(getInitialPage);
