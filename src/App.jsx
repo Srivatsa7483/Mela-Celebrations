@@ -628,7 +628,7 @@ function AppContent() {
 
   const navigateToPage = (page) => {
     if (page === 'gallery') {
-      if (currentPage !== 'gallery') {
+      if (!window.location.pathname.startsWith('/gallery')) {
         navigateToGallery('all', null);
       }
       return;
