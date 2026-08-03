@@ -1,0 +1,12 @@
+# Robots.txt for Mela Celebrations
+User-agent: *
+Allow: /
+
+# Disallow admin pages and private user dashboards
+Disallow: /admin
+Disallow: /admin-dashboard
+Disallow: /dashboard
+Disallow: /login
+
+# Sitemap link
+Sitemap: https://www.melacelebrations.com/sitemap.xml

@@ -9,5 +9,8 @@ RewriteRule ^api/(.*)$ https://mela-celebrations.onrender.com/api/$1 [P,L]
 
 # ── React Router SPA fallback ─────────────────────────────────────────────────
 # Send all non-file routes to index.html for client-side routing
+# Explicitly bypass sitemap.xml and robots.txt so they are not rewritten
+RewriteCond %{REQUEST_URI} !/sitemap\.xml$ [NC]
+RewriteCond %{REQUEST_URI} !/robots\.txt$ [NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.html [QSA,L]
