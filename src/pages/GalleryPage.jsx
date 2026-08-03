@@ -7,7 +7,7 @@ function formatPrice(p) {
     return "₹" + p.toLocaleString("en-IN");
 }
 
-const getParentCategory = (id) => {
+export const getParentCategory = (id) => {
     const mapping = {
         // Birthday subcategories
         "wall-decorations": "birthday",
@@ -172,7 +172,7 @@ const matchSubcategory = (design, subId) => {
     return keywords.some(kw => text.includes(kw));
 };
 
-export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, searchQuery, setSearchQuery, navigateToProduct }) {
+export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeCategory, setActiveCategory, activeSubcategory, setActiveSubcategory, searchQuery, setSearchQuery, navigateToProduct }) {
     const { designs, categories } = useContext(DesignContext);
     const { wishlist, toggleWishlist } = useContext(OrderContext);
     const [visibleCards, setVisibleCards] = useState(new Set());
@@ -186,9 +186,6 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
     const [sortBy, setSortBy] = useState("relevance");
     const [isSortOpen, setIsSortOpen] = useState(false);
 
-    // Subcategory selection state
-    const [activeSubcategory, setActiveSubcategory] = useState(null);
-
     const showThemeFilter = getParentCategory(activeCategory) === "birthday" || getParentCategory(activeCategory) === "kidsactivities";
 
     useEffect(() => {
@@ -196,23 +193,6 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
             setGenderFilter("all");
         }
     }, [activeCategory, showThemeFilter]);
-
-    // Reset subcategory when main category changes, unless the new main category is the parent of the subcategory.
-    // Also, if activeCategory is set to a subcategory ID, transition it to its parent category and select the subcategory.
-    useEffect(() => {
-        const parent = getParentCategory(activeCategory);
-        if (parent !== activeCategory) {
-            setActiveCategory(parent);
-            setActiveSubcategory(activeCategory);
-        } else {
-            if (activeSubcategory) {
-                const subParent = getParentCategory(activeSubcategory);
-                if (subParent !== activeCategory) {
-                    setActiveSubcategory(null);
-                }
-            }
-        }
-    }, [activeCategory]);
 
     // Get subcategories for currently selected main category
     const getSubcategoryPills = () => {

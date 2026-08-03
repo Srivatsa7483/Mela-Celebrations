@@ -2,7 +2,7 @@ import { useState, useEffect, useContext, useRef } from 'react';
 import Navbar from './components/layout/Navbar.jsx';
 import Footer from './components/layout/Footer.jsx';
 import HomePage from './pages/HomePage.jsx';
-import GalleryPage from './pages/GalleryPage.jsx';
+import GalleryPage, { getParentCategory } from './pages/GalleryPage.jsx';
 import OrderPage from './pages/OrderPage.jsx';
 import HowItWorksPage from './pages/HowItWorksPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
@@ -396,24 +396,155 @@ const findMatchedCategory = (path, cats) => {
   return matched || null;
 };
 
+// Mapping tables for dynamic SEO categories
+const categoryIdToSlug = {
+  'all': '',
+  'birthday': 'birthday-decorations',
+  'decorations': 'decorations',
+  'anniversary': 'anniversary-decorations',
+  'kidsactivities': 'kids-activities',
+  'flower': 'flower-decorations',
+  'festival': 'festival-decor',
+  'corporate': 'corporate-events'
+};
+
+const subcategoryIdToSlug = {
+  'decorations-anniversary': 'anniversary-decoration',
+  'baby-shower-decorations': 'baby-shower-decoration',
+  'welcome-baby-decorations': 'welcome-baby-decoration',
+  'naming-ceremony-decorations': 'naming-ceremony-decoration',
+  'room-decorations': 'room-decoration',
+  'haldi-decorations': 'haldi-decoration',
+  'retirement-party-decorations': 'retirement-party-decoration',
+  'bachelorette-party-decorations': 'bachelorette-party-decoration',
+  'first-night-decorations': 'first-night-decoration',
+  'valentines-decorations': 'valentines-decoration',
+  'mothers-decorations': 'mothers-decoration',
+  'romantic-room': 'romantic-room-decoration',
+  'simple-anniversary': 'simple-anniversary-setup',
+  'premium-luxury': 'premium-luxury-decoration',
+};
+
+const slugToCategoryId = {
+  'birthday-decorations': 'birthday',
+  'birthday-decoration': 'birthday',
+  'birthday': 'birthday',
+  'decorations': 'decorations',
+  'balloon-decoration': 'decorations',
+  'balloon-decorations': 'decorations',
+  'anniversary-decorations': 'anniversary',
+  'anniversary-decoration': 'anniversary',
+  'anniversary': 'anniversary',
+  'kids-activities': 'kidsactivities',
+  'kidsactivities': 'kidsactivities',
+  'flower-decorations': 'flower',
+  'flower-decoration': 'flower',
+  'flower': 'flower',
+  'festival-decor': 'festival',
+  'festival': 'festival',
+  'corporate-events': 'corporate',
+  'corporate': 'corporate'
+};
+
+const slugToSubcategoryId = {
+  'anniversary-decoration': 'decorations-anniversary',
+  'baby-shower-decoration': 'baby-shower-decorations',
+  'baby-shower-decorations': 'baby-shower-decorations',
+  'welcome-baby-decoration': 'welcome-baby-decorations',
+  'welcome-baby-decorations': 'welcome-baby-decorations',
+  'naming-ceremony-decoration': 'naming-ceremony-decorations',
+  'naming-ceremony-decorations': 'naming-ceremony-decorations',
+  'room-decoration': 'room-decorations',
+  'room-decorations': 'room-decorations',
+  'haldi-decoration': 'haldi-decorations',
+  'haldi-decorations': 'haldi-decorations',
+  'retirement-party-decoration': 'retirement-party-decorations',
+  'retirement-party-decorations': 'retirement-party-decorations',
+  'bachelorette-party-decoration': 'bachelorette-party-decorations',
+  'bachelorette-party-decorations': 'bachelorette-party-decorations',
+  'first-night-decoration': 'first-night-decorations',
+  'first-night-decorations': 'first-night-decorations',
+  'valentines-decoration': 'valentines-decorations',
+  'valentines-decorations': 'valentines-decorations',
+  'mothers-decoration': 'mothers-decorations',
+  'mothers-decorations': 'mothers-decorations',
+  '1st-birthday-decoration': 'first-birthday-decorations',
+  'first-birthday-decorations': 'first-birthday-decorations',
+  'romantic-room-decoration': 'romantic-room',
+  'romantic-room': 'romantic-room',
+  'simple-anniversary-setup': 'simple-anniversary',
+  'simple-anniversary': 'simple-anniversary',
+  'premium-luxury-decoration': 'premium-luxury',
+  'premium-luxury': 'premium-luxury'
+};
+
+const getSlugFromCategoryId = (id) => {
+  return categoryIdToSlug[id] || id.toLowerCase().replace(/_/g, '-');
+};
+
+const getCategoryIdFromSlug = (slug) => {
+  return slugToCategoryId[slug.toLowerCase()] || slug.toLowerCase().replace(/-/g, '_');
+};
+
+const getSlugFromSubcategoryId = (id) => {
+  return subcategoryIdToSlug[id] || id.toLowerCase().replace(/_/g, '-').replace(/-decorations$/, '-decoration');
+};
+
+const getSubcategoryIdFromSlug = (slug) => {
+  return slugToSubcategoryId[slug.toLowerCase()] || slug.toLowerCase().replace(/-/g, '_');
+};
+
+const parseCurrentPath = () => {
+  if (typeof window === "undefined") {
+    return { page: 'home', category: 'all', subcategory: null };
+  }
+  const pathParts = window.location.pathname.replace(/^\//, "").split("/");
+  const firstSegment = pathParts[0] || 'home';
+  
+  if (firstSegment === 'gallery') {
+    const categorySlug = pathParts[1] || null;
+    const subcategorySlug = pathParts[2] || null;
+    
+    let activeCat = 'all';
+    let activeSub = null;
+    
+    if (categorySlug) {
+      activeCat = getCategoryIdFromSlug(categorySlug);
+    }
+    if (subcategorySlug) {
+      activeSub = getSubcategoryIdFromSlug(subcategorySlug);
+    }
+    
+    return { page: 'gallery', category: activeCat, subcategory: activeSub };
+  }
+  
+  // Legacy aliases
+  if (firstSegment === 'services' || firstSegment === 'themes') {
+    return { page: 'gallery', category: 'all', subcategory: null };
+  }
+  
+  const matchedCat = findMatchedCategory(firstSegment, staticCategories);
+  if (matchedCat) {
+    const parent = getParentCategory(matchedCat);
+    if (parent !== matchedCat) {
+      return { page: 'gallery', category: parent, subcategory: matchedCat };
+    }
+    return { page: 'gallery', category: matchedCat, subcategory: null };
+  }
+  
+  if (firstSegment.startsWith('product/')) {
+    return { page: 'product-detail', category: 'all', subcategory: null };
+  }
+  
+  const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact', 'faqs', 'privacy', 'terms', 'product-detail', 'about'];
+  const page = validPages.includes(firstSegment) ? firstSegment : 'home';
+  return { page, category: 'all', subcategory: null };
+};
+
 function AppContent() {
   const { isAuthenticated } = useContext(AuthContext);
   const { loading, error } = useContext(DesignContext);
   
-  const getInitialPage = () => {
-    if (typeof window === "undefined") return "home";
-    const path = window.location.pathname.replace(/^\//, "");
-    if (path.startsWith('product/')) return 'product-detail';
-    
-    // Map alias routes dynamically to gallery page
-    if (path === 'services' || path === 'themes' || findMatchedCategory(path, staticCategories)) {
-      return 'gallery';
-    }
-    
-    const validPages = ['home', 'gallery', 'order', 'how-it-works', 'login', 'dashboard', 'calculator', 'customizer', 'recent-gallery', 'admin', 'admin-dashboard', 'contact', 'faqs', 'privacy', 'terms', 'product-detail', 'about'];
-    return validPages.includes(path) ? path : "home";
-  };
-
   // Extract product ID from URL on load (e.g. /product/101)
   const getInitialProductId = () => {
     if (typeof window === "undefined") return null;
@@ -425,17 +556,12 @@ function AppContent() {
     return null;
   };
 
-  const getInitialCategory = () => {
-    if (typeof window === "undefined") return "all";
-    const path = window.location.pathname.replace(/^\//, "");
-    const matched = findMatchedCategory(path, staticCategories);
-    return matched || "all";
-  };
-
-  const [currentPage, setCurrentPage] = useState(getInitialPage);
+  const initialRoute = parseCurrentPath();
+  const [currentPage, setCurrentPage] = useState(initialRoute.page);
+  const [activeCategory, setActiveCategory] = useState(initialRoute.category);
+  const [activeSubcategory, setActiveSubcategory] = useState(initialRoute.subcategory);
   const [selectedDesign, setSelectedDesign] = useState(null);
   const [selectedProductId, setSelectedProductId] = useState(getInitialProductId);
-  const [activeCategory, setActiveCategory] = useState(getInitialCategory);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [spinModalOpen, setSpinModalOpen] = useState(false);
@@ -449,34 +575,69 @@ function AppContent() {
     }
   }, [isAuthenticated]);
 
-
-
   useEffect(() => {
     // Handle browser back/forward buttons
     const handlePopState = (event) => {
-      if (event.state && event.state.page) {
-        setCurrentPage(event.state.page);
-        if (event.state.productId) {
-          setSelectedProductId(event.state.productId);
-        }
-      } else {
-        setCurrentPage('home');
+      const currentRoute = parseCurrentPath();
+      setCurrentPage(currentRoute.page);
+      setActiveCategory(currentRoute.category);
+      setActiveSubcategory(currentRoute.subcategory);
+      if (event.state && event.state.productId) {
+        setSelectedProductId(event.state.productId);
       }
     };
 
-    const initialPage = getInitialPage();
+    const initialPage = initialRoute.page;
     if (!window.history.state) {
-      window.history.replaceState({ page: initialPage }, '', `/${initialPage === 'home' ? '' : initialPage}`);
+      let initialPath = window.location.pathname;
+      window.history.replaceState({ page: initialPage, category: initialRoute.category, subcategory: initialRoute.subcategory }, '', initialPath);
     }
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const navigateToGallery = (cat, sub = null) => {
+    let resolvedCat = cat || 'all';
+    let resolvedSub = sub;
+    
+    // Resolve if cat is actually a subcategory ID
+    const parent = getParentCategory(resolvedCat);
+    if (parent !== resolvedCat) {
+      resolvedSub = resolvedCat;
+      resolvedCat = parent;
+    }
+    
+    const catSlug = resolvedCat !== 'all' ? getSlugFromCategoryId(resolvedCat) : '';
+    const subSlug = resolvedSub ? getSlugFromSubcategoryId(resolvedSub) : '';
+    
+    let path = '/gallery';
+    if (catSlug) {
+      path += `/${catSlug}`;
+      if (subSlug) {
+        path += `/${subSlug}`;
+      }
+    }
+    
+    window.history.pushState({ page: 'gallery', category: resolvedCat, subcategory: resolvedSub }, '', path);
+    setCurrentPage('gallery');
+    setActiveCategory(resolvedCat);
+    setActiveSubcategory(resolvedSub);
+    window.scrollTo(0, 0);
+  };
+
   const navigateToPage = (page) => {
+    if (page === 'gallery') {
+      if (currentPage !== 'gallery') {
+        navigateToGallery('all', null);
+      }
+      return;
+    }
     if (page !== currentPage) {
       window.history.pushState({ page }, '', `/${page === 'home' ? '' : page}`);
       setCurrentPage(page);
+      setActiveCategory('all');
+      setActiveSubcategory(null);
       window.scrollTo(0, 0);
     }
   };
@@ -495,7 +656,7 @@ function AppContent() {
           <HomePage 
             setCurrentPage={navigateToPage} 
             setSelectedDesign={setSelectedDesign} 
-            setActiveCategory={setActiveCategory} 
+            setActiveCategory={navigateToGallery} 
             setSearchQuery={setSearchQuery}
             navigateToProduct={navigateToProduct}
           />
@@ -506,7 +667,9 @@ function AppContent() {
             setCurrentPage={navigateToPage} 
             setSelectedDesign={setSelectedDesign} 
             activeCategory={activeCategory} 
-            setActiveCategory={setActiveCategory} 
+            setActiveCategory={navigateToGallery} 
+            activeSubcategory={activeSubcategory}
+            setActiveSubcategory={(subId) => navigateToGallery(activeCategory, subId)}
             searchQuery={searchQuery} 
             setSearchQuery={setSearchQuery}
             navigateToProduct={navigateToProduct}
