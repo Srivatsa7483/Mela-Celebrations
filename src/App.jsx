@@ -722,7 +722,7 @@ function AppContent() {
           <HomePage 
             setCurrentPage={navigateToPage} 
             setSelectedDesign={setSelectedDesign} 
-            setActiveCategory={setActiveCategory} 
+            setActiveCategory={navigateToGallery} 
             setSearchQuery={setSearchQuery}
             navigateToProduct={navigateToProduct}
           />
@@ -753,7 +753,7 @@ function AppContent() {
       <Navbar 
         currentPage={currentPage} 
         setCurrentPage={navigateToPage} 
-        setActiveCategory={setActiveCategory} 
+        setActiveCategory={navigateToGallery} 
         setSearchQuery={setSearchQuery} 
       />
       
