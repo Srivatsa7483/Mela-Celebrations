@@ -1,16 +1,59 @@
 Options -MultiViews
 RewriteEngine On
 
-# ── Proxy /api/* requests to Render backend ──────────────────────────────────
+# ── 1. Enforce HTTPS & WWW ────────────────────────────────────────────────────
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^melacelebrations\.com$ [NC]
+RewriteRule ^(.*)$ https://www.melacelebrations.com/$1 [R=301,L]
+
+# ── 2. Canonical Slugs 301 Redirects ──────────────────────────────────────────
+# Redirect category duplicates to preferred canonical versions
+RewriteRule ^birthday$ https://www.melacelebrations.com/birthday-decorations [R=301,NC,L]
+RewriteRule ^birthday-decoration$ https://www.melacelebrations.com/birthday-decorations [R=301,NC,L]
+
+RewriteRule ^balloon-decoration$ https://www.melacelebrations.com/decorations [R=301,NC,L]
+RewriteRule ^balloon-decorations$ https://www.melacelebrations.com/decorations [R=301,NC,L]
+
+RewriteRule ^anniversary$ https://www.melacelebrations.com/anniversary-decorations [R=301,NC,L]
+RewriteRule ^anniversary-decoration$ https://www.melacelebrations.com/anniversary-decorations [R=301,NC,L]
+
+RewriteRule ^kidsactivities$ https://www.melacelebrations.com/kids-activities [R=301,NC,L]
+
+RewriteRule ^flower$ https://www.melacelebrations.com/flower-decorations [R=301,NC,L]
+RewriteRule ^flower-decoration$ https://www.melacelebrations.com/flower-decorations [R=301,NC,L]
+
+RewriteRule ^festival$ https://www.melacelebrations.com/festival-decor [R=301,NC,L]
+RewriteRule ^festival-decorations$ https://www.melacelebrations.com/festival-decor [R=301,NC,L]
+
+RewriteRule ^corporate$ https://www.melacelebrations.com/corporate-events [R=301,NC,L]
+RewriteRule ^corporate-event$ https://www.melacelebrations.com/corporate-events [R=301,NC,L]
+
+# Redirect subcategory duplicates to preferred canonical versions
+RewriteRule ^decorations-anniversary$ https://www.melacelebrations.com/anniversary-decoration [R=301,NC,L]
+RewriteRule ^baby-shower-decorations$ https://www.melacelebrations.com/baby-shower-decoration [R=301,NC,L]
+RewriteRule ^welcome-baby-decorations$ https://www.melacelebrations.com/welcome-baby-decoration [R=301,NC,L]
+RewriteRule ^naming-ceremony-decorations$ https://www.melacelebrations.com/naming-ceremony-decoration [R=301,NC,L]
+RewriteRule ^room-decorations$ https://www.melacelebrations.com/room-decoration [R=301,NC,L]
+RewriteRule ^haldi-decorations$ https://www.melacelebrations.com/haldi-decoration [R=301,NC,L]
+RewriteRule ^retirement-party-decorations$ https://www.melacelebrations.com/retirement-party-decoration [R=301,NC,L]
+RewriteRule ^bachelorette-party-decorations$ https://www.melacelebrations.com/bachelorette-party-decoration [R=301,NC,L]
+RewriteRule ^first-night-decorations$ https://www.melacelebrations.com/first-night-decoration [R=301,NC,L]
+RewriteRule ^valentines-decorations$ https://www.melacelebrations.com/valentines-decoration [R=301,NC,L]
+RewriteRule ^mothers-decorations$ https://www.melacelebrations.com/mothers-decoration [R=301,NC,L]
+RewriteRule ^first-birthday-decorations$ https://www.melacelebrations.com/first-birthday-decoration [R=301,NC,L]
+RewriteRule ^1st-birthday-decoration$ https://www.melacelebrations.com/first-birthday-decoration [R=301,NC,L]
+RewriteRule ^car-boot-decorations$ https://www.melacelebrations.com/car-boot-decoration [R=301,NC,L]
+
+# ── 3. Proxy /api/* requests to Render backend ────────────────────────────────
 # This avoids CORS issues since the request appears same-origin to the browser.
 # Requires Apache mod_proxy and mod_proxy_http to be enabled.
 RewriteCond %{REQUEST_URI} ^/api/
 RewriteRule ^api/(.*)$ https://mela-celebrations.onrender.com/api/$1 [P,L]
 
-# ── React Router SPA fallback ─────────────────────────────────────────────────
+# ── 4. React Router SPA fallback ──────────────────────────────────────────────
 # Send all non-file routes to index.html for client-side routing
-# Explicitly bypass sitemap.xml and robots.txt so they are not rewritten
-RewriteCond %{REQUEST_URI} !/sitemap\.xml$ [NC]
+# Explicitly bypass sitemaps and robots.txt so they are not rewritten
+RewriteCond %{REQUEST_URI} !/sitemap.*\.xml$ [NC]
 RewriteCond %{REQUEST_URI} !/robots\.txt$ [NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.html [QSA,L]

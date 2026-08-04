@@ -2,11 +2,13 @@
 User-agent: *
 Allow: /
 
-# Disallow admin pages and private user dashboards
-Disallow: /admin
-Disallow: /admin-dashboard
-Disallow: /dashboard
-Disallow: /login
+# Disallow admin pages, private user dashboards, and tools
+Disallow: /admin/
+Disallow: /admin-dashboard/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /calculator/
+Disallow: /customizer/
 
-# Sitemap link
-Sitemap: https://www.melacelebrations.com/sitemap.xml
+# Sitemap Link
+Sitemap: https://www.melacelebrations.com/sitemap_index.xml

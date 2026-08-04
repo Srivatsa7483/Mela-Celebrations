@@ -429,12 +429,18 @@ const slugToCategoryId = {
   'birthday-decorations': 'birthday',
   'birthday-decoration': 'birthday',
   'birthday': 'birthday',
+  'birthday-decoration-bangalore': 'birthday',
+  'birthday-decorations-bangalore': 'birthday',
   'decorations': 'decorations',
   'balloon-decoration': 'decorations',
   'balloon-decorations': 'decorations',
+  'balloon-decoration-bangalore': 'decorations',
+  'balloon-decorations-bangalore': 'decorations',
   'anniversary-decorations': 'anniversary',
   'anniversary-decoration': 'anniversary',
   'anniversary': 'anniversary',
+  'anniversary-decoration-bangalore': 'anniversary',
+  'anniversary-decorations-bangalore': 'anniversary',
   'kids-activities': 'kidsactivities',
   'kidsactivities': 'kidsactivities',
   'flower-decorations': 'flower',
@@ -447,6 +453,8 @@ const slugToCategoryId = {
 };
 
 const slugToSubcategoryId = {
+  'baby-shower-decoration-bangalore': 'baby-shower-decorations',
+  'baby-shower-decorations-bangalore': 'baby-shower-decorations',
   'anniversary-decoration': 'decorations-anniversary',
   'baby-shower-decoration': 'baby-shower-decorations',
   'baby-shower-decorations': 'baby-shower-decorations',
@@ -603,6 +611,40 @@ const seoData = {
   'product-detail': {
     title: 'Premium Design Setup Details | Mela Celebrations',
     description: 'Bespoke package pricing, measurements, options, and inclusion specifications for high-end balloon and event setups in Bengaluru.'
+  },
+
+  // City-Specific Bangalore Landing Pages
+  'birthday-decoration-bangalore': {
+    title: 'Birthday Party Decorations & Theme Setups in Bangalore | Mela Celebrations',
+    description: 'Bespoke birthday party balloon decorations, grand stage backdrops, and theme setups in Bangalore. Inquire on WhatsApp for packages.'
+  },
+  'birthday-decorations-bangalore': {
+    title: 'Birthday Party Decorations & Theme Setups in Bangalore | Mela Celebrations',
+    description: 'Bespoke birthday party balloon decorations, grand stage backdrops, and theme setups in Bangalore. Inquire on WhatsApp for packages.'
+  },
+  'balloon-decoration-bangalore': {
+    title: 'Bespoke Balloon Decoration Services in Bangalore | Mela Celebrations',
+    description: 'Premium balloon decoration in Bangalore for baby showers, room surprises, store launches, and private celebrations.'
+  },
+  'balloon-decorations-bangalore': {
+    title: 'Bespoke Balloon Decoration Services in Bangalore | Mela Celebrations',
+    description: 'Premium balloon decoration in Bangalore for baby showers, room surprises, store launches, and private celebrations.'
+  },
+  'anniversary-decoration-bangalore': {
+    title: 'Romantic Anniversary Room & Stage Decoration Bangalore | Mela Celebrations',
+    description: 'Surprise anniversary room setups, LED marquee letters, and balloon decoration in Bangalore. High-end custom styling.'
+  },
+  'anniversary-decorations-bangalore': {
+    title: 'Romantic Anniversary Room & Stage Decoration Bangalore | Mela Celebrations',
+    description: 'Surprise anniversary room setups, LED marquee letters, and balloon decoration in Bangalore. High-end custom styling.'
+  },
+  'baby-shower-decoration-bangalore': {
+    title: 'Premium Baby Shower Balloon & Flower Decor in Bangalore | Mela Celebrations',
+    description: 'Cute pastel baby shower themes, cradle decoration, and maternity photoshoot backgrounds in Bangalore.'
+  },
+  'baby-shower-decorations-bangalore': {
+    title: 'Premium Baby Shower Balloon & Flower Decor in Bangalore | Mela Celebrations',
+    description: 'Cute pastel baby shower themes, cradle decoration, and maternity photoshoot backgrounds in Bangalore.'
   },
 
   // Primary Occasions / Category IDs
