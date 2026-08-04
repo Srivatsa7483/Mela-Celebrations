@@ -541,6 +541,239 @@ const parseCurrentPath = () => {
   return { page, category: 'all', subcategory: null };
 };
 
+// Dynamic SEO Metadata Configuration
+const seoData = {
+  // Main Static Pages
+  'home': {
+    title: 'Mela Celebrations | Premium Event Decor & Balloon Artistry in Bengaluru',
+    description: "Bengaluru's premier boutique event decorator. Crafting luxury balloon setups, romantic anniversary room decor, custom theme birthday backdrops, and traditional flower arrangements."
+  },
+  'about': {
+    title: 'About Us | Mela Celebrations',
+    description: 'Learn about Mela Celebrations, our bespoke custom design philosophy, our strict quality control standards, and sustainable event styling in Bengaluru.'
+  },
+  'gallery': {
+    title: 'Bespoke Event Design Gallery | Mela Celebrations',
+    description: 'Explore our catalog of luxury balloon backdrops, kids theme parties, wedding stages, and traditional setups in Bengaluru. Filter by occasion or colors.'
+  },
+  'order': {
+    title: 'Book a Consultation | Mela Celebrations',
+    description: 'Schedule a personalized consultation with our event planning designers to construct a custom decor package for your celebrations in Bengaluru.'
+  },
+  'how-it-works': {
+    title: 'How It Works | Mela Celebrations',
+    description: 'Understand our event decoration process from booking consultations and 3D event customizer design matching to setup delivery and dismantle.'
+  },
+  'contact': {
+    title: 'Contact Us | Mela Celebrations',
+    description: 'Get in touch with the design coordinators at Mela Celebrations in Bengaluru to query custom event quotes, packages, and booking availability.'
+  },
+  'calculator': {
+    title: 'Event Budget Estimator | Mela Celebrations',
+    description: 'Estimate your event decoration pricing dynamically with our interactive budget calculator. Balance balloons, backdrops, and lighting props.'
+  },
+  'customizer': {
+    title: '3D Event Builder & Customizer | Mela Celebrations',
+    description: 'Bespoke design customizer tool to interactively visualize and build your balloon arches, colors, and setups for personalized bookings.'
+  },
+  'recent-gallery': {
+    title: 'Recent Projects & Portfolio | Mela Celebrations',
+    description: 'A visual showcase of our recent high-end events, luxury balloon designs, and floral decorations setup across Bengaluru.'
+  },
+  'login': {
+    title: 'Client Login | Mela Celebrations',
+    description: 'Log into your Mela Celebrations account to track booking status, browse wishlists, and manage event design projects.'
+  },
+  'dashboard': {
+    title: 'Client Dashboard | Mela Celebrations',
+    description: 'Manage your active bookings, view custom designer moodboards, check event status, and review order invoices.'
+  },
+  'faqs': {
+    title: 'Frequently Asked Questions | Mela Celebrations',
+    description: 'Find answers regarding booking timelines, customization limits, payment conditions, and setup execution across Bengaluru.'
+  },
+  'privacy': {
+    title: 'Privacy Policy | Mela Celebrations',
+    description: 'Privacy Policy and data protection terms for users and clients booking services through Mela Celebrations.'
+  },
+  'terms': {
+    title: 'Terms of Service | Mela Celebrations',
+    description: 'Terms of service, delivery policies, booking cancellation conditions, and contract terms for Mela Celebrations event decor.'
+  },
+  'product-detail': {
+    title: 'Premium Design Setup Details | Mela Celebrations',
+    description: 'Bespoke package pricing, measurements, options, and inclusion specifications for high-end balloon and event setups in Bengaluru.'
+  },
+
+  // Primary Occasions / Category IDs
+  'birthday': {
+    title: 'Birthday Party Decorations & Theme Setups in Bengaluru | Mela Celebrations',
+    description: 'Explore custom birthday party themes, grand entrance arches, backdrops, neon sign panels, and table decorations for all age milestones.'
+  },
+  'decorations': {
+    title: 'Bespoke Event Decorations & Balloon Art | Mela Celebrations',
+    description: 'Luxury balloon arrangements, custom backdrop panels, fairy lights, floral arches, and thematic installations for premium private events.'
+  },
+  'anniversary': {
+    title: 'Romantic Anniversary Room Decor & Stage Setups | Mela Celebrations',
+    description: 'Surprise your partner with premium romantic room setups, glowing marquee lights, heart-shaped balloon arches, and red rose designs in Bengaluru.'
+  },
+  'kidsactivities': {
+    title: 'Premium Kids Party Activities & Play Zones | Mela Celebrations',
+    description: 'Keep your young guests entertained with cartoon character mascots, interactive craft corners, bouncy castles, and kids event coordinators.'
+  },
+  'flower': {
+    title: 'Traditional Flower Decorations & Marigold Setups | Mela Celebrations',
+    description: 'Auspicious fresh flower backdrops, traditional marigold hangings, and temple setups for housewarmings, naming ceremonies, and engagements.'
+  },
+  'festival': {
+    title: 'Festive & Seasonal Theme Event Styling | Mela Celebrations',
+    description: 'Celebrate Indian festivals with traditional setups for Diwali, Ganesh Chaturthi mandaps, New Year balloon drops, and Christmas decor.'
+  },
+  'corporate': {
+    title: 'Corporate Event Styling & Balloon Branding | Mela Celebrations',
+    description: 'Professional event decor for office launches, corporate seminars, retail shop openings, custom balloon branding, and media backdrop panels.'
+  },
+
+  // Subcategory IDs
+  'wall-decorations': {
+    title: 'Bespoke Wall Balloon Backdrops & Arches | Mela Celebrations',
+    description: 'Stunning wall balloon designs, elegant organic balloon arches, and customized backdrop frames to fit any living room or stage layout.'
+  },
+  'kids-theme': {
+    title: 'Kids Theme Birthday Party Decor | Mela Celebrations',
+    description: 'Creative and immersive theme birthday decorations for boys and girls including jungle safari, space explorer, and construction setups.'
+  },
+  'jungle-theme': {
+    title: 'Jungle Safari Theme Birthday Backdrop | Mela Celebrations',
+    description: 'Wild jungle theme setups with animal foil balloons, lush green foliage arches, and safari adventure backdrops for kids birthdays.'
+  },
+  'superman-theme': {
+    title: 'Superman Theme Party Decor in Bengaluru | Mela Celebrations',
+    description: 'Heroic Superman themed birthday setups in bold blue, red, and yellow colors with city skyline cutouts and custom shields.'
+  },
+  'cars-theme': {
+    title: 'Racing Cars Theme Kids Birthday Setup | Mela Celebrations',
+    description: 'Start your engines with checkerboard racing flags, red-black balloon arches, and Disney Cars themed photo booths.'
+  },
+  'mickey-theme': {
+    title: 'Mickey Mouse Theme Birthday Backdrop | Mela Celebrations',
+    description: 'Classic Mickey Mouse backdrop setups featuring ear silhouettes, red and black organic balloon garlands, and custom props.'
+  },
+  'football-theme': {
+    title: 'Football & Sports Theme Birthday Setup | Mela Celebrations',
+    description: 'Celebrate their passion for sports with turf carpets, stadium arches, football nets, and black-and-white theme balloon decor.'
+  },
+  'boss-baby-theme': {
+    title: 'Boss Baby Theme Birthday Decorations | Mela Celebrations',
+    description: 'Sleek black, blue, and silver Boss Baby setups with baby suit silhouettes, business props, and custom text panels.'
+  },
+  'space-theme': {
+    title: 'Outer Space & Astronaut Theme Decor | Mela Celebrations',
+    description: 'Blast off with galaxy themed backgrounds, astronaut foil balloons, metallic planet garlands, and cosmic LED starry projections.'
+  },
+  'construction-theme': {
+    title: 'Under Construction Theme Kids Birthday | Mela Celebrations',
+    description: 'Fun builder construction theme birthday designs featuring yellow road signs, warning cones, toy trucks, and caution tapes.'
+  },
+  'aeroplane-theme': {
+    title: 'Aviation & Aeroplane Theme Party Setup | Mela Celebrations',
+    description: 'Take flight with custom clouds, aeroplane backdrops, blue-sky balloon arches, and captain mascot cutouts.'
+  },
+  'paw-patrol-theme': {
+    title: 'Paw Patrol Theme Balloon Decorations | Mela Celebrations',
+    description: 'Vibrant Paw Patrol rescue team theme birthday backdrops with colorful bone print cutouts, badges, and balloon pillars.'
+  },
+  'car-boot-decorations': {
+    title: 'Surprise Car Boot Balloon & Flower Decor | Mela Celebrations',
+    description: 'Bespoke car trunk decorations for surprise proposals, birthday gifts, or anniversaries with fairy lights and custom text.'
+  },
+  'first-birthday-decorations': {
+    title: '1st Birthday Grand Theme Setups in Bengaluru | Mela Celebrations',
+    description: 'Create lasting memories for your child’s first milestone with grand pastel setups, light-up numbers, and cute theme arches.'
+  },
+  'decorations-anniversary': {
+    title: 'Anniversary Balloon Backdrops & Garlands | Mela Celebrations',
+    description: 'Celebrate marriage milestones with gold-themed organic balloon arches, luxury drape panels, and customized name rings.'
+  },
+  'baby-shower-decorations': {
+    title: 'Premium Baby Shower Balloon & Canopy Setups | Mela Celebrations',
+    description: 'Pastel pink, blue, and cream baby shower decorations with teddy bear props, flower canopies, and gender reveal backdrops.'
+  },
+  'welcome-baby-decorations': {
+    title: 'Welcome Baby Home Surprise Balloon Decor | Mela Celebrations',
+    description: 'Welcome mother and newborn home with cute baby carriages, infant bottle balloons, pastel archways, and greeting banners.'
+  },
+  'naming-ceremony-decorations': {
+    title: 'Traditional Cradle & Naming Ceremony Setups | Mela Celebrations',
+    description: 'Premium naming ceremony cradles decorated with fresh marigolds, roses, jasmine drapes, and elegant background setups.'
+  },
+  'room-decorations': {
+    title: 'Surprise Bedroom Balloon Decorations | Mela Celebrations',
+    description: 'Transform bedrooms into stunning surprise destinations with helium ceiling balloons, hanging polaroid photos, and custom lettering.'
+  },
+  'haldi-decorations': {
+    title: 'Traditional Haldi & Mehndi Event Decoration | Mela Celebrations',
+    description: 'Vibrant yellow and orange background frames with clay pots, swing stages, and fresh marigold hangings for haldi and mehndi rituals.'
+  },
+  'retirement-party-decorations': {
+    title: 'Retirement Celebration Theme Party Setups | Mela Celebrations',
+    description: 'Mark a lifelong achievement with elegant gold-and-black balloon backdrops, memory walls, and custom celebration arches.'
+  },
+  'bachelorette-party-decorations': {
+    title: 'Bride-To-Be & Bachelorette Balloon Setups | Mela Celebrations',
+    description: 'Fun bachelorette parties featuring champagne bottle arches, bride-to-be pink balloons, satin photo zones, and props.'
+  },
+  'first-night-decorations': {
+    title: 'Romantic First Night Bedroom Decoration | Mela Celebrations',
+    description: 'Elegant canopy curtains, red rose heart shaped beds, glowing candles, and helium balloons for a dreamlike wedding night setup.'
+  },
+  'valentines-decorations': {
+    title: "Valentine's Day Proposal & Room Decor | Mela Celebrations",
+    description: 'Romantic proposals, rose paths, marquee LOVE letters, and heart-themed balloons for the ultimate Valentine surprise in Bengaluru.'
+  },
+  'mothers-decorations': {
+    title: "Mother's Day Celebration Stage Decor | Mela Celebrations",
+    description: 'Express your gratitude with warm gold theme backdrops, floral photo spots, and custom Mother’s Day banners.'
+  },
+  'simple-anniversary': {
+    title: 'Simple & Elegant Anniversary Stage Decor | Mela Celebrations',
+    description: 'Minimalistic and sophisticated anniversary setups using neat arch frames, simple balloon garlands, and neon lettering.'
+  },
+  'romantic-room': {
+    title: 'Surprise Romantic Room Decor with Helium Balloons | Mela Celebrations',
+    description: 'Premium romantic room decorations with rose petals, LED candles, custom photos, and floating ceiling balloons.'
+  },
+  'premium-luxury': {
+    title: 'Grand Premium Luxury Stage Decoration | Mela Celebrations',
+    description: 'Luxury event decorations featuring large double-arch structures, cascading balloon paths, pampas grass, and golden frames.'
+  },
+  'house-warming': {
+    title: 'Traditional Gruhapravesham Flower Decor | Mela Celebrations',
+    description: 'Bespoke housewarming decor with fresh mango leaves, jasmine creepers, banana plants, and elegant entry rangoli setups.'
+  },
+  'chhapara': {
+    title: 'Wedding Chhapara Traditional Flower Tent | Mela Celebrations',
+    description: 'Authentic wedding chhapara entry tents styled with traditional marigolds, banana trunks, and copper bells.'
+  },
+  'new-year': {
+    title: "New Year's Eve Gold & Black Theme Setup | Mela Celebrations",
+    description: 'Ring in the New Year with custom midnight countdown arches, gold confetti balloons, and glamorous photo booths.'
+  },
+  'diwali': {
+    title: 'Diwali Festive Flower & Diya Mandap Decor | Mela Celebrations',
+    description: 'Traditional Deepavali light arches, hanging brass diyas, marigold chains, and floor rangolis for festive celebrations.'
+  },
+  'ganesh-festival': {
+    title: 'Ganesh Chaturthi Traditional Mandap Decor | Mela Celebrations',
+    description: 'Eco-friendly and traditional Ganesh pandal backdrops, fresh flower garlands, and ornate mandaps for home celebrations.'
+  },
+  'christmas': {
+    title: 'Christmas Theme Party Balloon Decor | Mela Celebrations',
+    description: 'Festive red-white-green Christmas decor with giant candy canes, balloon Christmas trees, and snowflake ceiling grids.'
+  }
+};
+
 function AppContent() {
   const { isAuthenticated } = useContext(AuthContext);
   const { loading, error } = useContext(DesignContext);
@@ -596,6 +829,57 @@ function AppContent() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Dynamic SEO Meta Title and Description Update
+  useEffect(() => {
+    if (currentPage === 'product-detail' && selectedProductId) {
+      document.title = `Luxury Design Setup #${selectedProductId} | Mela Celebrations`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', `Check out design inclusions, pricing packages, and customization details for Mela Celebrations event layout #${selectedProductId}.`);
+      }
+      return;
+    }
+
+    let seoKey = 'home';
+    if (currentPage === 'gallery') {
+      seoKey = activeSubcategory || activeCategory || 'gallery';
+    } else {
+      seoKey = currentPage || 'home';
+    }
+
+    const meta = seoData[seoKey] || seoData['home'];
+
+    // Update Page Title
+    document.title = meta.title;
+
+    // Update Meta Description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', meta.description);
+    }
+
+    // Update Canonical URL and OG URL
+    const currentUrl = window.location.href;
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (canonicalLink) {
+      canonicalLink.setAttribute('href', currentUrl);
+    }
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) {
+      ogUrl.setAttribute('content', currentUrl);
+    }
+
+    // Update OG Title and Description
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', meta.title);
+    }
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) {
+      ogDesc.setAttribute('content', meta.description);
+    }
+  }, [currentPage, activeCategory, activeSubcategory, selectedProductId]);
 
   const navigateToGallery = (cat, sub = null) => {
     let resolvedCat = cat || 'all';
