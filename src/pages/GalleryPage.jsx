@@ -639,7 +639,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                                         </svg>
                                     </button>
 
-                                    <img src={d.image} alt={d.name} className="gcard__img" onClick={() => navigateToProduct(d.id)} />
+                                    <img 
+                                        src={d.image} 
+                                        alt={`${d.name} — Premium ${d.categoryName || 'Event'} Decoration in Bengaluru by Mela Celebrations`} 
+                                        className="gcard__img" 
+                                        onClick={() => navigateToProduct(d.id)} 
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
                                     <div className="gcard__view-overlay" onClick={() => navigateToProduct(d.id)}>
                                         <span>View Details</span>
                                     </div>

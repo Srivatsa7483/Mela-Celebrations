@@ -136,6 +136,13 @@ export const categories = [
         slug: "corporate",
         image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&q=80",
         count: 12,
+    },
+    {
+        id: "photography",
+        name: "Photography",
+        slug: "photography",
+        image: "/photography-banner.jpg",
+        count: 12,
     }
 ];
 

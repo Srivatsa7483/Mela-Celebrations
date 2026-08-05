@@ -405,7 +405,8 @@ const categoryIdToSlug = {
   'kidsactivities': 'kids-activities',
   'flower': 'flower-decorations',
   'festival': 'festival-decor',
-  'corporate': 'corporate-events'
+  'corporate': 'corporate-events',
+  'photography': 'photography'
 };
 
 const subcategoryIdToSlug = {
@@ -449,7 +450,8 @@ const slugToCategoryId = {
   'festival-decor': 'festival',
   'festival': 'festival',
   'corporate-events': 'corporate',
-  'corporate': 'corporate'
+  'corporate': 'corporate',
+  'photography': 'photography'
 };
 
 const slugToSubcategoryId = {
@@ -676,6 +678,10 @@ const seoData = {
     title: 'Corporate Event Styling & Balloon Branding | Mela Celebrations',
     description: 'Professional event decor for office launches, corporate seminars, retail shop openings, custom balloon branding, and media backdrop panels.'
   },
+  'photography': {
+    title: 'Professional Event Photography Services in Bengaluru | Mela Celebrations',
+    description: 'Capture special memories with Mela Celebrations professional event photography. Birthday party shoots, anniversaries, baby showers, and grand celebrations.'
+  },
 
   // Subcategory IDs
   'wall-decorations': {
@@ -874,31 +880,31 @@ function AppContent() {
 
   // Dynamic SEO Meta Title and Description Update
   useEffect(() => {
-    if (currentPage === 'product-detail' && selectedProductId) {
-      document.title = `Luxury Design Setup #${selectedProductId} | Mela Celebrations`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', `Check out design inclusions, pricing packages, and customization details for Mela Celebrations event layout #${selectedProductId}.`);
-      }
-      return;
-    }
-
     let seoKey = 'home';
-    if (currentPage === 'gallery') {
-      seoKey = activeSubcategory || activeCategory || 'gallery';
-    } else {
-      seoKey = currentPage || 'home';
-    }
+    let titleStr = '';
+    let descStr = '';
 
-    const meta = seoData[seoKey] || seoData['home'];
+    if (currentPage === 'product-detail' && selectedProductId) {
+      titleStr = `Luxury Design Setup #${selectedProductId} | Mela Celebrations`;
+      descStr = `Check out design inclusions, pricing packages, and customization details for Mela Celebrations event layout #${selectedProductId}.`;
+    } else {
+      if (currentPage === 'gallery') {
+        seoKey = activeSubcategory || activeCategory || 'gallery';
+      } else {
+        seoKey = currentPage || 'home';
+      }
+      const meta = seoData[seoKey] || seoData['home'];
+      titleStr = meta.title;
+      descStr = meta.description;
+    }
 
     // Update Page Title
-    document.title = meta.title;
+    document.title = titleStr;
 
     // Update Meta Description
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', meta.description);
+      metaDesc.setAttribute('content', descStr);
     }
 
     // Update Canonical URL and OG URL
@@ -915,12 +921,116 @@ function AppContent() {
     // Update OG Title and Description
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) {
-      ogTitle.setAttribute('content', meta.title);
+      ogTitle.setAttribute('content', titleStr);
     }
     const ogDesc = document.querySelector('meta[property="og:description"]');
     if (ogDesc) {
-      ogDesc.setAttribute('content', meta.description);
+      ogDesc.setAttribute('content', descStr);
     }
+
+    // Dynamic OG and Twitter Image
+    let imageUrl = 'https://www.melacelebrations.com/og-banner.jpg';
+    if (currentPage === 'gallery' && activeCategory && activeCategory !== 'all') {
+      const bannerMap = {
+        'birthday': 'birthday-banner.jpg',
+        'anniversary': 'anniversary-banner.jpg',
+        'kidsactivities': 'kids-banner.jpg',
+        'flower': 'flower-banner.jpg',
+        'festival': 'festive-banner.jpg',
+        'corporate': 'corporate-banner.jpg',
+        'photography': 'photography-banner.jpg',
+        'decorations': 'decorations-banner.jpg'
+      };
+      if (bannerMap[activeCategory]) {
+        imageUrl = `https://www.melacelebrations.com/${bannerMap[activeCategory]}`;
+      }
+    }
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) {
+      ogImage.setAttribute('content', imageUrl);
+    }
+    const twitterImage = document.querySelector('meta[property="twitter:image"]');
+    if (twitterImage) {
+      twitterImage.setAttribute('content', imageUrl);
+    }
+
+    // Dynamic Breadcrumb JSON-LD Injection
+    let breadcrumbScript = document.getElementById('seo-breadcrumbs');
+    if (!breadcrumbScript) {
+      breadcrumbScript = document.createElement('script');
+      breadcrumbScript.id = 'seo-breadcrumbs';
+      breadcrumbScript.type = 'application/ld+json';
+      document.head.appendChild(breadcrumbScript);
+    }
+
+    const items = [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.melacelebrations.com/"
+      }
+    ];
+
+    if (currentPage !== 'home') {
+      if (currentPage === 'gallery') {
+        items.push({
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Gallery",
+          "item": "https://www.melacelebrations.com/gallery"
+        });
+
+        if (activeCategory && activeCategory !== 'all') {
+          const catSlug = getSlugFromCategoryId(activeCategory);
+          const catName = seoData[activeCategory]?.title.split(' | ')[0] || activeCategory;
+          items.push({
+            "@type": "ListItem",
+            "position": 3,
+            "name": catName,
+            "item": `https://www.melacelebrations.com/gallery/${catSlug}`
+          });
+
+          if (activeSubcategory) {
+            const subSlug = getSlugFromSubcategoryId(activeSubcategory);
+            const subName = seoData[activeSubcategory]?.title.split(' | ')[0] || activeSubcategory;
+            items.push({
+              "@type": "ListItem",
+              "position": 4,
+              "name": subName,
+              "item": `https://www.melacelebrations.com/gallery/${catSlug}/${subSlug}`
+            });
+          }
+        }
+      } else if (currentPage === 'product-detail' && selectedProductId) {
+        items.push({
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Gallery",
+          "item": "https://www.melacelebrations.com/gallery"
+        });
+        items.push({
+          "@type": "ListItem",
+          "position": 3,
+          "name": `Design #${selectedProductId}`,
+          "item": `https://www.melacelebrations.com/product/${selectedProductId}`
+        });
+      } else {
+        const pageName = seoData[currentPage] ? (seoData[currentPage].title ? seoData[currentPage].title.split(' | ')[0] : currentPage) : currentPage;
+        items.push({
+          "@type": "ListItem",
+          "position": 2,
+          "name": pageName,
+          "item": `https://www.melacelebrations.com/${currentPage}`
+        });
+      }
+    }
+
+    breadcrumbScript.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": items
+    });
   }, [currentPage, activeCategory, activeSubcategory, selectedProductId]);
 
   const navigateToGallery = (cat, sub = null) => {

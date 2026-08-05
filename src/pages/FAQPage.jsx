@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './FAQPage.css';
 
 export default function FAQPage({ setCurrentPage }) {
@@ -67,6 +67,36 @@ export default function FAQPage({ setCurrentPage }) {
             answer: "Definitely! You can share Pinterest, Instagram, or reference images, and we’ll create a similar customized setup for your event."
         }
     ];
+
+    useEffect(() => {
+        let faqScript = document.getElementById('seo-faq-schema');
+        if (!faqScript) {
+            faqScript = document.createElement('script');
+            faqScript.id = 'seo-faq-schema';
+            faqScript.type = 'application/ld+json';
+            document.head.appendChild(faqScript);
+        }
+
+        const mainFaqs = faqs.map(item => ({
+            "@type": "Question",
+            "name": item.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": item.answer
+            }
+        }));
+
+        faqScript.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": mainFaqs
+        });
+
+        return () => {
+            const el = document.getElementById('seo-faq-schema');
+            if (el) el.remove();
+        };
+    }, []);
 
     const filteredFaqs = faqs.filter(faq => 
         faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||

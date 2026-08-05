@@ -9,13 +9,18 @@
       <image:title>Mela Celebrations Logo</image:title>
       <image:caption>Mela Celebrations - Premium Event Decor &amp; Balloon Artistry in Bengaluru</image:caption>
     </image:image>
+    <image:image>
+      <image:loc>https://www.melacelebrations.com/og-banner.jpg</image:loc>
+      <image:title>Mela Celebrations Premium Event Decor Banner</image:title>
+      <image:caption>Beautiful luxury event styling, balloons, and floral structures by Mela Celebrations</image:caption>
+    </image:image>
   </url>
 
   <!-- Category Landing Page Images -->
   <url>
     <loc>https://www.melacelebrations.com/birthday-decorations</loc>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&amp;q=80</image:loc>
+      <image:loc>https://www.melacelebrations.com/birthday-banner.jpg</image:loc>
       <image:title>Premium Birthday Balloon Decoration Bengaluru</image:title>
       <image:caption>Theme birthday party stage setups, organic arches, and custom decorations by Mela Celebrations</image:caption>
     </image:image>
@@ -23,7 +28,7 @@
   <url>
     <loc>https://www.melacelebrations.com/decorations</loc>
     <image:image>
-      <image:loc>https://pub-3783a26236214453987b32f3e8d8bd4f.r2.dev/categories/decorations_5d5513acde8fcda0_1780076722327.webp</image:loc>
+      <image:loc>https://www.melacelebrations.com/decorations-banner.jpg</image:loc>
       <image:title>Bespoke Event Decorations Bangalore</image:title>
       <image:caption>High-end event decor, backdrop panels, fairy lights, and balloon arrangements for private functions</image:caption>
     </image:image>
@@ -31,7 +36,7 @@
   <url>
     <loc>https://www.melacelebrations.com/anniversary-decorations</loc>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800&amp;q=80</image:loc>
+      <image:loc>https://www.melacelebrations.com/anniversary-banner.jpg</image:loc>
       <image:title>Romantic Anniversary Decoration Bengaluru</image:title>
       <image:caption>Surprise romantic room styling, heart-shaped balloon arches, and rose setups in Bengaluru</image:caption>
     </image:image>
@@ -39,9 +44,41 @@
   <url>
     <loc>https://www.melacelebrations.com/kids-activities</loc>
     <image:image>
-      <image:loc>https://pub-3783a26236214453987b32f3e8d8bd4f.r2.dev/categories/kidsactivities_1780081831544.jpg</image:loc>
+      <image:loc>https://www.melacelebrations.com/kids-banner.jpg</image:loc>
       <image:title>Kids Party Activities &amp; Play Zones Bangalore</image:title>
       <image:caption>Premium kids party coordinators, interactive craft zones, magicians, and character mascots</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.melacelebrations.com/flower-decorations</loc>
+    <image:image>
+      <image:loc>https://www.melacelebrations.com/flower-banner.jpg</image:loc>
+      <image:title>Traditional Flower Decoration Setup Bengaluru</image:title>
+      <image:caption>Traditional marigold hangings, fresh flower backdrops, and temple styling for housewarmings and ceremonies</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.melacelebrations.com/festival-decor</loc>
+    <image:image>
+      <image:loc>https://www.melacelebrations.com/festive-banner.jpg</image:loc>
+      <image:title>Festive Event Styling &amp; Seasonal Decor Bangalore</image:title>
+      <image:caption>Beautiful traditional setups for Diwali, Ganesh Chaturthi, Christmas theme events, and New Year drops</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.melacelebrations.com/corporate-events</loc>
+    <image:image>
+      <image:loc>https://www.melacelebrations.com/corporate-banner.jpg</image:loc>
+      <image:title>Corporate Event Styling &amp; Office Branding Bengaluru</image:title>
+      <image:caption>Professional event setups, corporate launches, retail store balloon styling, and media backdrops</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.melacelebrations.com/photography</loc>
+    <image:image>
+      <image:loc>https://www.melacelebrations.com/photography-banner.jpg</image:loc>
+      <image:title>Professional Event Photography &amp; Videography Bangalore</image:title>
+      <image:caption>Bespoke event photography services capturing birthdays, anniversaries, and corporate milestones</image:caption>
     </image:image>
   </url>
 </urlset>
