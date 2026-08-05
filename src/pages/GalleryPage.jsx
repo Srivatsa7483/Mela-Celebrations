@@ -277,6 +277,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                 return { title, subtitle, image };
             }
 
+            // Hardcode / override image specifically for the corporate category
+            if (targetCategory === "corporate") {
+                title = "Corporate Events";
+                subtitle = "Explore our curated selection of professional corporate event setups.";
+                image = "/corporate-banner.jpg";
+                return { title, subtitle, image };
+            }
+
             // For other categories, resolve dynamically from categories list
             const cat = categories.find(c => c.id === targetCategory);
             if (cat) {
