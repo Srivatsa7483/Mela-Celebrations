@@ -245,6 +245,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                 return { title, subtitle, image };
             }
 
+            // Hardcode / override image specifically for the anniversary category
+            if (targetCategory === "anniversary") {
+                title = "Anniversary Decorations";
+                subtitle = "Explore our curated selection of premium anniversary setups.";
+                image = "/anniversary-banner.jpg";
+                return { title, subtitle, image };
+            }
+
             // For other categories, resolve dynamically from categories list
             const cat = categories.find(c => c.id === targetCategory);
             if (cat) {
