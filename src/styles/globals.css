@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Marcellus&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 *,
 *::before,
@@ -21,8 +21,8 @@
     --border: #e2ddd6;
     --card-bg: #ffffff;
     --section-bg: #f2f0ec;
-    --font-display: 'DM Sans', sans-serif;
-    --font-serif: 'DM Sans', sans-serif;
+    --font-display: 'Marcellus', serif;
+    --font-serif: 'Playfair Display', serif;
     --font-sans: 'DM Sans', sans-serif;
     --shadow-card: 0 4px 24px rgba(13, 27, 42, 0.10);
     --shadow-hover: 0 12px 40px rgba(13, 27, 42, 0.18);
