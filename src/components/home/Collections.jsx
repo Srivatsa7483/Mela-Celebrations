@@ -16,20 +16,13 @@ export default function Collections({ setCurrentPage, setActiveCategory }) {
     }, []);
 
     const handleCategoryClick = (cat) => {
-        if (cat.dropdown) {
-            if (selectedCat && selectedCat.id === cat.id) {
-                setSelectedCat(null);
-                setSelectedSub(null);
-            } else {
-                setSelectedCat(cat);
-                setSelectedSub(null);
-            }
+        if (setActiveCategory) {
+            setActiveCategory(cat.id);
         } else {
-            if (setActiveCategory) setActiveCategory(cat.id);
             setCurrentPage("gallery");
-            setSelectedCat(null);
-            setSelectedSub(null);
         }
+        setSelectedCat(null);
+        setSelectedSub(null);
     };
 
     return (
