@@ -7,20 +7,44 @@ export default function FAQPage({ setCurrentPage }) {
 
     const faqs = [
         {
+            question: "How much does birthday decoration cost in Bengaluru?",
+            answer: "Birthday decoration with Mela Celebrations typically starts from a base package price and scales with theme complexity, balloon volume, and add-ons like backdrops or floral work. Request a custom quote through our Customizer for an exact price based on your event size and theme."
+        },
+        {
+            question: "How far in advance should I book event decoration?",
+            answer: "We recommend booking at least 5–7 days in advance for standard packages, and 2–3 weeks in advance for weddings or large corporate events to secure your preferred date and theme materials."
+        },
+        {
+            question: "Does Mela Celebrations do balloon decoration for corporate events?",
+            answer: "Yes. We provide balloon and theme décor for corporate events including product launches, office celebrations, and brand activations across Bengaluru, with options to match brand colors and logos."
+        },
+        {
+            question: "What areas in Bengaluru does Mela Celebrations serve?",
+            answer: "Mela Celebrations serves Electronic City, Pragathi Nagar, and surrounding areas across Bengaluru. Contact us to confirm coverage for your specific location."
+        },
+        {
+            question: "What types of events does Mela Celebrations decorate?",
+            answer: "We decorate birthdays, weddings, baby showers, anniversaries, corporate events, and baby-welcome or naming ceremonies, with customizable themes for each."
+        },
+        {
+            question: "Can I customize my own decoration theme?",
+            answer: "Yes. Use our online Customizer to choose colors, themes, and add-ons and preview your décor package before booking."
+        },
+        {
+            question: "Does Mela Celebrations handle setup and takedown?",
+            answer: "Yes, setup and takedown are included as part of our standard decoration packages, so you don't have to manage anything on the day of the event."
+        },
+        {
+            question: "What is included in a balloon arch decoration package?",
+            answer: "A standard balloon arch package includes the balloon structure in your chosen colors, on-site setup, and basic styling. Additional elements like florals, backdrops, or props can be added during customization."
+        },
+        {
             question: "What services does Mela Celebrations offer?",
             answer: "We provide balloon decorations, birthday party setups, baby shower decor, wedding decorations, corporate event styling, surprise planning, photography, videography, and complete event management services."
         },
         {
             question: "Do you provide customized theme decorations?",
             answer: "Yes! We create fully customized decorations based on your preferred theme, colors, event type, and budget."
-        },
-        {
-            question: "Which areas do you serve?",
-            answer: "Mela Celebrations serves Banglore and nearby locations. Outstation bookings are also available depending on the event requirements."
-        },
-        {
-            question: "How early should I book my event?",
-            answer: "We recommend booking at least 5–10 days in advance for better planning and availability."
         },
         {
             question: "Do you handle corporate events and office decorations?",
@@ -150,14 +174,16 @@ export default function FAQPage({ setCurrentPage }) {
                                     key={index} 
                                     className={`faq-item ${isOpen ? 'faq-item--open' : ''}`}
                                 >
-                                    <button 
-                                        className="faq-item__question"
-                                        onClick={() => toggleFaq(index)}
-                                        aria-expanded={isOpen}
-                                    >
-                                        <span>{faq.question}</span>
-                                        <span className="faq-item__arrow"></span>
-                                    </button>
+                                    <h3 style={{ margin: 0, padding: 0 }}>
+                                        <button 
+                                            className="faq-item__question"
+                                            onClick={() => toggleFaq(index)}
+                                            aria-expanded={isOpen}
+                                        >
+                                            <span>{faq.question}</span>
+                                            <span className="faq-item__arrow"></span>
+                                        </button>
+                                    </h3>
                                     <div className="faq-item__answer-wrapper">
                                         <div className="faq-item__answer">
                                             {faq.answer.split('\n').map((paragraph, i) => (

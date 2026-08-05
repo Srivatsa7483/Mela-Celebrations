@@ -1,6 +1,59 @@
-import "./HowItWorksPage.css";
+import { useEffect } from 'react';
+import './HowItWorksPage.css';
 
 export default function HowItWorksPage({ setCurrentPage }) {
+    useEffect(() => {
+        let howtoScript = document.getElementById('seo-howto-schema');
+        if (!howtoScript) {
+            howtoScript = document.createElement('script');
+            howtoScript.id = 'seo-howto-schema';
+            howtoScript.type = 'application/ld+json';
+            document.head.appendChild(howtoScript);
+        }
+
+        howtoScript.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            "name": "How to Book Event Decoration with Mela Celebrations",
+            "description": "Follow four simple, transparent steps to select event decor themes, customize colors, request a quote, lock your booking slot, and get your venue decorated.",
+            "step": [
+                {
+                    "@type": "HowToStep",
+                    "url": "https://www.melacelebrations.com/how-it-works",
+                    "name": "Customize Your Décor Theme",
+                    "text": "Use our online Customizer to pick your event type, color palette, and add-ons. Preview your theme instantly before requesting a quote.",
+                    "image": "https://www.melacelebrations.com/og-banner.jpg"
+                },
+                {
+                    "@type": "HowToStep",
+                    "url": "https://www.melacelebrations.com/how-it-works",
+                    "name": "Get a Free Quote",
+                    "text": "Submit your customized theme and event details. Mela Celebrations sends a transparent quote with no hidden charges, usually within 24 hours.",
+                    "image": "https://www.melacelebrations.com/og-banner.jpg"
+                },
+                {
+                    "@type": "HowToStep",
+                    "url": "https://www.melacelebrations.com/how-it-works",
+                    "name": "Confirm Your Booking",
+                    "text": "Confirm your date and pay the booking amount to lock in your theme, materials, and event slot.",
+                    "image": "https://www.melacelebrations.com/og-banner.jpg"
+                },
+                {
+                    "@type": "HowToStep",
+                    "url": "https://www.melacelebrations.com/how-it-works",
+                    "name": "Setup on Your Event Day",
+                    "text": "Our team arrives ahead of your event to set up the full décor and handles takedown after, so you can focus on the celebration.",
+                    "image": "https://www.melacelebrations.com/og-banner.jpg"
+                }
+            ]
+        });
+
+        return () => {
+            const el = document.getElementById('seo-howto-schema');
+            if (el) el.remove();
+        };
+    }, []);
+
     return (
         <div className="hiw-page">
             <div className="hiw-page__header">
@@ -15,32 +68,32 @@ export default function HowItWorksPage({ setCurrentPage }) {
                 <div className="hiw-step">
                     <div className="hiw-step__number">01</div>
                     <div className="hiw-step__body">
-                        <h2>Explore & Choose</h2>
-                        <p>Browse our curated Event Gallery and select a design package that fits your celebration. Not sure what to pick? You can request a custom consultation.</p>
+                        <h2>Customize Your Décor Theme</h2>
+                        <p>Use our online Customizer to pick your event type, color palette, and add-ons. Preview your theme instantly before requesting a quote.</p>
                     </div>
                 </div>
 
                 <div className="hiw-step">
                     <div className="hiw-step__number">02</div>
                     <div className="hiw-step__body">
-                        <h2>WhatsApp Inquiry</h2>
-                        <p>Fill out our simple booking form with your event date and venue details. Once submitted, your inquiry will be sent directly to our team via WhatsApp for an immediate response.</p>
+                        <h2>Get a Free Quote</h2>
+                        <p>Submit your customized theme and event details. Mela Celebrations sends a transparent quote with no hidden charges, usually within 24 hours.</p>
                     </div>
                 </div>
 
                 <div className="hiw-step">
                     <div className="hiw-step__number">03</div>
                     <div className="hiw-step__body">
-                        <h2>Site Visit & Confirmation</h2>
-                        <p>We will contact you to finalize the details, accommodate any special requests, and potentially schedule a site visit to ensure everything will fit perfectly.</p>
+                        <h2>Confirm Your Booking</h2>
+                        <p>Confirm your date and pay the booking amount to lock in your theme, materials, and event slot.</p>
                     </div>
                 </div>
 
                 <div className="hiw-step">
                     <div className="hiw-step__number">04</div>
                     <div className="hiw-step__body">
-                        <h2>The Big Day</h2>
-                        <p>Our professional artisan team arrives on time to set up the decor, transforming your venue into a living work of art. You just sit back and enjoy the celebration!</p>
+                        <h2>Setup on Your Event Day</h2>
+                        <p>Our team arrives ahead of your event to set up the full décor and handles takedown after, so you can focus on the celebration.</p>
                     </div>
                 </div>
 
