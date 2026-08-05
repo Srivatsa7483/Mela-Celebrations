@@ -293,6 +293,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                 return { title, subtitle, image };
             }
 
+            // Hardcode / override image specifically for the decorations category
+            if (targetCategory === "decorations") {
+                title = "Decorations";
+                subtitle = "Explore our curated selection of premium custom decoration setups.";
+                image = "/decorations-banner.jpg";
+                return { title, subtitle, image };
+            }
+
             // For other categories, resolve dynamically from categories list
             const cat = categories.find(c => c.id === targetCategory);
             if (cat) {
