@@ -253,6 +253,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                 return { title, subtitle, image };
             }
 
+            // Hardcode / override image specifically for the kidsactivities category
+            if (targetCategory === "kidsactivities") {
+                title = "Kids Activities";
+                subtitle = "Explore our curated selection of fun and engaging kids activities.";
+                image = "/kids-banner.jpg";
+                return { title, subtitle, image };
+            }
+
             // For other categories, resolve dynamically from categories list
             const cat = categories.find(c => c.id === targetCategory);
             if (cat) {
