@@ -47,9 +47,6 @@ export default function HomePage({ setCurrentPage, setSelectedDesign, setActiveC
             {/* Dynamic Category Strips */}
             {categories.map(category => {
                 const categoryDesigns = designs.filter(d => {
-                    if (category.id === "decorations") {
-                        return d.category === "decorations" || d.category === "anniversary";
-                    }
                     return d.category === category.id;
                 });
 

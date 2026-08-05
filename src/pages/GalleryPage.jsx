@@ -219,6 +219,78 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
 
     const allCats = categories;
 
+    // Helper to dynamically resolve banner header title, description and background image
+    const getGalleryHeaderDetails = () => {
+        let title = "Event Gallery";
+        let subtitle = "Explore our curated collection of event themes and decorations.";
+        let image = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1400&q=85";
+
+        // 1. If a subcategory is active and selected
+        if (activeSubcategory && activeSubcategory !== "all") {
+            for (const cat of categories) {
+                if (cat.dropdown) {
+                    const sub1 = cat.dropdown.find(item => item.id === activeSubcategory);
+                    if (sub1) {
+                        title = sub1.label;
+                        subtitle = `Premium ${sub1.label.toLowerCase()} themed decorations and stage setups.`;
+                        if (cat.image) image = cat.image;
+                        return { title, subtitle, image };
+                    }
+                    for (const item of cat.dropdown) {
+                        if (item.dropdown) {
+                            const sub2 = item.dropdown.find(sub => sub.id === activeSubcategory);
+                            if (sub2) {
+                                title = sub2.label;
+                                subtitle = `Premium ${sub2.label.toLowerCase()} theme birthday decorations and stage setups.`;
+                                if (cat.image) image = cat.image;
+                                return { title, subtitle, image };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. If a category is selected (not "all")
+        if (activeCategory && activeCategory !== "all") {
+            const cat = categories.find(c => c.id === activeCategory);
+            if (cat) {
+                title = cat.name;
+                subtitle = `Explore our curated selection of premium ${cat.name.toLowerCase()} setups.`;
+                if (cat.image) image = cat.image;
+                return { title, subtitle, image };
+            }
+
+            // Fallback for flat routes where activeCategory is mapped to a subcategory ID
+            for (const cat of categories) {
+                if (cat.dropdown) {
+                    const sub1 = cat.dropdown.find(item => item.id === activeCategory);
+                    if (sub1) {
+                        title = sub1.label;
+                        subtitle = `Premium ${sub1.label.toLowerCase()} themed decorations and stage setups.`;
+                        if (cat.image) image = cat.image;
+                        return { title, subtitle, image };
+                    }
+                    for (const item of cat.dropdown) {
+                        if (item.dropdown) {
+                            const sub2 = item.dropdown.find(sub => sub.id === activeCategory);
+                            if (sub2) {
+                                title = sub2.label;
+                                subtitle = `Premium ${sub2.label.toLowerCase()} theme birthday decorations and stage setups.`;
+                                if (cat.image) image = cat.image;
+                                return { title, subtitle, image };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return { title, subtitle, image };
+    };
+
+    const headerDetails = getGalleryHeaderDetails();
+
     // Boy / Girl theme classifiers based on name/description keywords
     const isBoyTheme = (d) => {
         const text = (d.name + " " + d.description + " " + d.categoryName).toLowerCase();
@@ -253,7 +325,7 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
         if (activeCategory === "all") {
             matchCat = true;
         } else if (activeCategory === "decorations") {
-            matchCat = matchesMainCategory(d, "decorations") || matchesMainCategory(d, "anniversary");
+            matchCat = matchesMainCategory(d, "decorations");
         } else if (activeCategory === "kids-theme") {
             const kidsSubcategories = [
                 "jungle-theme", "superman-theme", "cars-theme", 
@@ -278,7 +350,7 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
             // Prevents stale activeSubcategory from overriding when switching categories
             if (parentCat === activeCategory) {
                 if (activeSubcategory === "decorations-anniversary") {
-                    matchCat = (matchesMainCategory(d, "decorations") && matchesSubcategory(d, "decorations-anniversary")) || matchesMainCategory(d, "anniversary");
+                    matchCat = matchesMainCategory(d, "decorations") && matchesSubcategory(d, "decorations-anniversary");
                 } else {
                     matchCat = matchesMainCategory(d, parentCat) && matchesSubcategory(d, activeSubcategory);
                 }
@@ -345,12 +417,12 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
     return (
         <div className="gallery-page">
             {/* Page Header */}
-            <div className="gallery-page__header">
+            <div className="gallery-page__header" style={{ backgroundImage: `url(${headerDetails.image})` }}>
                 <div className="gallery-page__header-overlay"></div>
                 <div className="container gallery-page__header-content">
                     <span className="tag animate-fade-in" style={{ color: "rgba(255,255,255,0.7)" }}>OUR PORTFOLIO</span>
-                    <h1 className="gallery-page__title animate-fade-up delay-1">Event Gallery</h1>
-                    <p className="gallery-page__sub animate-fade-up delay-2">Explore our curated collection of event themes and decorations.</p>
+                    <h1 className="gallery-page__title animate-fade-up delay-1">{headerDetails.title}</h1>
+                    <p className="gallery-page__sub animate-fade-up delay-2">{headerDetails.subtitle}</p>
                 </div>
             </div>
 
