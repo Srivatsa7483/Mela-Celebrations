@@ -1,3 +1,12 @@
+const getHeaders = () => {
+  const token = localStorage.getItem("mela_token");
+  const headers = { "Content-Type": "application/json" };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 export async function getRecentProjects() {
   const res = await fetch("/api/recent-projects");
   if (!res.ok) throw new Error("Failed to fetch recent projects");
@@ -7,7 +16,7 @@ export async function getRecentProjects() {
 export async function createRecentProject(newProj) {
   const res = await fetch("/api/recent-projects", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getHeaders(),
     body: JSON.stringify(newProj),
   });
   if (!res.ok) throw new Error("Failed to create recent project");
@@ -17,6 +26,7 @@ export async function createRecentProject(newProj) {
 export async function deleteRecentProject(projId) {
   const res = await fetch(`/api/recent-projects/${projId}`, {
     method: "DELETE",
+    headers: getHeaders(),
   });
   if (!res.ok) throw new Error("Failed to delete recent project");
   return res.json();
@@ -25,7 +35,7 @@ export async function deleteRecentProject(projId) {
 export async function updateRecentProject(projId, updatedProj) {
   const res = await fetch(`/api/recent-projects/${projId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: getHeaders(),
     body: JSON.stringify(updatedProj),
   });
   if (!res.ok) throw new Error("Failed to update recent project");

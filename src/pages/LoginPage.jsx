@@ -56,29 +56,24 @@ export default function LoginPage({ setCurrentPage, initialMode = "user" }) {
 
     setLoading(true);
 
-    // 1. Check if it matches Admin credentials
-    if (trimmedIdentifier === "Melacelebrations" && trimmedPassword === "Sudha_#06") {
-      setTimeout(() => {
-        sessionStorage.setItem("mela_admin_auth", "true");
-        setSuccess("Admin authenticated! Redirecting...");
-        setTimeout(() => {
-          setCurrentPage("admin-dashboard");
-          setLoading(false);
-        }, 600);
-      }, 800);
-      return;
-    }
-
-    // 2. Otherwise treat as customer login
-    if (!trimmedIdentifier.includes("@")) {
+    // 1. Verify identifier format (allow admin username 'Melacelebrations', otherwise require email)
+    if (trimmedIdentifier.toLowerCase() !== "melacelebrations" && !trimmedIdentifier.includes("@")) {
       setError("Please enter a valid email address");
       setLoading(false);
       return;
     }
 
     try {
-      await login(trimmedIdentifier, trimmedPassword);
-      setSuccess("Success! Logging in...");
+      const loggedInUser = await login(trimmedIdentifier, trimmedPassword);
+      if (loggedInUser && loggedInUser.role === "admin") {
+        sessionStorage.setItem("mela_admin_auth", "true");
+        setSuccess("Admin authenticated! Redirecting...");
+        setTimeout(() => {
+          setCurrentPage("admin-dashboard");
+        }, 600);
+      } else {
+        setSuccess("Success! Logging in...");
+      }
     } catch (err) {
       setError(err.message || "Invalid credentials");
     } finally {

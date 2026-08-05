@@ -82,9 +82,14 @@ export function OrderProvider({ children }) {
 
   const updateBookingStatusAdmin = async (bookingId, status) => {
     try {
+      const token = localStorage.getItem("mela_token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const res = await fetch(`/api/bookings/${bookingId}/status`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ status }),
       });
       const data = await res.json();

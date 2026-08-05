@@ -817,7 +817,7 @@ const seoData = {
 };
 
 function AppContent() {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
   const { loading, error } = useContext(DesignContext);
   
   // Extract product ID from URL on load (e.g. /product/101)
@@ -1033,6 +1033,9 @@ function AppContent() {
       case 'admin':
         return <LoginPage setCurrentPage={navigateToPage} initialMode="admin" />;
       case 'admin-dashboard':
+        if (!isAuthenticated || !user || user.role !== 'admin') {
+          return <LoginPage setCurrentPage={navigateToPage} initialMode="admin" />;
+        }
         return <AdminDashboardPage setCurrentPage={navigateToPage} />;
       case 'product-detail':
         return (

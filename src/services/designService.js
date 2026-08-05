@@ -1,3 +1,15 @@
+const getHeaders = (isMultipart = false) => {
+  const token = localStorage.getItem("mela_token");
+  const headers = {};
+  if (!isMultipart) {
+    headers["Content-Type"] = "application/json";
+  }
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 export async function getDesigns() {
   const res = await fetch("/api/designs");
   if (!res.ok) throw new Error("Failed to fetch designs");
@@ -13,7 +25,7 @@ export async function getCategories() {
 export async function createDesign(newDesign) {
   const res = await fetch("/api/designs", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getHeaders(),
     body: JSON.stringify(newDesign),
   });
   if (!res.ok) throw new Error("Failed to create design");
@@ -23,6 +35,7 @@ export async function createDesign(newDesign) {
 export async function deleteDesign(designId) {
   const res = await fetch(`/api/designs/${designId}`, {
     method: "DELETE",
+    headers: getHeaders(),
   });
   if (!res.ok) throw new Error("Failed to delete design");
   return res.json();
@@ -31,7 +44,7 @@ export async function deleteDesign(designId) {
 export async function updateDesign(designId, updatedDesign) {
   const res = await fetch(`/api/designs/${designId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: getHeaders(),
     body: JSON.stringify(updatedDesign),
   });
   if (!res.ok) throw new Error("Failed to update design");
@@ -45,8 +58,8 @@ export async function uploadImage(file, folder = "products") {
 
   const res = await fetch("/api/upload", {
     method: "POST",
+    headers: getHeaders(true),
     body: formData,
-    // Do NOT set Content-Type manually — browser sets it with boundary automatically
   });
 
   if (!res.ok) {

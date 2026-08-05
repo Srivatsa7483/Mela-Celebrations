@@ -326,10 +326,64 @@ async function sendContactFormEmails(contactData) {
 
 // ── API ROUTES ────────────────────────────────────────────────────────────────
 
+// ── AUTHENTICATION MIDDLEWARES ────────────────────────────────────────────────
+const authenticateJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ error: "Invalid token or session expired" });
+      }
+      req.user = decoded;
+      next();
+    });
+  } else {
+    res.status(401).json({ error: "Authorization token required" });
+  }
+};
+
+const requireAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(403).json({ error: "Access denied: Admin privileges required" });
+  }
+};
+
+async function seedAdminUser(db) {
+  try {
+    const usersCol = db.collection("users");
+    const adminEmail = "melacelebrations@gmail.com";
+    const existing = await usersCol.findOne({ $or: [{ email: adminEmail }, { email: "melacelebrations" }] });
+    if (!existing) {
+      const adminUser = {
+        id: "usr_admin",
+        name: "Mela Celebrations Admin",
+        email: adminEmail,
+        phone: "9999999999",
+        password: "$2b$12$6hYq8NqTdieciKOGHqrJrOaD45zrTB2H2p4Ivc2AKQLbNdGV6lU/m",
+        role: "admin",
+        createdAt: new Date().toISOString(),
+      };
+      await usersCol.insertOne(adminUser);
+      console.log("👑 Admin user seeded successfully!");
+    } else {
+      if (existing.role !== "admin") {
+        await usersCol.updateOne({ _id: existing._id }, { $set: { role: "admin" } });
+        console.log("👑 Existing admin user updated with role: 'admin'!");
+      }
+    }
+  } catch (err) {
+    console.error("Error seeding admin user:", err);
+  }
+}
+
+
 // ── IMAGE UPLOAD ─────────────────────────────────────────────────────────────
 // POST /api/upload — Accepts a multipart image, optimizes it via Sharp,
 // uploads to Cloudflare R2, and returns the public URL.
-app.post("/api/upload", uploadMiddleware, async (req, res) => {
+app.post("/api/upload", authenticateJWT, requireAdmin, uploadMiddleware, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No image file provided" });
@@ -368,7 +422,7 @@ app.get("/api/designs", async (req, res) => {
   }
 });
 
-app.post("/api/designs", async (req, res) => {
+app.post("/api/designs", authenticateJWT, requireAdmin, async (req, res) => {
   try {
     const newDesign = req.body;
     // image field should already be a public R2 URL (uploaded via /api/upload)
@@ -392,7 +446,7 @@ app.post("/api/designs", async (req, res) => {
   }
 });
 
-app.delete("/api/designs/:id", async (req, res) => {
+app.delete("/api/designs/:id", authenticateJWT, requireAdmin, async (req, res) => {
   try {
     const designId = req.params.id;
     const db = await getDB();
@@ -424,7 +478,7 @@ app.delete("/api/designs/:id", async (req, res) => {
   }
 });
 
-app.put("/api/designs/:id", async (req, res) => {
+app.put("/api/designs/:id", authenticateJWT, requireAdmin, async (req, res) => {
   try {
     const designId = req.params.id;
     const updateData = req.body;
@@ -542,7 +596,7 @@ app.get("/api/recent-projects", async (req, res) => {
   }
 });
 
-app.post("/api/recent-projects", async (req, res) => {
+app.post("/api/recent-projects", authenticateJWT, requireAdmin, async (req, res) => {
   try {
     const newProject = req.body;
     // image field should already be a public R2 URL (uploaded via /api/upload)
@@ -566,7 +620,7 @@ app.post("/api/recent-projects", async (req, res) => {
   }
 });
 
-app.delete("/api/recent-projects/:id", async (req, res) => {
+app.delete("/api/recent-projects/:id", authenticateJWT, requireAdmin, async (req, res) => {
   try {
     const projectId = req.params.id;
     const db = await getDB();
@@ -598,7 +652,7 @@ app.delete("/api/recent-projects/:id", async (req, res) => {
   }
 });
 
-app.put("/api/recent-projects/:id", async (req, res) => {
+app.put("/api/recent-projects/:id", authenticateJWT, requireAdmin, async (req, res) => {
   try {
     const projectId = req.params.id;
     const updateData = req.body;
@@ -687,7 +741,8 @@ app.post("/api/auth/login", async (req, res) => {
     }
     const db = await getDB();
     const usersCol = db.collection("users");
-    const user = await usersCol.findOne({ email: email.toLowerCase() });
+    const searchEmail = email.toLowerCase() === "melacelebrations" ? "melacelebrations@gmail.com" : email.toLowerCase();
+    const user = await usersCol.findOne({ email: searchEmail });
     if (!user) {
       return res.status(400).json({ error: "Invalid email or password" });
     }
@@ -696,7 +751,7 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, role: user.role || "user" },
       JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -784,7 +839,7 @@ app.get("/api/bookings/:id", async (req, res) => {
   }
 });
 
-app.put("/api/bookings/:id/status", async (req, res) => {
+app.put("/api/bookings/:id/status", authenticateJWT, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -861,6 +916,8 @@ app.post("/api/contact", async (req, res) => {
 async function startServer() {
   try {
     await connectDB();
+    const db = await getDB();
+    await seedAdminUser(db);
     app.listen(PORT, () => {
       console.log(`🚀 Mela Celebrations Backend running on http://localhost:${PORT}`);
     });
