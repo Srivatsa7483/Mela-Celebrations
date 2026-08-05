@@ -225,64 +225,33 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
         let subtitle = "Explore our curated collection of event themes and decorations.";
         let image = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1400&q=85";
 
-        // 1. If a subcategory is active and selected
+        // Resolve main parent category if a subcategory is active
+        let targetCategory = activeCategory;
         if (activeSubcategory && activeSubcategory !== "all") {
-            for (const cat of categories) {
-                if (cat.dropdown) {
-                    const sub1 = cat.dropdown.find(item => item.id === activeSubcategory);
-                    if (sub1) {
-                        title = sub1.label;
-                        subtitle = `Premium ${sub1.label.toLowerCase()} themed decorations and stage setups.`;
-                        if (cat.image) image = cat.image;
-                        return { title, subtitle, image };
-                    }
-                    for (const item of cat.dropdown) {
-                        if (item.dropdown) {
-                            const sub2 = item.dropdown.find(sub => sub.id === activeSubcategory);
-                            if (sub2) {
-                                title = sub2.label;
-                                subtitle = `Premium ${sub2.label.toLowerCase()} theme birthday decorations and stage setups.`;
-                                if (cat.image) image = cat.image;
-                                return { title, subtitle, image };
-                            }
-                        }
-                    }
-                }
+            targetCategory = getParentCategory(activeSubcategory);
+        } else if (activeCategory && activeCategory !== "all") {
+            const parent = getParentCategory(activeCategory);
+            if (parent) {
+                targetCategory = parent;
             }
         }
 
-        // 2. If a category is selected (not "all")
-        if (activeCategory && activeCategory !== "all") {
-            const cat = categories.find(c => c.id === activeCategory);
+        if (targetCategory && targetCategory !== "all") {
+            // Hardcode / override image specifically for the birthday category
+            if (targetCategory === "birthday") {
+                title = "Birthday Decorations";
+                subtitle = "Explore our curated selection of premium birthday setups.";
+                image = "/birthday-banner.jpg";
+                return { title, subtitle, image };
+            }
+
+            // For other categories, resolve dynamically from categories list
+            const cat = categories.find(c => c.id === targetCategory);
             if (cat) {
                 title = cat.name;
                 subtitle = `Explore our curated selection of premium ${cat.name.toLowerCase()} setups.`;
                 if (cat.image) image = cat.image;
                 return { title, subtitle, image };
-            }
-
-            // Fallback for flat routes where activeCategory is mapped to a subcategory ID
-            for (const cat of categories) {
-                if (cat.dropdown) {
-                    const sub1 = cat.dropdown.find(item => item.id === activeCategory);
-                    if (sub1) {
-                        title = sub1.label;
-                        subtitle = `Premium ${sub1.label.toLowerCase()} themed decorations and stage setups.`;
-                        if (cat.image) image = cat.image;
-                        return { title, subtitle, image };
-                    }
-                    for (const item of cat.dropdown) {
-                        if (item.dropdown) {
-                            const sub2 = item.dropdown.find(sub => sub.id === activeCategory);
-                            if (sub2) {
-                                title = sub2.label;
-                                subtitle = `Premium ${sub2.label.toLowerCase()} theme birthday decorations and stage setups.`;
-                                if (cat.image) image = cat.image;
-                                return { title, subtitle, image };
-                            }
-                        }
-                    }
-                }
             }
         }
 
