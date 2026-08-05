@@ -285,6 +285,14 @@ export default function GalleryPage({ setCurrentPage, setSelectedDesign, activeC
                 return { title, subtitle, image };
             }
 
+            // Hardcode / override image specifically for the photography category
+            if (targetCategory === "photography") {
+                title = "Photography";
+                subtitle = "Explore our curated selection of professional event photography services.";
+                image = "/photography-banner.jpg";
+                return { title, subtitle, image };
+            }
+
             // For other categories, resolve dynamically from categories list
             const cat = categories.find(c => c.id === targetCategory);
             if (cat) {
