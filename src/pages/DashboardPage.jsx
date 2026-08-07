@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { OrderContext } from "../context/OrderContext.jsx";
 import { DesignContext } from "../context/DesignContext.jsx";
+import AdminBannerManager from "../components/admin/AdminBannerManager.jsx";
 import "./DashboardPage.css";
 
 export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
@@ -448,6 +449,19 @@ export default function DashboardPage({ setCurrentPage, setSelectedDesign }) {
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ── Admin: Banner Manager ── */}
+          {user?.role === "admin" && (
+            <div style={{
+              background: "white",
+              border: "1px solid #e2ddd6",
+              borderRadius: "14px",
+              padding: "28px",
+              boxShadow: "var(--shadow-card)"
+            }}>
+              <AdminBannerManager />
             </div>
           )}
 

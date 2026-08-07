@@ -37,23 +37,41 @@ function buildStroke() {
 const FILL_PATH   = buildFillPath();
 const STROKE_PATH = buildStroke();
 
-const slides = [
-    { id: 1, image: "/banner1_new.png", alt: "Celebrate Your Love, Beautifully - Anniversary Decoration", category: "anniversary" },
-    { id: 2, image: "/banner2_new.png", alt: "Happy 1st Birthday - One Year of Passion, Growth & Gratitude", category: "first-birthday-decorations" },
-    { id: 3, image: "/banner3_new.jpg", alt: "Kid Activities for Birthday Party - Fun, Play, Laugh, Memories", category: "kidsactivities" },
-    { id: 4, image: "/banner4_new.png", alt: "Make Your New House a Beautiful Beginning - Premium House Warming Decoration", category: "house-warming" },
-    { id: 5, image: "/banner5_new.png", alt: "Welcome Baby - Beautiful Decorations for Your Baby's Special Welcome", category: "welcome-baby-decorations" },
-    { id: 6, image: "/banner6_new.png", alt: "Elevate Your Brand with Corporate Balloon Decoration", objectPosition: "left center", category: "corporate" },
-    { id: 7, image: "/banner7_new.png", alt: "Beautiful Haldi Decoration - Vibrant Decor, Joyful Moments, Timeless Memories", category: "haldi-decorations" }
+const FALLBACK_SLIDES = [
+    { id: 1, url: "/banner1_new.png", type: "image", alt: "Celebrate Your Love, Beautifully - Anniversary Decoration", category: "anniversary" },
+    { id: 2, url: "/banner2_new.png", type: "image", alt: "Happy 1st Birthday - One Year of Passion, Growth & Gratitude", category: "first-birthday-decorations" },
+    { id: 3, url: "/banner3_new.jpg", type: "image", alt: "Kid Activities for Birthday Party - Fun, Play, Laugh, Memories", category: "kidsactivities" },
+    { id: 4, url: "/banner4_new.png", type: "image", alt: "Make Your New House a Beautiful Beginning - Premium House Warming Decoration", category: "house-warming" },
+    { id: 5, url: "/banner5_new.png", type: "image", alt: "Welcome Baby - Beautiful Decorations for Your Baby's Special Welcome", category: "welcome-baby-decorations" },
+    { id: 6, url: "/banner6_new.png", type: "image", alt: "Elevate Your Brand with Corporate Balloon Decoration", category: "corporate" },
+    { id: 7, url: "/banner7_new.png", type: "image", alt: "Beautiful Haldi Decoration - Vibrant Decor, Joyful Moments, Timeless Memories", category: "haldi-decorations" }
 ];
 
 export default function Hero({ setCurrentPage, setActiveCategory, setSearchQuery }) {
+    const [slides, setSlides] = useState(FALLBACK_SLIDES);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [direction, setDirection] = useState("right");
     const [touchStart, setTouchStart] = useState(null);
     const [touchEnd, setTouchEnd] = useState(null);
 
     const minSwipeDistance = 50;
+
+    // Fetch live banners from backend, fall back to static on any error
+    useEffect(() => {
+        const API_BASE = import.meta.env.VITE_API_URL || "";
+        fetch(`${API_BASE}/api/banners`)
+            .then(res => {
+                if (!res.ok) throw new Error("Non-ok response");
+                return res.json();
+            })
+            .then(data => {
+                const active = data.filter(b => b.enabled !== false);
+                if (active.length > 0) setSlides(active);
+            })
+            .catch(() => {
+                // silently use fallback slides
+            });
+    }, []);
 
     const handlePrev = (e) => {
         if (e) e.stopPropagation();
@@ -80,13 +98,8 @@ export default function Hero({ setCurrentPage, setActiveCategory, setSearchQuery
         const distance = touchStart - touchEnd;
         const isLeftSwipe = distance > minSwipeDistance;
         const isRightSwipe = distance < -minSwipeDistance;
-        
-        if (isLeftSwipe) {
-            handleNext();
-        } else if (isRightSwipe) {
-            handlePrev();
-        }
-        
+        if (isLeftSwipe) handleNext();
+        else if (isRightSwipe) handlePrev();
         setTouchStart(null);
         setTouchEnd(null);
     };
@@ -97,7 +110,7 @@ export default function Hero({ setCurrentPage, setActiveCategory, setSearchQuery
             setCurrentSlide(prev => (prev + 1) % slides.length);
         }, 3000);
         return () => clearInterval(timer);
-    }, [currentSlide]);
+    }, [currentSlide, slides.length]);
 
     return (
         <div className="hero-wrapper">
@@ -191,12 +204,24 @@ export default function Hero({ setCurrentPage, setActiveCategory, setSearchQuery
                                 onTouchEnd={onTouchEnd}
                                 style={{ cursor: "pointer" }}
                             >
-                                <img
-                                    src={slide.image}
-                                    alt={slide.alt}
-                                    className="hero__img"
-                                    style={{ objectPosition: slide.objectPosition || "center center" }}
-                                />
+                                {slide.type === "video" ? (
+                                    <video
+                                        src={slide.url}
+                                        className="hero__img"
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                        style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                                    />
+                                ) : (
+                                    <img
+                                        src={slide.url}
+                                        alt={slide.alt || ""}
+                                        className="hero__img"
+                                        style={{ objectPosition: slide.objectPosition || "center center" }}
+                                    />
+                                )}
 
                                 {isActive && (
                                     <div className="hero__sparkles" aria-hidden="true">

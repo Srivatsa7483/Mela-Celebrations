@@ -14,6 +14,18 @@ export async function uploadToR2(file, folder = "products") {
   }
 
   try {
+    // Direct R2 upload for video files (Sharp does not process videos)
+    if (file.mimetype && file.mimetype.startsWith("video/")) {
+      const hash = crypto.randomBytes(8).toString("hex");
+      const extension = file.originalname.split(".").pop() || "mp4";
+      const fileName = `vid_${hash}_${Date.now()}.${extension}`;
+      const key = `${folder}/${fileName}`;
+      
+      const publicUrl = await uploadBufferToR2(file.buffer, key, file.mimetype);
+      console.log(`🚀 Video uploaded directly to R2: ${publicUrl}`);
+      return publicUrl;
+    }
+
     // Initialize sharp with the file buffer
     let sharpInstance = sharp(file.buffer);
     

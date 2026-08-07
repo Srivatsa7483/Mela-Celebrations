@@ -1,0 +1,475 @@
+/* ============================================================
+   AdminBannerManager.css — Styles for the hero banner admin panel
+   ============================================================ */
+
+.abm {
+  position: relative;
+  padding: 0;
+}
+
+/* ── Loading / Error ── */
+.abm__loading,
+.abm__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--text-muted, #7a7060);
+  font-size: 0.95rem;
+}
+
+.abm__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2ddd6;
+  border-top-color: var(--gold, #c9a84c);
+  border-radius: 50%;
+  animation: abm-spin 0.7s linear infinite;
+}
+
+@keyframes abm-spin {
+  to { transform: rotate(360deg); }
+}
+
+.abm__error button {
+  padding: 8px 18px;
+  border: 1px solid var(--navy, #0d1b2a);
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--navy, #0d1b2a);
+  transition: background 0.2s;
+}
+
+.abm__error button:hover {
+  background: var(--navy, #0d1b2a);
+  color: white;
+}
+
+/* ── Toast ── */
+.abm__toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+  padding: 14px 22px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  animation: abm-fadein 0.3s ease;
+}
+
+.abm__toast--success {
+  background: #0d1b2a;
+  color: #f0e9d5;
+  border-left: 4px solid #c9a84c;
+}
+
+.abm__toast--error {
+  background: #7f1d1d;
+  color: white;
+  border-left: 4px solid #ef4444;
+}
+
+@keyframes abm-fadein {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ── */
+.abm__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.abm__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy, #0d1b2a);
+  margin: 0 0 4px;
+}
+
+.abm__subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, #7a7060);
+  margin: 0;
+}
+
+/* ── Buttons ── */
+.abm__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.abm__btn--primary {
+  background: var(--navy, #0d1b2a);
+  color: white;
+}
+
+.abm__btn--primary:hover:not(:disabled) {
+  background: #1a3150;
+  transform: translateY(-1px);
+}
+
+.abm__btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.abm__btn--ghost {
+  background: transparent;
+  color: var(--navy, #0d1b2a);
+  border: 1px solid #d1ccc5;
+}
+
+.abm__btn--ghost:hover {
+  background: #f5f2ee;
+}
+
+.abm__btn--danger {
+  background: transparent;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.abm__btn--danger:hover {
+  background: #fef2f2;
+}
+
+.abm__btn--sm {
+  padding: 6px 12px;
+  font-size: 0.78rem;
+}
+
+.abm__btn--icon {
+  background: #f5f2ee;
+  color: var(--navy, #0d1b2a);
+  border: 1px solid #e2ddd6;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.abm__btn--icon:hover:not(:disabled) {
+  background: #e8e2da;
+}
+
+.abm__btn--icon:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Add / Edit Forms ── */
+.abm__form {
+  background: #faf9f6;
+  border: 1.5px solid #e2ddd6;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 28px;
+  animation: abm-fadein 0.25s ease;
+}
+
+.abm__form-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy, #0d1b2a);
+  margin: 0 0 18px;
+}
+
+/* ── Drop Zone ── */
+.abm__drop-zone {
+  border: 2px dashed #c9c0b0;
+  border-radius: 12px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  background: white;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 20px;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.abm__drop-zone:hover {
+  border-color: var(--gold, #c9a84c);
+  background: #fffdf5;
+}
+
+.abm__drop-zone--sm {
+  min-height: 90px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.abm__drop-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted, #7a7060);
+  font-size: 0.9rem;
+}
+
+.abm__drop-icon {
+  font-size: 2rem;
+  margin-bottom: 4px;
+}
+
+.abm__drop-placeholder small {
+  font-size: 0.78rem;
+  color: #b0a898;
+}
+
+.abm__drop-replace {
+  color: var(--gold, #c9a84c);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.abm__preview {
+  max-height: 220px;
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.abm__preview--sm {
+  max-height: 120px;
+}
+
+/* ── Fields ── */
+.abm__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.abm__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--navy, #0d1b2a);
+}
+
+.abm__label--toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border: 1px solid #e2ddd6;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.abm__input {
+  padding: 10px 13px;
+  border: 1px solid #d1ccc5;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--text-body, #333);
+  background: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.abm__input:focus {
+  border-color: var(--gold, #c9a84c);
+}
+
+/* ── Toggle ── */
+.abm__toggle {
+  width: 46px;
+  height: 26px;
+  border-radius: 13px;
+  background: #d1ccc5;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.abm__toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.abm__toggle--on {
+  background: var(--gold, #c9a84c);
+}
+
+.abm__toggle--on::after {
+  transform: translateX(20px);
+}
+
+/* ── Form actions ── */
+.abm__form-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Banner List ── */
+.abm__list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.abm__empty {
+  text-align: center;
+  color: var(--text-muted, #7a7060);
+  padding: 40px;
+  background: #faf9f6;
+  border: 1.5px dashed #e2ddd6;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+/* ── Banner Card ── */
+.abm__card {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 16px;
+  align-items: start;
+  background: white;
+  border: 1px solid #e2ddd6;
+  border-radius: 12px;
+  padding: 16px;
+  transition: box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.abm__card:hover {
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+.abm__card--disabled {
+  opacity: 0.55;
+}
+
+/* ── Thumbnail ── */
+.abm__thumb-wrap {
+  position: relative;
+  width: 140px;
+  height: 88px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f2ee;
+  flex-shrink: 0;
+}
+
+.abm__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.abm__type-badge {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ── Info ── */
+.abm__info {
+  min-width: 0;
+}
+
+.abm__alt-text {
+  font-size: 0.88rem;
+  color: var(--text-body, #333);
+  margin: 0 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.abm__category {
+  font-size: 0.78rem;
+  color: var(--gold, #c9a84c);
+  font-weight: 600;
+}
+
+/* ── Edit Form (inside card) ── */
+.abm__edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.abm__edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── Controls ── */
+.abm__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.abm__order-btns {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .abm__card {
+    grid-template-columns: 1fr;
+  }
+
+  .abm__thumb-wrap {
+    width: 100%;
+    height: 160px;
+  }
+
+  .abm__controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}

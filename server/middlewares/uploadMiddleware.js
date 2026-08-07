@@ -3,27 +3,31 @@ import multer from "multer";
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  // Allow common image file types
+  // Allow common image & video file types
   const allowedMimeTypes = [
     "image/jpeg",
     "image/jpg",
     "image/png",
     "image/webp",
     "image/gif",
-    "image/svg+xml"
+    "image/svg+xml",
+    "video/mp4",
+    "video/webm",
+    "video/ogg",
+    "video/quicktime"
   ];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Invalid file type. Only JPEG, PNG, WEBP, GIF, and SVG images are allowed!"), false);
+    cb(new Error("Invalid file type. Allowed formats: JPEG, PNG, WEBP, GIF, SVG, MP4, WEBM, OGG, MOV!"), false);
   }
 };
 
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 50 * 1024 * 1024, // 50MB limit
   },
   fileFilter: fileFilter,
 }).single("image"); // Accept a single file with key 'image'

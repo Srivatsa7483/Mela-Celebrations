@@ -379,6 +379,28 @@ async function seedAdminUser(db) {
   }
 }
 
+async function seedBanners(db) {
+  try {
+    const bannersCol = db.collection("banners");
+    const count = await bannersCol.countDocuments();
+    if (count === 0) {
+      const defaultBanners = [
+        { id: 1, url: "/banner1_new.png", type: "image", alt: "Celebrate Your Love, Beautifully - Anniversary Decoration", category: "anniversary", order: 1, enabled: true },
+        { id: 2, url: "/banner2_new.png", type: "image", alt: "Happy 1st Birthday - One Year of Passion, Growth & Gratitude", category: "first-birthday-decorations", order: 2, enabled: true },
+        { id: 3, url: "/banner3_new.jpg", type: "image", alt: "Kid Activities for Birthday Party - Fun, Play, Laugh, Memories", category: "kidsactivities", order: 3, enabled: true },
+        { id: 4, url: "/banner4_new.png", type: "image", alt: "Make Your New House a Beautiful Beginning - Premium House Warming Decoration", category: "house-warming", order: 4, enabled: true },
+        { id: 5, url: "/banner5_new.png", type: "image", alt: "Welcome Baby - Beautiful Decorations for Your Baby's Special Welcome", category: "welcome-baby-decorations", order: 5, enabled: true },
+        { id: 6, url: "/banner6_new.png", type: "image", alt: "Elevate Your Brand with Corporate Balloon Decoration", category: "corporate", order: 6, enabled: true },
+        { id: 7, url: "/banner7_new.png", type: "image", alt: "Beautiful Haldi Decoration - Vibrant Decor, Joyful Moments, Timeless Memories", category: "haldi-decorations", order: 7, enabled: true }
+      ];
+      await bannersCol.insertMany(defaultBanners);
+      console.log("🖼️ Default banners seeded successfully!");
+    }
+  } catch (err) {
+    console.error("Error seeding banners:", err);
+  }
+}
+
 
 // ── IMAGE UPLOAD ─────────────────────────────────────────────────────────────
 // POST /api/upload — Accepts a multipart image, optimizes it via Sharp,
@@ -394,6 +416,87 @@ app.post("/api/upload", authenticateJWT, requireAdmin, uploadMiddleware, async (
   } catch (error) {
     console.error("Upload Error:", error);
     res.status(500).json({ error: error.message || "Failed to upload image" });
+  }
+});
+
+// ── BANNERS (Hero Slider) ────────────────────────────────────────────────────
+// GET /api/banners — Public: returns all enabled banners sorted by order
+app.get("/api/banners", async (req, res) => {
+  try {
+    const db = await getDB();
+    const banners = await db.collection("banners")
+      .find({})
+      .sort({ order: 1 })
+      .toArray();
+    const clean = banners.map(({ _id, ...b }) => b);
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Get Banners Error:", error);
+    res.status(500).json({ error: "Server error fetching banners" });
+  }
+});
+
+// POST /api/banners — Admin: create a new banner
+app.post("/api/banners", authenticateJWT, requireAdmin, async (req, res) => {
+  try {
+    const { url, type, alt, category, enabled } = req.body;
+    if (!url) return res.status(400).json({ error: "Banner URL is required" });
+    const db = await getDB();
+    const bannersCol = db.collection("banners");
+    const all = await bannersCol.find({}).sort({ order: -1 }).limit(1).toArray();
+    const nextOrder = all.length > 0 ? (all[0].order || 0) + 1 : 1;
+    const existingIds = await bannersCol.find({}, { projection: { id: 1 } }).toArray();
+    const nextId = existingIds.length > 0 ? Math.max(...existingIds.map(b => Number(b.id) || 0)) + 1 : 1;
+    const newBanner = {
+      id: nextId,
+      url,
+      type: type || "image",
+      alt: alt || "",
+      category: category || "",
+      order: nextOrder,
+      enabled: enabled !== false
+    };
+    await bannersCol.insertOne(newBanner);
+    const { _id, ...clean } = newBanner;
+    res.status(201).json(clean);
+  } catch (error) {
+    console.error("Create Banner Error:", error);
+    res.status(500).json({ error: "Server error creating banner" });
+  }
+});
+
+// PUT /api/banners/:id — Admin: update a banner (alt, category, order, enabled, url)
+app.put("/api/banners/:id", authenticateJWT, requireAdmin, async (req, res) => {
+  try {
+    const bannerId = Number(req.params.id);
+    const updates = req.body;
+    delete updates._id;
+    const db = await getDB();
+    const result = await db.collection("banners").findOneAndUpdate(
+      { id: bannerId },
+      { $set: updates },
+      { returnDocument: "after" }
+    );
+    if (!result) return res.status(404).json({ error: "Banner not found" });
+    const { _id, ...clean } = result;
+    res.status(200).json(clean);
+  } catch (error) {
+    console.error("Update Banner Error:", error);
+    res.status(500).json({ error: "Server error updating banner" });
+  }
+});
+
+// DELETE /api/banners/:id — Admin: delete a banner
+app.delete("/api/banners/:id", authenticateJWT, requireAdmin, async (req, res) => {
+  try {
+    const bannerId = Number(req.params.id);
+    const db = await getDB();
+    const result = await db.collection("banners").findOneAndDelete({ id: bannerId });
+    if (!result) return res.status(404).json({ error: "Banner not found" });
+    res.status(200).json({ message: "Banner deleted successfully" });
+  } catch (error) {
+    console.error("Delete Banner Error:", error);
+    res.status(500).json({ error: "Server error deleting banner" });
   }
 });
 
@@ -918,6 +1021,7 @@ async function startServer() {
     await connectDB();
     const db = await getDB();
     await seedAdminUser(db);
+    await seedBanners(db);
     app.listen(PORT, () => {
       console.log(`🚀 Mela Celebrations Backend running on http://localhost:${PORT}`);
     });
