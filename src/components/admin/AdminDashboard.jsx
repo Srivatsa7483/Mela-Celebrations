@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { uploadImage } from '../../services/designService';
 import { DesignContext } from '../../context/DesignContext';
+import AdminBannerManager from './AdminBannerManager';
 import './AdminDashboard.css';
 
 /* ─── Render Wakeup Error Component ──────────────────────────────────────── */
@@ -399,7 +400,7 @@ const AdminDashboard = ({ setCurrentPage }) => {
     createRecentProjectAction, deleteRecentProjectAction, updateRecentProjectAction
   } = useContext(DesignContext);
 
-  const [activeTab, setActiveTab] = useState('designs'); // 'designs', 'projects', 'signature'
+  const [activeTab, setActiveTab] = useState('designs'); // 'designs', 'projects', 'signature', 'banners'
   const [adminSearchQuery, setAdminSearchQuery] = useState('');
   const [projectSearchQuery, setProjectSearchQuery] = useState('');
 
@@ -882,6 +883,23 @@ const AdminDashboard = ({ setCurrentPage }) => {
             }}
           >
             ✨ Mela Signature Packages
+          </button>
+          <button
+            onClick={() => setActiveTab('banners')}
+            style={{
+              padding: '12px 24px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'banners' ? '3px solid #FFB300' : '3px solid transparent',
+              color: activeTab === 'banners' ? '#0B192C' : '#6B7280',
+              fontWeight: '700',
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit',
+            }}
+          >
+            🎨 Homepage Banners
           </button>
         </div>
 
@@ -2082,6 +2100,11 @@ const AdminDashboard = ({ setCurrentPage }) => {
             </>
           );
         })()}
+
+        {/* ─── BANNERS TAB PANEL ─── */}
+        {activeTab === 'banners' && (
+          <AdminBannerManager />
+        )}
 
       </div>
     </div>
